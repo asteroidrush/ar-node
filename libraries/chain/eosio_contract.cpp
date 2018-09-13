@@ -125,6 +125,25 @@ void apply_eosio_newaccount(apply_context& context) {
 
 } FC_CAPTURE_AND_RETHROW( (create) ) }
 
+
+void apply_eosio_contracthost(apply_context &context) {
+    auto& db = context.db;
+    auto  act = context.act.data_as<contracthost>();
+    context.require_authorization(config::system_account_name);
+
+    const auto& idx = db.get_index<account_index, by_name>();
+    auto itr = idx.find(act.account);
+
+    EOS_ASSERT( itr != idx.end(), action_validate_exception,
+               "account '${account}' does not exist",
+               ("account", act.account)
+    );
+
+    db.modify(*itr,[&]( auto& a ) {
+        a.contract_host = act.contract_host;
+    });
+}
+
 void apply_eosio_setcode(apply_context& context) {
    const auto& cfg = context.control.get_global_properties().configuration;
 
@@ -143,6 +162,8 @@ void apply_eosio_setcode(apply_context& context) {
    }
 
    const auto& account = db.get<account_object,by_name>(act.account);
+
+   EOS_ASSERT( account.contract_host, contract_not_allowed, "contract uploading is not allowed for this account" );
 
    int64_t code_size = (int64_t)act.code.size();
    int64_t old_size  = (int64_t)account.code.size() * config::setcode_ram_bytes_multiplier;
@@ -178,6 +199,8 @@ void apply_eosio_setabi(apply_context& context) {
    context.require_authorization(act.account);
 
    const auto& account = db.get<account_object,by_name>(act.account);
+
+   EOS_ASSERT( account.contract_host, contract_not_allowed, "contract uploading is not allowed for this account" );
 
    int64_t abi_size = act.abi.size();
 
