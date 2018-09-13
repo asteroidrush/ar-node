@@ -556,6 +556,13 @@ chain::action create_transfer(const string& contract, const name& sender, const 
    };
 }
 
+chain::action create_contracthost(const name& account, const bool& contract_host) {
+   return action {
+           tx_permission.empty() ? vector<chain::permission_level>{{config::system_account_name,config::active_name}} : get_account_permissions(tx_permission),
+           contracthost{account, contract_host}
+   };
+}
+
 chain::action create_setabi(const name& account, const abi_def& abi) {
    return action {
       tx_permission.empty() ? vector<chain::permission_level>{{account,config::active_name}} : get_account_permissions(tx_permission),
@@ -651,6 +658,24 @@ asset to_asset( const string& code, const string& s ) {
 inline asset to_asset( const string& s ) {
    return to_asset( "eosio.token", s );
 }
+
+struct set_account_contracthost {
+    string accountStr;
+    bool allow_contract;
+
+    set_account_contracthost(CLI::App* accountCmd) {
+       auto contracthost_command = accountCmd->add_subcommand("contracthost", localized("Set permission allows or denies account's owner upload contract"));
+       contracthost_command->add_option("account", accountStr, localized("The account to update"))->required();
+       contracthost_command->add_option("contract_host", allow_contract, localized("New value for contract_host"))->required();
+
+       add_standard_transaction_options(contracthost_command, "account@active");
+
+       contracthost_command->set_callback([this] {
+           name account = name(accountStr);
+           send_actions({create_contracthost(account, allow_contract)});
+       });
+    }
+};
 
 struct set_account_permission_subcommand {
    string accountStr;
@@ -2332,6 +2357,9 @@ int main( int argc, char** argv ) {
 
    // set account
    auto setAccount = setSubcommand->add_subcommand("account", localized("set or update blockchain account state"))->require_subcommand();
+
+   // set account contract host
+   auto setAccountContractHost = set_account_contracthost(setAccount);
 
    // set account permission
    auto setAccountPermission = set_account_permission_subcommand(setAccount);
