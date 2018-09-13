@@ -439,6 +439,8 @@ namespace eosio { namespace chain {
                                     3160009, "No wast file found" )
       FC_DECLARE_DERIVED_EXCEPTION( abi_file_not_found,          contract_exception,
                                     3160010, "No abi file found" )
+      FC_DECLARE_DERIVED_EXCEPTION( contract_not_allowed,          contract_exception,
+                                    3161001, "Contract uploading not allowed for this account" )
 
    FC_DECLARE_DERIVED_EXCEPTION( producer_exception,           chain_exception,
                                  3170000, "Producer exception" )

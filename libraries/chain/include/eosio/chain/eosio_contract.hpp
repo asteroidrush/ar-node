@@ -27,6 +27,7 @@ namespace eosio { namespace chain {
    void apply_eosio_vetorecovery(apply_context&);
    */
 
+   void apply_eosio_contracthost(apply_context &);
    void apply_eosio_setcode(apply_context&);
    void apply_eosio_setabi(apply_context&);
 
