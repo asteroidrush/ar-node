@@ -7,7 +7,11 @@ class ContractsManager:
         self.dir = dir
 
     def install(self, account_name, contract_name):
+        self.unlock_contract_uploading(account_name)
         self.cleos.run(('set contract %s ' + self.dir + '%s/') % (account_name, contract_name))
+
+    def unlock_contract_uploading(self, account_name):
+        self.cleos.run('set account contracthost %s 1' % account_name)
 
     def install_base_contracts(self):
         for contract_name in self.system_contracts:
