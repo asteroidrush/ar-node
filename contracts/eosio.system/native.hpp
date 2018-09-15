@@ -69,24 +69,6 @@ namespace eosiosystem {
 
          using eosio::contract::contract;
 
-         /**
-          *  Called after a new account is created. This code enforces resource-limits rules
-          *  for new accounts as well as new account naming conventions.
-          *
-          *  1. accounts cannot contain '.' symbols which forces all acccounts to be 12
-          *  characters long without '.' until a future account auction process is implemented
-          *  which prevents name squatting.
-          *
-          *  2. new accounts must stake a minimal number of tokens (as set in system parameters)
-          *     therefore, this method will execute an inline buyram from receiver for newacnt in
-          *     an amount equal to the current new account creation fee.
-          */
-         void newaccount( account_name     creator,
-                          account_name     newact
-                          /*  no need to parse authorites
-                          const authority& owner,
-                          const authority& active*/ );
-
 
          void updateauth( /*account_name     account,
                                  permission_name  permission,

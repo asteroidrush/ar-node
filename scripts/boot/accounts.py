@@ -12,14 +12,9 @@ class AccountManager:
 
     def create_staked(self, name, pub, stake):
         token_name = self.boot_configs['system_token']['name']
-        ram_funds = stake * 0.4
-        stake_net = stake * 0.2
-        stake_cpu = stake * 0.2
-        unstaked = stake - ram_funds - stake_net - stake_cpu
-        self.cleos.run('system newaccount --transfer eosio %s %s --stake-net "%s" --stake-cpu "%s" --buy-ram "%s"   ' %
-            (name, pub, Wallet.int_to_currency(stake_net, token_name), Wallet.int_to_currency(stake_cpu, token_name),
-             Wallet.int_to_currency(ram_funds, token_name)))
-        self.cleos.run('transfer eosio %s "%s"' % (name, Wallet.int_to_currency(unstaked, token_name)))
+        self.cleos.run('system newaccount eosio %s %s' % (name, pub) )
+        self.cleos.run('transfer eosio %s "%s"' % (name, Wallet.int_to_currency(stake, token_name)))
+        self.cleos.run("get account %s" % name)
 
 
 class AccountsManager:
@@ -27,10 +22,7 @@ class AccountsManager:
     system_accounts = [
         'eosio.bpay',
         'eosio.names',
-        'eosio.ram',
-        'eosio.ramfee',
         'eosio.saving',
-        'eosio.stake',
         'eosio.upay'
     ]
 

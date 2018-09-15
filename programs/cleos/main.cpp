@@ -499,35 +499,6 @@ chain::action create_action(const vector<permission_level>& authorization, const
    return chain::action{authorization, code, act, variant_to_bin(code, act, args)};
 }
 
-chain::action create_buyram(const name& creator, const name& newaccount, const asset& quantity) {
-   fc::variant act_payload = fc::mutable_variant_object()
-         ("payer", creator.to_string())
-         ("receiver", newaccount.to_string())
-         ("quant", quantity.to_string());
-   return create_action(tx_permission.empty() ? vector<chain::permission_level>{{creator,config::active_name}} : get_account_permissions(tx_permission),
-                        config::system_account_name, N(buyram), act_payload);
-}
-
-chain::action create_buyrambytes(const name& creator, const name& newaccount, uint32_t numbytes) {
-   fc::variant act_payload = fc::mutable_variant_object()
-         ("payer", creator.to_string())
-         ("receiver", newaccount.to_string())
-         ("bytes", numbytes);
-   return create_action(tx_permission.empty() ? vector<chain::permission_level>{{creator,config::active_name}} : get_account_permissions(tx_permission),
-                        config::system_account_name, N(buyrambytes), act_payload);
-}
-
-chain::action create_delegate(const name& from, const name& receiver, const asset& net, const asset& cpu, bool transfer) {
-   fc::variant act_payload = fc::mutable_variant_object()
-         ("from", from.to_string())
-         ("receiver", receiver.to_string())
-         ("stake_net_quantity", net.to_string())
-         ("stake_cpu_quantity", cpu.to_string())
-         ("transfer", transfer);
-   return create_action(tx_permission.empty() ? vector<chain::permission_level>{{from,config::active_name}} : get_account_permissions(tx_permission),
-                        config::system_account_name, N(delegatebw), act_payload);
-}
-
 fc::variant regproducer_variant(const account_name& producer, const public_key_type& key, const string& url, uint16_t location) {
    return fc::mutable_variant_object()
             ("producer", producer)
@@ -561,6 +532,27 @@ chain::action create_contracthost(const name& account, const bool& contract_host
            tx_permission.empty() ? vector<chain::permission_level>{{config::system_account_name,config::active_name}} : get_account_permissions(tx_permission),
            contracthost{account, contract_host}
    };
+}
+
+chain::action create_bandwidth(const name& account, const int64_t& cpu, const int64_t& net) {
+   fc::variant act_payload = fc::mutable_variant_object()
+         ("account", account)
+         ("cpu",cpu)
+         ("net", net);
+   return create_action(
+         {chain::permission_level{config::system_account_name,config::active_name}},
+         config::system_account_name, N(setaccntbw), act_payload
+   );
+}
+
+chain::action create_ram(const name& account, const int64_t& ram) {
+   fc::variant act_payload = fc::mutable_variant_object()
+         ("account", account)
+         ("ram", ram);
+   return create_action(
+         {chain::permission_level{config::system_account_name,config::active_name}},
+         config::system_account_name, N(setaccntram), act_payload
+   );
 }
 
 chain::action create_setabi(const name& account, const abi_def& abi) {
@@ -675,6 +667,45 @@ struct set_account_contracthost {
            send_actions({create_contracthost(account, allow_contract)});
        });
     }
+};
+
+
+struct set_account_bandwidth {
+   string accountStr;
+   int64_t net;
+   int64_t cpu;
+
+   set_account_bandwidth(CLI::App* accountCmd) {
+      auto bandwidth_command = accountCmd->add_subcommand("bandwidth", localized("Set net and cpu weights for account"));
+      bandwidth_command->add_option("account", accountStr, localized("The account to update"))->required();
+      bandwidth_command->add_option("net", net, localized("New value for net"))->required();
+      bandwidth_command->add_option("cpu", cpu, localized("New value for cpu"))->required();
+
+      add_standard_transaction_options(bandwidth_command, "account@active");
+
+      bandwidth_command->set_callback([this] {
+         name account = name(accountStr);
+         send_actions({create_bandwidth(account, net, cpu)});
+      });
+   }
+};
+
+struct set_account_ram {
+   string accountStr;
+   int64_t ram;
+
+   set_account_ram(CLI::App* accountCmd) {
+      auto ram_command = accountCmd->add_subcommand("ram", localized("Set ram for account"));
+      ram_command->add_option("account", accountStr, localized("The account to update"))->required();
+      ram_command->add_option("ram", ram, localized("New value for ram in bytes"))->required();
+
+      add_standard_transaction_options(ram_command, "account@active");
+
+      ram_command->set_callback([this] {
+         name account = name(accountStr);
+         send_actions({create_ram(account, ram)});
+      });
+   }
 };
 
 struct set_account_permission_subcommand {
@@ -797,7 +828,7 @@ void ensure_keosd_running(CLI::App* app) {
     if (app->get_subcommand("create")->got_subcommand("key")) // create key does not require wallet
        return;
     if (auto* subapp = app->get_subcommand("system")) {
-       if (subapp->got_subcommand("listproducers") || subapp->got_subcommand("listbw") || subapp->got_subcommand("bidnameinfo")) // system list* do not require wallet
+       if (subapp->got_subcommand("listproducers") || subapp->got_subcommand("bidnameinfo")) // system list* do not require wallet
          return;
     }
 
@@ -887,11 +918,6 @@ struct create_account_subcommand {
    string account_name;
    string owner_key_str;
    string active_key_str;
-   string stake_net;
-   string stake_cpu;
-   uint32_t buy_ram_bytes_in_kbytes = 0;
-   string buy_ram_eos;
-   bool transfer;
    bool simple;
 
    create_account_subcommand(CLI::App* actionRoot, bool s) : simple(s) {
@@ -900,19 +926,6 @@ struct create_account_subcommand {
       createAccount->add_option("name", account_name, localized("The name of the new account"))->required();
       createAccount->add_option("OwnerKey", owner_key_str, localized("The owner public key for the new account"))->required();
       createAccount->add_option("ActiveKey", active_key_str, localized("The active public key for the new account"));
-
-      if (!simple) {
-         createAccount->add_option("--stake-net", stake_net,
-                                   (localized("The amount of EOS delegated for net bandwidth")))->required();
-         createAccount->add_option("--stake-cpu", stake_cpu,
-                                   (localized("The amount of EOS delegated for CPU bandwidth")))->required();
-         createAccount->add_option("--buy-ram-kbytes", buy_ram_bytes_in_kbytes,
-                                   (localized("The amount of RAM bytes to purchase for the new account in kibibytes (KiB), default is 8 KiB")));
-         createAccount->add_option("--buy-ram", buy_ram_eos,
-                                   (localized("The amount of RAM bytes to purchase for the new account in EOS")));
-         createAccount->add_flag("--transfer", transfer,
-                                 (localized("Transfer voting power and right to unstake EOS to receiver")));
-      }
 
       add_standard_transaction_options(createAccount);
 
@@ -927,24 +940,7 @@ struct create_account_subcommand {
                active_key = public_key_type(active_key_str);
             } EOS_RETHROW_EXCEPTIONS(public_key_type_exception, "Invalid active public key: ${public_key}", ("public_key", active_key_str));
             auto create = create_newaccount(creator, account_name, owner_key, active_key);
-            if (!simple) {
-               if ( buy_ram_eos.empty() && buy_ram_bytes_in_kbytes == 0) {
-                  std::cerr << "ERROR: Either --buy-ram or --buy-ram-kbytes with non-zero value is required" << std::endl;
-                  return;
-               }
-               action buyram = !buy_ram_eos.empty() ? create_buyram(creator, account_name, to_asset(buy_ram_eos))
-                  : create_buyrambytes(creator, account_name, buy_ram_bytes_in_kbytes * 1024);
-               auto net = to_asset(stake_net);
-               auto cpu = to_asset(stake_cpu);
-               if ( net.get_amount() != 0 || cpu.get_amount() != 0 ) {
-                  action delegate = create_delegate( creator, account_name, net, cpu, transfer);
-                  send_actions( { create, buyram, delegate } );
-               } else {
-                  send_actions( { create, buyram } );
-               }
-            } else {
-               send_actions( { create } );
-            }
+         send_actions( { create } );
       });
    }
 };
@@ -1187,71 +1183,6 @@ struct get_transaction_id_subcommand {
    }
 };
 
-struct delegate_bandwidth_subcommand {
-   string from_str;
-   string receiver_str;
-   string stake_net_amount;
-   string stake_cpu_amount;
-   string stake_storage_amount;
-   string buy_ram_amount;
-   bool transfer = false;
-
-   delegate_bandwidth_subcommand(CLI::App* actionRoot) {
-      auto delegate_bandwidth = actionRoot->add_subcommand("delegatebw", localized("Delegate bandwidth"));
-      delegate_bandwidth->add_option("from", from_str, localized("The account to delegate bandwidth from"))->required();
-      delegate_bandwidth->add_option("receiver", receiver_str, localized("The account to receive the delegated bandwidth"))->required();
-      delegate_bandwidth->add_option("stake_net_quantity", stake_net_amount, localized("The amount of EOS to stake for network bandwidth"))->required();
-      delegate_bandwidth->add_option("stake_cpu_quantity", stake_cpu_amount, localized("The amount of EOS to stake for CPU bandwidth"))->required();
-      delegate_bandwidth->add_option("--buyram", buy_ram_amount, localized("The amount of EOS to buyram"));
-      delegate_bandwidth->add_flag("--transfer", transfer, localized("Transfer voting power and right to unstake EOS to receiver"));
-      add_standard_transaction_options(delegate_bandwidth);
-
-      delegate_bandwidth->set_callback([this] {
-         fc::variant act_payload = fc::mutable_variant_object()
-                  ("from", from_str)
-                  ("receiver", receiver_str)
-                  ("stake_net_quantity", to_asset(stake_net_amount))
-                  ("stake_cpu_quantity", to_asset(stake_cpu_amount))
-                  ("transfer", transfer);
-         std::vector<chain::action> acts{create_action({permission_level{from_str,config::active_name}}, config::system_account_name, N(delegatebw), act_payload)};
-         if (buy_ram_amount.length()) {
-            fc::variant act_payload2 = fc::mutable_variant_object()
-               ("payer", from_str)
-               ("receiver", receiver_str)
-               ("quant", to_asset(buy_ram_amount));
-            acts.push_back(create_action({permission_level{from_str,config::active_name}}, config::system_account_name, N(buyram), act_payload2));
-         }
-         send_actions(std::move(acts));
-      });
-   }
-};
-
-struct undelegate_bandwidth_subcommand {
-   string from_str;
-   string receiver_str;
-   string unstake_net_amount;
-   string unstake_cpu_amount;
-   uint64_t unstake_storage_bytes;
-
-   undelegate_bandwidth_subcommand(CLI::App* actionRoot) {
-      auto undelegate_bandwidth = actionRoot->add_subcommand("undelegatebw", localized("Undelegate bandwidth"));
-      undelegate_bandwidth->add_option("from", from_str, localized("The account undelegating bandwidth"))->required();
-      undelegate_bandwidth->add_option("receiver", receiver_str, localized("The account to undelegate bandwidth from"))->required();
-      undelegate_bandwidth->add_option("unstake_net_quantity", unstake_net_amount, localized("The amount of EOS to undelegate for network bandwidth"))->required();
-      undelegate_bandwidth->add_option("unstake_cpu_quantity", unstake_cpu_amount, localized("The amount of EOS to undelegate for CPU bandwidth"))->required();
-      add_standard_transaction_options(undelegate_bandwidth);
-
-      undelegate_bandwidth->set_callback([this] {
-         fc::variant act_payload = fc::mutable_variant_object()
-                  ("from", from_str)
-                  ("receiver", receiver_str)
-                  ("unstake_net_quantity", to_asset(unstake_net_amount))
-                  ("unstake_cpu_quantity", to_asset(unstake_cpu_amount));
-         send_actions({create_action({permission_level{from_str,config::active_name}}, config::system_account_name, N(undelegatebw), act_payload)});
-      });
-   }
-};
-
 struct bidname_subcommand {
    string bidder_str;
    string newname_str;
@@ -1302,94 +1233,6 @@ struct bidname_info_subcommand {
             if (bid < 0) std::cout << "This auction has already closed" << std::endl;
          }
       });
-   }
-};
-
-struct list_bw_subcommand {
-   eosio::name account;
-   bool print_json = false;
-
-   list_bw_subcommand(CLI::App* actionRoot) {
-      auto list_bw = actionRoot->add_subcommand("listbw", localized("List delegated bandwidth"));
-      list_bw->add_option("account", account, localized("The account delegated bandwidth"))->required();
-      list_bw->add_flag("--json,-j", print_json, localized("Output in JSON format") );
-
-      list_bw->set_callback([this] {
-            //get entire table in scope of user account
-            auto result = call(get_table_func, fc::mutable_variant_object("json", true)
-                               ("code", name(config::system_account_name).to_string())
-                               ("scope", account.to_string())
-                               ("table", "delband")
-            );
-            if (!print_json) {
-               auto res = result.as<eosio::chain_apis::read_only::get_table_rows_result>();
-               if ( !res.rows.empty() ) {
-                  std::cout << std::setw(13) << std::left << "Receiver" << std::setw(21) << std::left << "Net bandwidth"
-                            << std::setw(21) << std::left << "CPU bandwidth" << std::endl;
-                  for ( auto& r : res.rows ){
-                     std::cout << std::setw(13) << std::left << r["to"].as_string()
-                               << std::setw(21) << std::left << r["net_weight"].as_string()
-                               << std::setw(21) << std::left << r["cpu_weight"].as_string()
-                               << std::endl;
-                  }
-               } else {
-                  std::cerr << "Delegated bandwidth not found" << std::endl;
-               }
-            } else {
-               std::cout << fc::json::to_pretty_string(result) << std::endl;
-            }
-      });
-   }
-};
-
-struct buyram_subcommand {
-   string from_str;
-   string receiver_str;
-   string amount;
-   bool kbytes = false;
-
-   buyram_subcommand(CLI::App* actionRoot) {
-      auto buyram = actionRoot->add_subcommand("buyram", localized("Buy RAM"));
-      buyram->add_option("payer", from_str, localized("The account paying for RAM"))->required();
-      buyram->add_option("receiver", receiver_str, localized("The account receiving bought RAM"))->required();
-      buyram->add_option("amount", amount, localized("The amount of EOS to pay for RAM, or number of kbytes of RAM if --kbytes is set"))->required();
-      buyram->add_flag("--kbytes,-k", kbytes, localized("buyram in number of kbytes"));
-      add_standard_transaction_options(buyram);
-      buyram->set_callback([this] {
-         if (kbytes) {
-            fc::variant act_payload = fc::mutable_variant_object()
-                  ("payer", from_str)
-                  ("receiver", receiver_str)
-                  ("bytes", fc::to_uint64(amount) * 1024ull);
-            send_actions({create_action({permission_level{from_str,config::active_name}}, config::system_account_name, N(buyrambytes), act_payload)});            
-         } else {
-            fc::variant act_payload = fc::mutable_variant_object()
-               ("payer", from_str)
-               ("receiver", receiver_str)
-               ("quant", to_asset(amount));
-            send_actions({create_action({permission_level{from_str,config::active_name}}, config::system_account_name, N(buyram), act_payload)});
-         }
-      });
-   }
-};
-
-struct sellram_subcommand {
-   string from_str;
-   string receiver_str;
-   uint64_t amount;
-
-   sellram_subcommand(CLI::App* actionRoot) {
-      auto sellram = actionRoot->add_subcommand("sellram", localized("Sell RAM"));
-      sellram->add_option("account", receiver_str, localized("The account to receive EOS for sold RAM"))->required();
-      sellram->add_option("bytes", amount, localized("Number of RAM bytes to sell"))->required();
-      add_standard_transaction_options(sellram);
-
-      sellram->set_callback([this] {
-            fc::variant act_payload = fc::mutable_variant_object()
-               ("account", receiver_str)
-               ("bytes", amount);
-            send_actions({create_action({permission_level{receiver_str,config::active_name}}, config::system_account_name, N(sellram), act_payload)});
-         });
    }
 };
 
@@ -1470,8 +1313,6 @@ void get_account( const string& accountName, bool json_format ) {
    auto res = json.as<eosio::chain_apis::read_only::get_account_results>();
 
    if (!json_format) {
-      asset staked;
-      asset unstaking;
 
       if(res.privileged) std::cout << "privileged: true" << std::endl;
 
@@ -1557,30 +1398,8 @@ void get_account( const string& accountName, bool json_format ) {
 
       std::cout << "net bandwidth: " << std::endl;
       if ( res.total_resources.is_object() ) {
-         auto net_total = to_asset(res.total_resources.get_object()["net_weight"].as_string());
-
-         if( net_total.get_symbol() != unstaking.get_symbol() ) {
-            // Core symbol of nodeos responding to the request is different than core symbol built into cleos
-            unstaking = asset( 0, net_total.get_symbol() ); // Correct core symbol for unstaking asset.
-            staked = asset( 0, net_total.get_symbol() ); // Correct core symbol for staked asset.
-         }
-
-         if( res.self_delegated_bandwidth.is_object() ) {
-            asset net_own =  asset::from_string( res.self_delegated_bandwidth.get_object()["net_weight"].as_string() );
-            staked = net_own;
-
-            auto net_others = net_total - net_own;
-
-            std::cout << indent << "staked:" << std::setw(20) << net_own
-                      << std::string(11, ' ') << "(total stake delegated from account to self)" << std::endl
-                      << indent << "delegated:" << std::setw(17) << net_others
-                      << std::string(11, ' ') << "(total staked delegated to account from others)" << std::endl;
-         }
-         else {
-            auto net_others = net_total;
-            std::cout << indent << "delegated:" << std::setw(17) << net_others
-                      << std::string(11, ' ') << "(total staked delegated to account from others)" << std::endl;
-         }
+         auto net_total = res.total_resources.get_object()["net_weight"].as_string();
+         std::cout << indent << "net weight:" << std::setw(17) << net_total << std::endl;
       }
 
 
@@ -1627,23 +1446,8 @@ void get_account( const string& accountName, bool json_format ) {
       std::cout << "cpu bandwidth:" << std::endl;
 
       if ( res.total_resources.is_object() ) {
-         auto cpu_total = to_asset(res.total_resources.get_object()["cpu_weight"].as_string());
-
-         if( res.self_delegated_bandwidth.is_object() ) {
-            asset cpu_own = asset::from_string( res.self_delegated_bandwidth.get_object()["cpu_weight"].as_string() );
-            staked += cpu_own;
-
-            auto cpu_others = cpu_total - cpu_own;
-
-            std::cout << indent << "staked:" << std::setw(20) << cpu_own
-                      << std::string(11, ' ') << "(total stake delegated from account to self)" << std::endl
-                      << indent << "delegated:" << std::setw(17) << cpu_others
-                      << std::string(11, ' ') << "(total staked delegated to account from others)" << std::endl;
-         } else {
-            auto cpu_others = cpu_total;
-            std::cout << indent << "delegated:" << std::setw(17) << cpu_others
-                      << std::string(11, ' ') << "(total staked delegated to account from others)" << std::endl;
-         }
+         auto cpu_total = res.total_resources.get_object()["cpu_weight"].as_string();
+         std::cout << indent << "cpu weight:" << std::setw(17) << cpu_total << std::endl;
       }
 
 
@@ -1653,40 +1457,11 @@ void get_account( const string& accountName, bool json_format ) {
       std::cout << indent << std::left << std::setw(11) << "limit:"     << std::right << std::setw(18) << to_pretty_time( res.cpu_limit.max ) << "\n";
       std::cout << std::endl;
 
-      if( res.refund_request.is_object() ) {
-         auto obj = res.refund_request.get_object();
-         auto request_time = fc::time_point_sec::from_iso_string( obj["request_time"].as_string() );
-         fc::time_point refund_time = request_time + fc::days(3);
-         auto now = res.head_block_time;
-         asset net = asset::from_string( obj["net_amount"].as_string() );
-         asset cpu = asset::from_string( obj["cpu_amount"].as_string() );
-         unstaking = net + cpu;
-
-         if( unstaking > asset( 0, unstaking.get_symbol() ) ) {
-            std::cout << std::fixed << setprecision(3);
-            std::cout << "unstaking tokens:" << std::endl;
-            std::cout << indent << std::left << std::setw(25) << "time of unstake request:" << std::right << std::setw(20) << string(request_time);
-            if( now >= refund_time ) {
-               std::cout << " (available to claim now with 'eosio::refund' action)\n";
-            } else {
-               std::cout << " (funds will be available in " << to_pretty_time( (refund_time - now).count(), 0 ) << ")\n";
-            }
-            std::cout << indent << std::left << std::setw(25) << "from net bandwidth:" << std::right << std::setw(18) << net << std::endl;
-            std::cout << indent << std::left << std::setw(25) << "from cpu bandwidth:" << std::right << std::setw(18) << cpu << std::endl;
-            std::cout << indent << std::left << std::setw(25) << "total:" << std::right << std::setw(18) << unstaking << std::endl;
-            std::cout << std::endl;
-         }
-      }
-
       if( res.core_liquid_balance.valid() ) {
          std::cout << res.core_liquid_balance->get_symbol().name() << " balances: " << std::endl;
          std::cout << indent << std::left << std::setw(11)
                    << "liquid:" << std::right << std::setw(18) << *res.core_liquid_balance << std::endl;
-         std::cout << indent << std::left << std::setw(11)
-                   << "staked:" << std::right << std::setw(18) << staked << std::endl;
-         std::cout << indent << std::left << std::setw(11)
-                   << "unstaking:" << std::right << std::setw(18) << unstaking << std::endl;
-         std::cout << indent << std::left << std::setw(11) << "total:" << std::right << std::setw(18) << (*res.core_liquid_balance + staked + unstaking) << std::endl;
+         std::cout << indent << std::left << std::setw(11) << "total:" << std::right << std::setw(18) << (*res.core_liquid_balance) << std::endl;
          std::cout << std::endl;
       }
 
@@ -2361,6 +2136,12 @@ int main( int argc, char** argv ) {
    // set account contract host
    auto setAccountContractHost = set_account_contracthost(setAccount);
 
+   // set account bandwidth
+   auto setAccountBandwidth = set_account_bandwidth(setAccount);
+
+   // set account ram
+   auto setAccountRam = set_account_ram(setAccount);
+
    // set account permission
    auto setAccountPermission = set_account_permission_subcommand(setAccount);
 
@@ -3004,14 +2785,8 @@ int main( int argc, char** argv ) {
 
    auto listProducers = list_producers_subcommand(system);
 
-   auto delegateBandWidth = delegate_bandwidth_subcommand(system);
-   auto undelegateBandWidth = undelegate_bandwidth_subcommand(system);
-   auto listBandWidth = list_bw_subcommand(system);
    auto bidname = bidname_subcommand(system);
    auto bidnameinfo = bidname_info_subcommand(system);
-
-   auto biyram = buyram_subcommand(system);
-   auto sellram = sellram_subcommand(system);
 
    auto claimRewards = claimrewards_subcommand(system);
 

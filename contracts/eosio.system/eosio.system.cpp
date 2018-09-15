@@ -1,10 +1,9 @@
 #include "eosio.system.hpp"
 #include <eosiolib/dispatcher.hpp>
 
+#include "resource_management.cpp"
 #include "producer_pay.cpp"
-#include "delegate_bandwidth.cpp"
 #include "voting.cpp"
-#include "exchange_state.cpp"
 
 
 namespace eosiosystem {
@@ -13,29 +12,10 @@ namespace eosiosystem {
    :native(s),
     _voters(_self,_self),
     _producers(_self,_self),
-    _global(_self,_self),
-    _rammarket(_self,_self)
+    _global(_self,_self)
    {
       //print( "construct system\n" );
       _gstate = _global.exists() ? _global.get() : get_default_parameters();
-
-      auto itr = _rammarket.find(S(4,RAMCORE));
-
-      if( itr == _rammarket.end() ) {
-         auto system_token_supply   = eosio::token(N(eosio.token)).get_supply(eosio::symbol_type(system_token_symbol).name()).amount;
-         if( system_token_supply > 0 ) {
-            itr = _rammarket.emplace( _self, [&]( auto& m ) {
-               m.supply.amount = 100000000000000ll;
-               m.supply.symbol = S(4,RAMCORE);
-               m.base.balance.amount = int64_t(_gstate.free_ram());
-               m.base.balance.symbol = S(0,RAM);
-               m.quote.balance.amount = system_token_supply / 1000;
-               m.quote.balance.symbol = CORE_SYMBOL;
-            });
-         }
-      } else {
-         //print( "ram market already created" );
-      }
    }
 
    eosio_global_state system_contract::get_default_parameters() {
@@ -49,28 +29,6 @@ namespace eosiosystem {
       //print( "destruct system\n" );
       _global.set( _gstate, _self );
       //eosio_exit(0);
-   }
-
-   void system_contract::setram( uint64_t max_ram_size ) {
-      require_auth( _self );
-
-      eosio_assert( _gstate.max_ram_size < max_ram_size, "ram may only be increased" ); /// decreasing ram might result market maker issues
-      eosio_assert( max_ram_size < 1024ll*1024*1024*1024*1024, "ram size is unrealistic" );
-      eosio_assert( max_ram_size > _gstate.total_ram_bytes_reserved, "attempt to set max below reserved" );
-
-      auto delta = int64_t(max_ram_size) - int64_t(_gstate.max_ram_size);
-      auto itr = _rammarket.find(S(4,RAMCORE));
-
-      /**
-       *  Increase or decrease the amount of ram for sale based upon the change in max
-       *  ram size.
-       */
-      _rammarket.modify( itr, 0, [&]( auto& m ) {
-         m.base.balance.amount += delta;
-      });
-
-      _gstate.max_ram_size = max_ram_size;
-      _global.set( _gstate, _self );
    }
 
    void system_contract::setparams( const eosio::blockchain_parameters& params ) {
@@ -143,7 +101,7 @@ namespace eosiosystem {
     *  who can create accounts with the creator's name as a suffix.
     *
     */
-   void native::newaccount( account_name     creator,
+   void system_contract::newaccount( account_name     creator,
                             account_name     newact
                             /*  no need to parse authorities
                             const authority& owner,
@@ -174,11 +132,12 @@ namespace eosiosystem {
 
       user_resources_table  userres( _self, newact);
 
-      userres.emplace( newact, [&]( auto& res ) {
+      userres.emplace( _self, [&]( auto& res ) {
         res.owner = newact;
       });
 
-      set_resource_limits( newact, 0, 0, 0 );
+
+      init_account_resources(newact);
    }
 
 } /// eosio.system
@@ -186,11 +145,11 @@ namespace eosiosystem {
 
 EOSIO_ABI( eosiosystem::system_contract,
      // native.hpp (newaccount definition is actually in eosio.system.cpp)
-     (newaccount)(updateauth)(deleteauth)(linkauth)(unlinkauth)(canceldelay)(onerror)
+     (updateauth)(deleteauth)(linkauth)(unlinkauth)(canceldelay)(onerror)
      // eosio.system.cpp
-     (setram)(setparams)(setpriv)(rmvproducer)(bidname)
-     // delegate_bandwidth.cpp
-     (buyrambytes)(buyram)(sellram)(delegatebw)(undelegatebw)(refund)
+     (newaccount)(setmaxram)(setparams)(setpriv)(rmvproducer)(bidname)
+     // resource_management.cpp
+     (setaccntbw)(setaccntram)
      // voting.cpp
      (regproducer)(unregprod)(voteproducer)(regproxy)
      // producer_pay.cpp

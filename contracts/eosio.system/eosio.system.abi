@@ -135,88 +135,22 @@
         {"name":"sent_trx",  "type":"bytes"}
       ]
     },{
-      "name": "buyrambytes",
-      "base": "",
-      "fields": [
-         {"name":"payer", "type":"account_name"},
-         {"name":"receiver", "type":"account_name"},
-         {"name":"bytes", "type":"uint32"}
-      ]
-    },{
-      "name": "sellram",
-      "base": "",
-      "fields": [
-         {"name":"account", "type":"account_name"},
-         {"name":"bytes", "type":"uint64"}
-      ]
-    },{
-      "name": "buyram",
-      "base": "",
-      "fields": [
-         {"name":"payer", "type":"account_name"},
-         {"name":"receiver", "type":"account_name"},
-         {"name":"quant", "type":"asset"}
-      ]
-    },{
-      "name": "delegatebw",
-      "base": "",
-      "fields": [
-         {"name":"from", "type":"account_name"},
-         {"name":"receiver", "type":"account_name"},
-         {"name":"stake_net_quantity", "type":"asset"},
-         {"name":"stake_cpu_quantity", "type":"asset"},
-         {"name":"transfer", "type":"bool"}
-      ]
-    },{
-      "name": "undelegatebw",
-      "base": "",
-      "fields": [
-         {"name":"from", "type":"account_name"},
-         {"name":"receiver", "type":"account_name"},
-         {"name":"unstake_net_quantity", "type":"asset"},
-         {"name":"unstake_cpu_quantity", "type":"asset"}
-      ]
-    },{
-      "name": "refund",
-      "base": "",
-      "fields": [
-         {"name":"owner", "type":"account_name"}
-      ]
-    },{
-      "name": "delegated_bandwidth",
-      "base": "",
-      "fields": [
-         {"name":"from", "type":"account_name"},
-         {"name":"to", "type":"account_name"},
-         {"name":"net_weight", "type":"asset"},
-         {"name":"cpu_weight", "type":"asset"}
-      ]
-    },{
       "name": "user_resources",
       "base": "",
       "fields": [
          {"name":"owner", "type":"account_name"},
-         {"name":"net_weight", "type":"asset"},
-         {"name":"cpu_weight", "type":"asset"},
-         {"name":"ram_bytes", "type":"uint64"}
+         {"name":"net_weight", "type":"int64"},
+         {"name":"cpu_weight", "type":"int64"},
+         {"name":"ram_bytes", "type":"int64"}
       ]
     },{
       "name": "total_resources",
       "base": "",
       "fields": [
          {"name":"owner", "type":"account_name"},
-         {"name":"net_weight", "type":"asset"},
-         {"name":"cpu_weight", "type":"asset"},
-         {"name":"ram_bytes", "type":"uint64"}
-      ]
-    },{
-      "name": "refund_request",
-      "base": "",
-      "fields": [
-         {"name":"owner", "type":"account_name"},
-         {"name":"request_time", "type":"time_point_sec"},
-         {"name":"net_amount", "type":"asset"},
-         {"name":"cpu_amount", "type":"asset"}
+         {"name":"net_weight", "type":"int64"},
+         {"name":"cpu_weight", "type":"int64"},
+         {"name":"ram_bytes", "type":"int64"}
       ]
     },{
       "name": "blockchain_parameters",
@@ -247,8 +181,12 @@
       "base": "blockchain_parameters",
       "fields": [
          {"name":"max_ram_size",                  "type":"uint64"},
+         {"name":"max_ram_size_for_accounts",     "type":"uint64"},
          {"name":"total_ram_bytes_reserved",      "type":"uint64"},
-         {"name":"total_ram_stake",               "type":"int64"},
+         {"name":"total_ram_bytes_reserved_for_accounts",
+                                                  "type":"uint64"},
+         {"name":"max_accounts",                  "type":"uint64"},
+         {"name":"account_ram_size",              "type":"uint16"},
          {"name":"last_producer_schedule_update", "type":"block_timestamp_type"},
          {"name":"last_pervote_bucket_fill",      "type":"uint64"},
          {"name":"pervote_bucket",                "type":"int64"},
@@ -289,11 +227,26 @@
         {"name":"producer",     "type":"account_name"}
       ]
     },{
-      "name": "setram",
+      "name": "setmaxram",
       "base": "",
       "fields": [
         {"name":"max_ram_size",     "type":"uint64"}
       ]
+    },{
+       "name": "setaccntbw",
+       "base": "",
+       "fields": [
+         {"name":"account",         "type":"account_name"},
+         {"name":"net",             "type":"int64"},
+         {"name":"cpu",             "type":"int64"}
+       ]
+    },{
+        "name": "setaccntram",
+        "base": "",
+        "fields": [
+          {"name":"account",         "type":"account_name"},
+          {"name":"ram",             "type":"int64"},
+        ]
     },{
       "name": "regproxy",
       "base": "",
@@ -381,21 +334,6 @@
         {"name":"params", "type":"blockchain_parameters"}
       ]
     },{
-      "name": "connector",
-      "base": "",
-      "fields": [
-        {"name":"balance", "type":"asset"},
-        {"name":"weight", "type":"float64"}
-      ]
-    },{
-      "name": "exchange_state",
-      "base": "",
-      "fields": [
-        {"name":"supply", "type":"asset"},
-        {"name":"base", "type":"connector"},
-        {"name":"quote", "type":"connector"}
-      ]
-    }, {
        "name": "namebid_info",
        "base": "",
        "fields": [
@@ -443,36 +381,20 @@
      "type": "onerror",
      "ricardian_contract": ""
    },{
-      "name": "buyrambytes",
-      "type": "buyrambytes",
-      "ricardian_contract": ""
-   },{
-      "name": "buyram",
-      "type": "buyram",
-      "ricardian_contract": ""
-   },{
-      "name": "sellram",
-      "type": "sellram",
-      "ricardian_contract": ""
-   },{
-      "name": "delegatebw",
-      "type": "delegatebw",
-      "ricardian_contract": ""
-   },{
-      "name": "undelegatebw",
-      "type": "undelegatebw",
-      "ricardian_contract": ""
-   },{
-      "name": "refund",
-      "type": "refund",
-      "ricardian_contract": ""
-   },{
       "name": "regproducer",
       "type": "regproducer",
       "ricardian_contract": ""
    },{
-      "name": "setram",
-      "type": "setram",
+      "name": "setmaxram",
+      "type": "setmaxram",
+      "ricardian_contract": ""
+   },{
+      "name": "setaccntbw",
+      "type": "setaccntbw",
+      "ricardian_contract": ""
+   },{
+      "name": "setaccntram",
+      "type": "setaccntram",
       "ricardian_contract": ""
    },{
       "name": "bidname",
@@ -544,24 +466,6 @@
     },{
       "name": "userres",
       "type": "user_resources",
-      "index_type": "i64",
-      "key_names" : ["owner"],
-      "key_types" : ["uint64"]
-    },{
-      "name": "delband",
-      "type": "delegated_bandwidth",
-      "index_type": "i64",
-      "key_names" : ["to"],
-      "key_types" : ["uint64"]
-    },{
-      "name": "rammarket",
-      "type": "exchange_state",
-      "index_type": "i64",
-      "key_names" : ["supply"],
-      "key_types" : ["uint64"]
-    },{
-      "name": "refunds",
-      "type": "refund_request",
       "index_type": "i64",
       "key_names" : ["owner"],
       "key_types" : ["uint64"]
