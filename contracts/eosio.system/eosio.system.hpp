@@ -9,7 +9,6 @@
 #include <eosiolib/time.hpp>
 #include <eosiolib/privileged.hpp>
 #include <eosiolib/singleton.hpp>
-#include <eosio.system/exchange_state.hpp>
 
 #include <string>
 
@@ -37,10 +36,16 @@ namespace eosiosystem {
 
    struct eosio_global_state : eosio::blockchain_parameters {
       uint64_t free_ram()const { return max_ram_size - total_ram_bytes_reserved; }
+      uint64_t free_accounts_ram()const { return max_ram_size_for_accounts - total_ram_bytes_reserved_for_accounts; }
+
+      uint16_t             account_ram_size = 3 * 1024;
+      uint64_t             max_accounts = 1'000'000;
 
       uint64_t             max_ram_size = 64ll*1024 * 1024 * 1024;
+      uint64_t             max_ram_size_for_accounts = account_ram_size * max_accounts;
+
       uint64_t             total_ram_bytes_reserved = 0;
-      int64_t              total_ram_stake = 0;
+      uint64_t             total_ram_bytes_reserved_for_accounts = 0;
 
       block_timestamp      last_producer_schedule_update;
       uint64_t             last_pervote_bucket_fill = 0;
@@ -55,7 +60,9 @@ namespace eosiosystem {
 
       // explicit serialization macro is not necessary, used here only to improve compilation time
       EOSLIB_SERIALIZE_DERIVED( eosio_global_state, eosio::blockchain_parameters,
-                                (max_ram_size)(total_ram_bytes_reserved)(total_ram_stake)
+                                (max_ram_size)(max_ram_size_for_accounts)
+                                (total_ram_bytes_reserved)(total_ram_bytes_reserved_for_accounts)
+                                (max_accounts)(account_ram_size)
                                 (last_producer_schedule_update)(last_pervote_bucket_fill)
                                 (pervote_bucket)(perblock_bucket)(total_unpaid_blocks)(total_activated_stake)(thresh_activated_stake_time)
                                 (last_producer_schedule_size)(total_producer_vote_weight)(last_name_close) )
@@ -132,74 +139,46 @@ namespace eosiosystem {
          global_state_singleton _global;
 
          eosio_global_state     _gstate;
-         rammarket              _rammarket;
 
       public:
          system_contract( account_name s );
          ~system_contract();
 
          // Actions:
+
+         /**
+          *  Called after a new account is created. This code enforces resource-limits rules
+          *  for new accounts as well as new account naming conventions.
+          *
+          *  1. accounts cannot contain '.' symbols which forces all acccounts to be 12
+          *  characters long without '.' until a future account auction process is implemented
+          *  which prevents name squatting.
+          *
+          *  2. new accounts must stake a minimal number of tokens (as set in system parameters)
+          *     therefore, this method will execute an inline buyram from receiver for newacnt in
+          *     an amount equal to the current new account creation fee.
+          */
+         void newaccount( account_name     creator,
+                          account_name     newact
+               /*  no need to parse authorites
+               const authority& owner,
+               const authority& active*/ );
+
+
          void onblock( block_timestamp timestamp, account_name producer );
                       // const block_header& header ); /// only parse first 3 fields of block header
 
-         // functions defined in delegate_bandwidth.cpp
+         void setmaxram( uint64_t max_ram_size );
 
-         /**
-          *  Stakes SYS from the balance of 'from' for the benfit of 'receiver'.
-          *  If transfer == true, then 'receiver' can unstake to their account
-          *  Else 'from' can unstake at any time.
-          */
-         void delegatebw( account_name from, account_name receiver,
-                          asset stake_net_quantity, asset stake_cpu_quantity, bool transfer );
+         void setaccntbw(account_name account, int64_t net, int64_t cpu);
 
+         void setaccntram(account_name account, int64_t ram);
 
-         /**
-          *  Decreases the total tokens delegated by from to receiver and/or
-          *  frees the memory associated with the delegation if there is nothing
-          *  left to delegate.
-          *
-          *  This will cause an immediate reduction in net/cpu bandwidth of the
-          *  receiver.
-          *
-          *  A transaction is scheduled to send the tokens back to 'from' after
-          *  the staking period has passed. If existing transaction is scheduled, it
-          *  will be canceled and a new transaction issued that has the combined
-          *  undelegated amount.
-          *
-          *  The 'from' account loses voting power as a result of this call and
-          *  all producer tallies are updated.
-          */
-         void undelegatebw( account_name from, account_name receiver,
-                            asset unstake_net_quantity, asset unstake_cpu_quantity );
-
-
-         /**
-          * Increases receiver's ram quota based upon current price and quantity of
-          * tokens provided. An inline transfer from receiver to system contract of
-          * tokens will be executed.
-          */
-         void buyram( account_name buyer, account_name receiver, asset tokens );
-         void buyrambytes( account_name buyer, account_name receiver, uint32_t bytes );
-
-         /**
-          *  Reduces quota my bytes and then performs an inline transfer of tokens
-          *  to receiver based upon the average purchase price of the original quota.
-          */
-         void sellram( account_name receiver, int64_t bytes );
-
-         /**
-          *  This action is called after the delegation-period to claim all pending
-          *  unstaked tokens belonging to owner
-          */
-         void refund( account_name owner );
-
-         // functions defined in voting.cpp
+       // functions defined in voting.cpp
 
          void regproducer( const account_name producer, const public_key& producer_key, const std::string& url, uint16_t location );
 
          void unregprod( const account_name producer );
-
-         void setram( uint64_t max_ram_size );
 
          void voteproducer( const account_name voter, const account_name proxy, const std::vector<account_name>& producers );
 
@@ -220,9 +199,9 @@ namespace eosiosystem {
 
          // Implementation details:
 
-         //defind in delegate_bandwidth.cpp
-         void changebw( account_name from, account_name receiver,
-                        asset stake_net_quantity, asset stake_cpu_quantity, bool transfer );
+         //defined in resource_management.cpp
+         void set_account_resource_limits(account_name account, int64_t *ram = nullptr, int64_t *net = nullptr, int64_t *cpu = nullptr);
+         void init_account_resources(account_name account);
 
          //defined in voting.hpp
          static eosio_global_state get_default_parameters();
