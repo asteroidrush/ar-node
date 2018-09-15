@@ -1,5 +1,5 @@
 {
-  "build_dir": "../../cmake-build-debug/",
+  "build_dir": "../../build/",
   "accounts": [
     {
       "name": "man1",
