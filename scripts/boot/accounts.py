@@ -19,6 +19,8 @@ class AccountManager:
 
 class AccountsManager:
 
+    government_account = 'eosio.gov'
+
     system_accounts = [
         'eosio.bpay',
         'eosio.names',
@@ -37,6 +39,7 @@ class AccountsManager:
         self.account_manager.create(name, keys['pub'])
 
     def create_system_accounts(self):
+        self.create_system_account(self.government_account)
         for account_name in self.system_accounts:
             self.create_system_account(account_name)
 

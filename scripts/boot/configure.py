@@ -70,6 +70,8 @@ contracts_manager.install_system_contract()
 accounts_manager.create_management_accounts()
 
 auth_manager = AuthManager(cleos)
-auth_manager.resign('eosio', 'eosio.prods')  # TODO: change to eosio.gov
+
+auth_manager.resign(AccountsManager.government_account, [account['name'] for account in configs['accounts'] if account['management']])
+auth_manager.resign('eosio', [AccountsManager.government_account])
 for a in AccountsManager.system_accounts:
-    auth_manager.resign(a, 'eosio')
+    auth_manager.resign(a, ['eosio'])

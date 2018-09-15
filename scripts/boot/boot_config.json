@@ -5,7 +5,7 @@
       "name": "man1",
       "pub": "EOS6XZtkZMes8ovp3zsGcnNNBepW3RDPF5VHVuuknHr4FL1LB1w4d",
       "stake": 0.3,
-      "producer": true
+      "management": true
     }
   ],
   "system_token": {
