@@ -93,9 +93,8 @@ namespace eosiosystem {
       eosio_assert( _gstate.account_ram_size <= _gstate.free_accounts_ram(), "system have no ram for new account" );
       _gstate.total_ram_bytes_reserved_for_accounts += _gstate.account_ram_size;
 
-      int64_t account_ram_size = _gstate.account_ram_size;
-      set_account_resource_limits( account, &account_ram_size );
-      setaccntbw(account, 1, 1);
+      int64_t account_ram_size = _gstate.account_ram_size, net = 1, cpu = 1;
+      set_account_resource_limits( account, &account_ram_size, &net, &cpu );
    }
 
    void system_contract::setaccntbw(account_name account, int64_t net, int64_t cpu){
