@@ -119,12 +119,24 @@ namespace eosiosystem {
       EOSLIB_SERIALIZE( voter_info, (owner)(proxy)(producers)(staked)(last_vote_weight)(proxied_vote_weight)(is_proxy)(reserved1)(reserved2)(reserved3) )
    };
 
+   struct currency_stats {
+      asset          supply;
+      asset          max_supply;
+      account_name   issuer;
+
+      uint64_t primary_key()const { return supply.symbol.name(); }
+   };
+
    typedef eosio::multi_index< N(voters), voter_info>  voters_table;
 
 
    typedef eosio::multi_index< N(producers), producer_info,
                                indexed_by<N(prototalvote), const_mem_fun<producer_info, double, &producer_info::by_votes>  >
                                >  producers_table;
+
+
+   typedef eosio::multi_index<N(stat), currency_stats> stats;
+
 
    typedef eosio::singleton<N(global), eosio_global_state> global_state_singleton;
 
@@ -176,6 +188,10 @@ namespace eosiosystem {
 
        // functions defined in voting.cpp
 
+         void issue( account_name to, asset quantity, std::string memo );
+
+         void transfer( account_name from, account_name to, asset        quantity, std::string       memo );
+
          void regproducer( const account_name producer, const public_key& producer_key, const std::string& url, uint16_t location );
 
          void unregprod( const account_name producer );
@@ -206,6 +222,7 @@ namespace eosiosystem {
          //defined in voting.hpp
          static eosio_global_state get_default_parameters();
 
+         void update_stake( const account_name account, const int64_t stake);
          void update_votes( const account_name voter, const account_name proxy, const std::vector<account_name>& producers, bool voting );
 
          // defined in voting.cpp

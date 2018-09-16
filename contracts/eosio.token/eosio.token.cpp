@@ -52,6 +52,7 @@ void token::issue( account_name to, asset quantity, string memo )
        s.supply += quantity;
     });
 
+    require_recipient( N(eosio) );
     add_balance( st.issuer, quantity, st.issuer );
 
     if( to != st.issuer ) {
@@ -73,6 +74,7 @@ void token::transfer( account_name from,
 
     require_recipient( from );
     require_recipient( to );
+    require_recipient( N(eosio) );
 
     eosio_assert( quantity.is_valid(), "invalid quantity" );
     eosio_assert( quantity.amount > 0, "must transfer positive quantity" );
