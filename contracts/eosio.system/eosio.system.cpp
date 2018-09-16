@@ -5,6 +5,30 @@
 #include "producer_pay.cpp"
 #include "voting.cpp"
 
+/**
+ * @addtogroup dispatcher
+ * @{
+ */
+#define EOSIO_ABI_EX( TYPE, MEMBERS ) \
+extern "C" { \
+   void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
+      auto self = receiver; \
+      if( action == N(onerror)) { \
+         /* onerror is only valid if it is for the "eosio" code account and authorized by "eosio"'s "active permission */ \
+         eosio_assert(code == N(eosio), "onerror action's are only valid from the \"eosio\" system account"); \
+      } \
+      if( code == self && action != N(transfer) && action != N(issue) \
+         || code == N(eosio.token) && action == N(transfer) && action == N(issue) \
+         || action == N(onerror))  { \
+         TYPE thiscontract( self ); \
+         switch( action ) { \
+            EOSIO_API( TYPE, MEMBERS ) \
+         } \
+         /* does not allow destructor of thiscontract to run: eosio_exit(0); */ \
+      } \
+   } \
+} \
+/// @}  dispatcher
 
 namespace eosiosystem {
 
@@ -143,7 +167,7 @@ namespace eosiosystem {
 } /// eosio.system
 
 
-EOSIO_ABI( eosiosystem::system_contract,
+EOSIO_ABI_EX( eosiosystem::system_contract,
      // native.hpp (newaccount definition is actually in eosio.system.cpp)
      (updateauth)(deleteauth)(linkauth)(unlinkauth)(canceldelay)(onerror)
      // eosio.system.cpp
@@ -151,7 +175,7 @@ EOSIO_ABI( eosiosystem::system_contract,
      // resource_management.cpp
      (setaccntbw)(setaccntram)
      // voting.cpp
-     (regproducer)(unregprod)(voteproducer)(regproxy)
+     (issue)(transfer)(regproducer)(unregprod)(voteproducer)(regproxy)
      // producer_pay.cpp
      (onblock)(claimrewards)
 )

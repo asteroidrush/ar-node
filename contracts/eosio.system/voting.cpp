@@ -3,6 +3,7 @@
  *  @copyright defined in eos/LICENSE.txt
  */
 #include "eosio.system.hpp"
+#include "../eosiolib/asset.hpp"
 
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/crypto.h>
@@ -25,6 +26,52 @@ namespace eosiosystem {
    using eosio::print;
    using eosio::singleton;
    using eosio::transaction;
+
+   void system_contract::issue( account_name to, asset quantity, std::string memo ){
+      auto sym_name = quantity.symbol.name();
+
+      if( sym_name != system_token_symbol ){
+         return;
+      }
+
+      stats statstable( N(eosio.token), sym_name );
+      auto existing = statstable.find( sym_name );
+
+      update_stake( existing->issuer, quantity.amount );
+   }
+
+   void system_contract::transfer( account_name from,
+                                   account_name to,
+                                   asset        quantity,
+                                   std::string       memo ){
+      if( quantity.symbol.value != system_token_symbol ){
+         return;
+      }
+
+      update_stake( from, -quantity.amount );
+      update_stake( to, quantity.amount );
+   }
+
+   void system_contract::update_stake( const account_name account, const int64_t stake){
+      auto voter = _voters.find( account );
+      if( voter != _voters.end() ){
+         eosio_assert( voter->staked + stake >= 0, "Stake can't be less then 0"); // Data corruption
+         _voters.modify( voter, 0, [&]( auto& p ) {
+            p.staked += stake;
+         });
+      }else{
+         eosio_assert( stake >= 0, "Stake can't be less then 0"); // Data corruption
+         _voters.emplace( account, [&]( auto& p ) {
+            p.owner  = account;
+            p.is_proxy = false;
+            p.staked = stake;
+         });
+      }
+
+      if( voter->producers.size() || voter->proxy ) {
+         update_votes( account, voter->proxy, voter->producers, false );
+      }
+   }
 
    /**
     *  This method will create a producer_config and producer_info object for 'producer'
@@ -102,11 +149,6 @@ namespace eosiosystem {
       }
    }
 
-   double stake2vote( int64_t staked ) {
-      /// TODO subtract 2080 brings the large numbers closer to this decade
-      double weight = int64_t( (now() - (block_timestamp::block_timestamp_epoch / 1000)) / (seconds_per_day * 7) )  / double( 52 );
-      return double(staked) * std::pow( 2, weight );
-   }
    /**
     *  @pre producers must be sorted from lowest to highest and must be registered and active
     *  @pre if proxy is set then no producers can be voted for
@@ -157,7 +199,7 @@ namespace eosiosystem {
          }
       }
 
-      auto new_vote_weight = stake2vote( voter->staked );
+      auto new_vote_weight = voter->staked;
       if( voter->is_proxy ) {
          new_vote_weight += voter->proxied_vote_weight;
       }
@@ -254,7 +296,7 @@ namespace eosiosystem {
 
    void system_contract::propagate_weight_change( const voter_info& voter ) {
       eosio_assert( voter.proxy == 0 || !voter.is_proxy, "account registered as a proxy is not allowed to use a proxy" );
-      double new_weight = stake2vote( voter.staked );
+      double new_weight = voter.staked;
       if ( voter.is_proxy ) {
          new_weight += voter.proxied_vote_weight;
       }

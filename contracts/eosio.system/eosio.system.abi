@@ -342,7 +342,24 @@
           {"name":"high_bid", "type":"int64"},
           {"name":"last_bid_time", "type":"uint64"}
        ]
-    }
+    },{
+       "name": "transfer",
+       "base": "",
+       "fields": [
+         {"name":"from", "type":"account_name"},
+         {"name":"to", "type":"account_name"},
+         {"name":"quantity", "type":"asset"},
+         {"name":"memo", "type":"string"}
+       ]
+     },{
+         "name": "issue",
+         "base": "",
+         "fields": [
+            {"name":"to", "type":"account_name"},
+            {"name":"quantity", "type":"asset"},
+            {"name":"memo", "type":"string"}
+         ]
+      }
    ],
    "actions": [{
      "name": "newaccount",
@@ -443,6 +460,14 @@
     },{
       "name": "setparams",
       "type": "setparams",
+      "ricardian_contract": ""
+    },{
+      "name": "transfer",
+      "type": "transfer",
+      "ricardian_contract": ""
+    },{
+      "name": "issue",
+      "type": "issue",
       "ricardian_contract": ""
     }],
    "tables": [{
