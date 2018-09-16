@@ -246,7 +246,7 @@
         "base": "",
         "fields": [
           {"name":"account",         "type":"account_name"},
-          {"name":"ram",             "type":"int64"},
+          {"name":"ram",             "type":"int64"}
         ]
     },{
       "name": "regproxy",
