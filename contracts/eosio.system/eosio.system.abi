@@ -188,6 +188,7 @@
          {"name":"max_accounts",                  "type":"uint64"},
          {"name":"account_ram_size",              "type":"uint16"},
          {"name":"last_producer_schedule_update", "type":"block_timestamp_type"},
+         {"name":"payment_bucket_per_year",       "type":"uint64"},
          {"name":"last_pervote_bucket_fill",      "type":"uint64"},
          {"name":"pervote_bucket",                "type":"int64"},
          {"name":"perblock_bucket",               "type":"int64"},

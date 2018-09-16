@@ -62,7 +62,8 @@ contracts_manager.install_base_contracts()
 for data in [configs['system_token'], configs['support_token']]:
     token = Token(data['name'], data['max_supply'], cleos)
     token.create()
-    token.issue(data['supply'])
+    if data['supply']:
+        token.issue(data['supply'])
 
 
 contracts_manager.install_system_contract()

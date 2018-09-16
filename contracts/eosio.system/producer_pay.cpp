@@ -75,25 +75,21 @@ namespace eosiosystem {
                     "cannot claim rewards until the chain is activated (at least 15% of all tokens participate in voting)" );
 
       auto ct = current_time();
+      const auto time_since_last_claim = ct - prod.last_claim_time;
 
-      eosio_assert( ct - prod.last_claim_time > useconds_per_day, "already claimed rewards within past day" );
+      eosio_assert( time_since_last_claim > useconds_per_day, "already claimed rewards within past day" );
 
-      const asset token_supply   = token( N(eosio.token)).get_supply(symbol_type(system_token_symbol).name() );
+      const asset token_supply   = token( N(eosio.token)).get_supply(symbol_type(support_token_symbol).name() );
       const auto usecs_since_last_fill = ct - _gstate.last_pervote_bucket_fill;
 
       if( usecs_since_last_fill > 0 && _gstate.last_pervote_bucket_fill > 0 ) {
-         auto new_tokens = static_cast<int64_t>( (continuous_rate * double(token_supply.amount) * double(usecs_since_last_fill)) / double(useconds_per_year) );
+         auto new_tokens = static_cast<int64_t>( (_gstate.payment_bucket_per_year * double(usecs_since_last_fill)) / double(useconds_per_year) );
 
-         auto to_producers       = new_tokens / 5;
-         auto to_savings         = new_tokens - to_producers;
-         auto to_per_block_pay   = to_producers / 4;
-         auto to_per_vote_pay    = to_producers - to_per_block_pay;
+         auto to_per_block_pay   = new_tokens / 4;
+         auto to_per_vote_pay    = new_tokens - to_per_block_pay;
 
          INLINE_ACTION_SENDER(eosio::token, issue)( N(eosio.token), {{N(eosio),N(active)}},
-                                                    {N(eosio), asset(new_tokens), std::string("issue tokens for producer pay and savings")} );
-
-         INLINE_ACTION_SENDER(eosio::token, transfer)( N(eosio.token), {N(eosio),N(active)},
-                                                       { N(eosio), N(eosio.saving), asset(to_savings), "unallocated inflation" } );
+                                                    {N(eosio), asset(new_tokens), std::string("issue tokens for producer pay")} );
 
          INLINE_ACTION_SENDER(eosio::token, transfer)( N(eosio.token), {N(eosio),N(active)},
                                                        { N(eosio), N(eosio.bpay), asset(to_per_block_pay), "fund per-block bucket" } );
@@ -113,9 +109,11 @@ namespace eosiosystem {
       }
       int64_t producer_per_vote_pay = 0;
       if( _gstate.total_producer_vote_weight > 0 ) {
-         producer_per_vote_pay  = int64_t((_gstate.pervote_bucket * prod.total_votes ) / _gstate.total_producer_vote_weight);
+         int64_t full_pervote_bucket = static_cast<int64_t>(
+               (_gstate.payment_bucket_per_year * double(time_since_last_claim)) / double(useconds_per_year) ) * 3 / 4;
+         producer_per_vote_pay  = int64_t((full_pervote_bucket * prod.total_votes ) / _gstate.total_producer_vote_weight);
       }
-      if( producer_per_vote_pay < min_pervote_daily_pay ) {
+      if( producer_per_vote_pay < min_pervote_daily_pay || producer_per_vote_pay > _gstate.pervote_bucket ) {
          producer_per_vote_pay = 0;
       }
       _gstate.pervote_bucket      -= producer_per_vote_pay;
