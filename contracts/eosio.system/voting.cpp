@@ -30,10 +30,9 @@ namespace eosiosystem {
    void system_contract::issue( account_name to, asset quantity, std::string memo ){
       auto sym_name = quantity.symbol.name();
 
-      if( sym_name != system_token_symbol ){
+      if( quantity.symbol.value != system_token_symbol ){
          return;
       }
-
       stats statstable( N(eosio.token), sym_name );
       auto existing = statstable.find( sym_name );
 
@@ -44,6 +43,7 @@ namespace eosiosystem {
                                    account_name to,
                                    asset        quantity,
                                    std::string       memo ){
+
       if( quantity.symbol.value != system_token_symbol ){
          return;
       }
@@ -54,10 +54,18 @@ namespace eosiosystem {
 
    void system_contract::update_stake( const account_name account, const int64_t stake){
       auto voter = _voters.find( account );
+
+      auto after_update = [&](auto& newvoter){
+         if( newvoter.producers.size() || newvoter.proxy ) {
+            this->update_votes( account, voter->proxy, voter->producers, false );
+         }
+      };
+
       if( voter != _voters.end() ){
          eosio_assert( voter->staked + stake >= 0, "Stake can't be less then 0"); // Data corruption
          _voters.modify( voter, 0, [&]( auto& p ) {
             p.staked += stake;
+            after_update(p);
          });
       }else{
          eosio_assert( stake >= 0, "Stake can't be less then 0"); // Data corruption
@@ -65,11 +73,9 @@ namespace eosiosystem {
             p.owner  = account;
             p.is_proxy = false;
             p.staked = stake;
+            p.producers.empty();
+            after_update(p);
          });
-      }
-
-      if( voter->producers.size() || voter->proxy ) {
-         update_votes( account, voter->proxy, voter->producers, false );
       }
    }
 

@@ -18,7 +18,7 @@ extern "C" { \
          eosio_assert(code == N(eosio), "onerror action's are only valid from the \"eosio\" system account"); \
       } \
       if( code == self && action != N(transfer) && action != N(issue) \
-         || code == N(eosio.token) && action == N(transfer) && action == N(issue) \
+         || code == N(eosio.token) && (action == N(transfer) || action == N(issue)) \
          || action == N(onerror))  { \
          TYPE thiscontract( self ); \
          switch( action ) { \
@@ -130,7 +130,6 @@ namespace eosiosystem {
                             /*  no need to parse authorities
                             const authority& owner,
                             const authority& active*/ ) {
-
       if( creator != _self ) {
          auto tmp = newact >> 4;
          bool has_dot = false;
