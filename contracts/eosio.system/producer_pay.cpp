@@ -35,7 +35,7 @@ namespace eosiosystem {
       auto prod = _producers.find(producer);
       if ( prod != _producers.end() ) {
          _gstate.total_unpaid_blocks++;
-         _producers.modify( prod, 0, [&](auto& p ) {
+         _producers.modify( prod, _self, [&](auto& p ) {
                p.unpaid_blocks++;
          });
       }
@@ -54,7 +54,7 @@ namespace eosiosystem {
                 _gstate.thresh_activated_stake_time > 0 &&
                 (current_time() - _gstate.thresh_activated_stake_time) > 14 * useconds_per_day ) {
                    _gstate.last_name_close = timestamp;
-                   idx.modify( highest, 0, [&]( auto& b ){
+                   idx.modify( highest, _self, [&]( auto& b ){
                          b.high_bid = -b.high_bid;
                });
             }
@@ -125,7 +125,7 @@ namespace eosiosystem {
       _gstate.perblock_bucket     -= producer_per_block_pay;
       _gstate.total_unpaid_blocks -= prod.unpaid_blocks;
 
-      _producers.modify( prod, 0, [&](auto& p) {
+      _producers.modify( prod, _self, [&](auto& p) {
           p.last_claim_time = ct;
           p.unpaid_blocks = 0;
       });
