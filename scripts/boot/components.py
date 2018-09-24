@@ -13,6 +13,7 @@ class BootNode:
     def start(self, pub_key, pvt_key):
         ProcessManager.background(self.path +
                                   ' -e --producer-name eosio --private-key \'["%s","%s"]\' '
+                                  '--verbose-http-errors --contracts-console '
                                   '--genesis-json %s '
                                   '--max-transaction-time 1000 '
                                   '--plugin eosio::producer_plugin --plugin eosio::chain_api_plugin '

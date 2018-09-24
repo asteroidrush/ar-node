@@ -858,6 +858,7 @@ BOOST_FIXTURE_TEST_CASE( memory_init_border, TESTER ) try {
    produce_blocks(1);
 
    BOOST_CHECK_THROW(set_code(N(memoryborder), memory_init_toolong), eosio::chain::wasm_execution_error);
+   produce_blocks(1);
    BOOST_CHECK_THROW(set_code(N(memoryborder), memory_init_negative), eosio::chain::wasm_execution_error);
 
 } FC_LOG_AND_RETHROW()
@@ -896,6 +897,7 @@ BOOST_FIXTURE_TEST_CASE( nested_limit_test, TESTER ) try {
          ss << ")";
       ss << "))";
       set_code(N(nested), ss.str().c_str());
+      produce_block();
    }
    {
       std::stringstream ss;
@@ -906,6 +908,7 @@ BOOST_FIXTURE_TEST_CASE( nested_limit_test, TESTER ) try {
          ss << ")";
       ss << "))";
       BOOST_CHECK_THROW(set_code(N(nested), ss.str().c_str()), eosio::chain::wasm_execution_error);
+      produce_block();
    }
 
    // nested blocks
@@ -918,6 +921,7 @@ BOOST_FIXTURE_TEST_CASE( nested_limit_test, TESTER ) try {
          ss << ")";
       ss << "))";
       set_code(N(nested), ss.str().c_str());
+      produce_block();
    }
    {
       std::stringstream ss;
@@ -928,6 +932,7 @@ BOOST_FIXTURE_TEST_CASE( nested_limit_test, TESTER ) try {
          ss << ")";
       ss << "))";
       BOOST_CHECK_THROW(set_code(N(nested), ss.str().c_str()), eosio::chain::wasm_execution_error);
+      produce_block();
    }
    // nested ifs
    {
@@ -939,6 +944,7 @@ BOOST_FIXTURE_TEST_CASE( nested_limit_test, TESTER ) try {
          ss << "))";
       ss << "))";
       set_code(N(nested), ss.str().c_str());
+      produce_block();
    }
    {
       std::stringstream ss;
@@ -949,6 +955,7 @@ BOOST_FIXTURE_TEST_CASE( nested_limit_test, TESTER ) try {
          ss << "))";
       ss << "))";
       BOOST_CHECK_THROW(set_code(N(nested), ss.str().c_str()), eosio::chain::wasm_execution_error);
+      produce_block();
    }
    // mixed nested
    {
@@ -966,6 +973,7 @@ BOOST_FIXTURE_TEST_CASE( nested_limit_test, TESTER ) try {
          ss << "))";
       ss << "))";
       set_code(N(nested), ss.str().c_str());
+      produce_block();
    }
    {
       std::stringstream ss;
@@ -982,6 +990,7 @@ BOOST_FIXTURE_TEST_CASE( nested_limit_test, TESTER ) try {
          ss << "))";
       ss << "))";
       BOOST_CHECK_THROW(set_code(N(nested), ss.str().c_str()), eosio::chain::wasm_execution_error);
+      produce_block();
    }
 
 } FC_LOG_AND_RETHROW()
@@ -1005,10 +1014,12 @@ BOOST_FIXTURE_TEST_CASE( lotso_globals, TESTER ) try {
    set_code(N(globals),
       string(ss.str() + ")")
    .c_str());
+   produce_block();
    //1024 should pass
    set_code(N(globals),
       string(ss.str() + "(global $z (mut i32) (i32.const -12)))")
    .c_str());
+   produce_block();
    //1028 should fail
    BOOST_CHECK_THROW(set_code(N(globals),
       string(ss.str() + "(global $z (mut i64) (i64.const -12)))")
@@ -1659,6 +1670,7 @@ BOOST_FIXTURE_TEST_CASE( trigger_serialization_errors, TESTER) try {
    produce_block();
 
    set_code(N(bbb), proper_wasm);
+   produce_block();
    BOOST_CHECK_THROW(set_code(N(bbb), malformed_wasm), wasm_serialization_error);
    produce_blocks(1);
 } FC_LOG_AND_RETHROW()
@@ -1749,62 +1761,77 @@ BOOST_FIXTURE_TEST_CASE( fuzz, TESTER ) try {
    {
       vector<uint8_t> wasm(gfuzz1Data, gfuzz1Data + gfuzz1Size);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), fc::exception);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gfuzz2Data, gfuzz2Data + gfuzz2Size);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), fc::exception);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gfuzz3Data, gfuzz3Data + gfuzz3Size);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), fc::exception);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gfuzz4Data, gfuzz4Data + gfuzz4Size);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), fc::exception);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gfuzz5Data, gfuzz5Data + gfuzz5Size);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), fc::exception);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gfuzz6Data, gfuzz6Data + gfuzz6Size);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), fc::exception);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gfuzz7Data, gfuzz7Data + gfuzz7Size);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), fc::exception);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gfuzz8Data, gfuzz8Data + gfuzz8Size);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), fc::exception);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gfuzz9Data, gfuzz9Data + gfuzz9Size);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), fc::exception);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gfuzz10Data, gfuzz10Data + gfuzz10Size);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), fc::exception);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gfuzz11Data, gfuzz11Data + gfuzz11Size);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), fc::exception);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gfuzz12Data, gfuzz12Data + gfuzz12Size);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), fc::exception);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gfuzz13Data, gfuzz13Data + gfuzz13Size);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), fc::exception);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gfuzz14Data, gfuzz14Data + gfuzz14Size);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), fc::exception);
+      produce_block();
    }
       {
       vector<uint8_t> wasm(gfuzz15Data, gfuzz15Data + gfuzz15Size);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), fc::exception);
+      produce_block();
    }
    /*  TODO: update wasm to have apply(...) then call, claim is that this
     *  takes 1.6 seconds under wavm...
@@ -1821,70 +1848,87 @@ BOOST_FIXTURE_TEST_CASE( fuzz, TESTER ) try {
    {
       vector<uint8_t> wasm(gbig_allocationData, gbig_allocationData + gbig_allocationSize);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), wasm_serialization_error);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gcrash_section_size_too_bigData, gcrash_section_size_too_bigData + gcrash_section_size_too_bigSize);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), wasm_serialization_error);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gleak_no_destructorData, gleak_no_destructorData + gleak_no_destructorSize);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), wasm_serialization_error);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gleak_readExportsData, gleak_readExportsData + gleak_readExportsSize);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), wasm_serialization_error);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gleak_readFunctionsData, gleak_readFunctionsData + gleak_readFunctionsSize);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), wasm_serialization_error);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gleak_readFunctions_2Data, gleak_readFunctions_2Data + gleak_readFunctions_2Size);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), wasm_serialization_error);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gleak_readFunctions_3Data, gleak_readFunctions_3Data + gleak_readFunctions_3Size);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), wasm_serialization_error);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gleak_readGlobalsData, gleak_readGlobalsData + gleak_readGlobalsSize);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), wasm_serialization_error);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gleak_readImportsData, gleak_readImportsData + gleak_readImportsSize);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), wasm_serialization_error);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gleak_wasm_binary_cpp_L1249Data, gleak_wasm_binary_cpp_L1249Data + gleak_wasm_binary_cpp_L1249Size);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), wasm_serialization_error);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(greadFunctions_slowness_out_of_memoryData, greadFunctions_slowness_out_of_memoryData + greadFunctions_slowness_out_of_memorySize);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), wasm_serialization_error);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(glocals_ycData, glocals_ycData + glocals_ycSize);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), wasm_serialization_error);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(glocals_sData, glocals_sData + glocals_sSize);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), wasm_serialization_error);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gslowwasm_localsetsData, gslowwasm_localsetsData + gslowwasm_localsetsSize);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), wasm_serialization_error);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(gdeep_loops_ext_reportData, gdeep_loops_ext_reportData + gdeep_loops_ext_reportSize);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), wasm_execution_error);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(g80k_deep_loop_with_retData, g80k_deep_loop_with_retData + g80k_deep_loop_with_retSize);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), wasm_execution_error);
+      produce_block();
    }
    {
       vector<uint8_t> wasm(g80k_deep_loop_with_voidData, g80k_deep_loop_with_voidData + g80k_deep_loop_with_voidSize);
       BOOST_CHECK_THROW(set_code(N(fuzzy), wasm), wasm_execution_error);
+      produce_block();
    }
 
    produce_blocks(1);

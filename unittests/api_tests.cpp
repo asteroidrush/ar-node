@@ -252,7 +252,7 @@ BOOST_FIXTURE_TEST_CASE(action_receipt_tests, TESTER) { try {
    BOOST_REQUIRE_EQUAL(uint32_t(res->action_traces[0].receipt.code_sequence), 1);
    BOOST_REQUIRE_EQUAL(uint32_t(res->action_traces[0].receipt.abi_sequence), 0);
 
-	set_code( N(testapi), test_api_db_wast );
+	set_code( N(testapi), test_api_db_wast, nullptr, false );
    set_code( config::system_account_name, test_api_db_wast );
    res = CALL_TEST_FUNCTION( *this, "test_db", "primary_i64_general", {});
    BOOST_REQUIRE_EQUAL(uint32_t(res->action_traces[0].receipt.code_sequence), 2);
@@ -273,11 +273,11 @@ BOOST_FIXTURE_TEST_CASE(action_receipt_tests, TESTER) { try {
       BOOST_REQUIRE_EQUAL(uint32_t(res->action_traces[0].receipt.code_sequence), 2);
       BOOST_REQUIRE_EQUAL(uint32_t(res->action_traces[0].receipt.abi_sequence), 1);
    }
-   set_code( config::system_account_name, eosio_bios_wast );
+   set_code( config::system_account_name, eosio_bios_wast, nullptr, false );
 
 	set_code( N(testapi), eosio_bios_wast );
    set_abi(N(testapi), eosio_bios_abi);
-	set_code( N(testapi), test_api_wast );
+	set_code( N(testapi), test_api_wast , nullptr, false);
 	res = CALL_TEST_FUNCTION( *this, "test_action", "assert_true", {});
    BOOST_REQUIRE_EQUAL(uint32_t(res->action_traces[0].receipt.code_sequence), 4);
    BOOST_REQUIRE_EQUAL(uint32_t(res->action_traces[0].receipt.abi_sequence), 1);
@@ -991,7 +991,12 @@ BOOST_FIXTURE_TEST_CASE(transaction_tests, TESTER) { try {
    {
    produce_blocks(10);
    transaction_trace_ptr trace;
-   auto c = control->applied_transaction.connect([&]( const transaction_trace_ptr& t) { if (t && t->receipt->status != transaction_receipt::executed) { trace = t; } } );
+   auto c = control->applied_transaction.connect([&]( const transaction_trace_ptr& t) {
+         if (t && t->receipt && t->receipt->status != transaction_receipt::executed) {
+            trace = t;
+         }
+      }
+   );
 
    // test error handling on deferred transaction failure
    CALL_TEST_FUNCTION(*this, "test_transaction", "send_transaction_trigger_error_handler", {});

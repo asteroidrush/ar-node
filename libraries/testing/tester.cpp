@@ -8,6 +8,7 @@
 #include <eosio.bios/eosio.bios.abi.hpp>
 #include <fstream>
 
+
 eosio::chain::asset core_from_string(const std::string& s) {
   return eosio::chain::asset::from_string(s + " " CORE_SYMBOL_NAME);
 }
@@ -654,12 +655,33 @@ namespace eosio { namespace testing {
    }
 
 
-   void base_tester::set_code( account_name account, const char* wast, const private_key_type* signer  ) try {
-      set_code(account, wast_to_wasm(wast), signer);
+   void base_tester::set_contracthost( account_name account, bool value, const private_key_type* signer ) {
+      signed_transaction trx;
+      trx.actions.emplace_back( vector<permission_level>{{config::system_account_name,config::active_name}},
+                                contracthost{
+                                      .account    = account,
+                                      .contract_host        = value
+                                });
+
+      set_transaction_headers(trx);
+      if( signer ) {
+         trx.sign( *signer, control->get_chain_id()  );
+      } else {
+         trx.sign( get_private_key( config::system_account_name, "active" ), control->get_chain_id()  );
+      }
+      push_transaction( trx );
+   }
+
+
+   void base_tester::set_code( account_name account, const char* wast, const private_key_type* signer, bool autoset_contracthost  ) try {
+      set_code(account, wast_to_wasm(wast), signer, autoset_contracthost);
    } FC_CAPTURE_AND_RETHROW( (account) )
 
 
-   void base_tester::set_code( account_name account, const vector<uint8_t> wasm, const private_key_type* signer ) try {
+   void base_tester::set_code( account_name account, const vector<uint8_t> wasm, const private_key_type* signer, bool autoset_contracthost ) try {
+      if(autoset_contracthost)
+         set_contracthost(account, true);
+
       signed_transaction trx;
       trx.actions.emplace_back( vector<permission_level>{{account,config::active_name}},
                                 setcode{
@@ -807,9 +829,36 @@ namespace eosio { namespace testing {
    }
 
    void base_tester::push_genesis_block() {
-      set_code(config::system_account_name, eosio_bios_wast);
+      //set_code(config::system_account_name, eosio_bios_wast);
 
-      set_abi(config::system_account_name, eosio_bios_abi);
+      const auto wasm = wast_to_wasm(eosio_bios_wast);
+      signed_transaction trx;
+
+      trx.actions.emplace_back( vector<permission_level>{{config::system_account_name,config::active_name}},
+                                contracthost{
+                                      .account    = config::system_account_name,
+                                      .contract_host        = true
+                                });
+
+      trx.actions.emplace_back( vector<permission_level>{{config::system_account_name,config::active_name}},
+                                setcode{
+                                      .account    = config::system_account_name,
+                                      .vmtype     = 0,
+                                      .vmversion  = 0,
+                                      .code       = bytes(wasm.begin(), wasm.end())
+                                });
+
+      trx.actions.emplace_back( vector<permission_level>{{config::system_account_name,config::active_name}},
+                                setabi{
+                                      .account    = config::system_account_name,
+                                      .abi        = fc::raw::pack(fc::json::from_string(eosio_bios_abi).template as<abi_def>())
+                                });
+
+      set_transaction_headers(trx);
+      trx.sign( get_private_key( config::system_account_name, "active" ), control->get_chain_id()  );
+      push_transaction( trx );
+
+      //set_abi(config::system_account_name, eosio_bios_abi);
       //produce_block();
    }
 

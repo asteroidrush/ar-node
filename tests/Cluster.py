@@ -133,7 +133,7 @@ class Cluster(object):
         if self.staging:
             cmdArr.append("--nogen")
 
-        nodeosArgs="--max-transaction-time 50000 --abi-serializer-max-time-ms 990000 --filter-on * --p2p-max-nodes-per-host %d" % (totalNodes)
+        nodeosArgs="--verbose-http-errors --max-transaction-time 50000 --abi-serializer-max-time-ms 990000 --filter-on * --p2p-max-nodes-per-host %d" % (totalNodes)
         if not self.walletd:
             nodeosArgs += " --plugin eosio::wallet_api_plugin"
         if self.enableMongo:
@@ -576,11 +576,11 @@ class Cluster(object):
 
         node.validateAccounts(myAccounts)
 
-    def createAccountAndVerify(self, account, creator, stakedDeposit=1000, stakeNet=100, stakeCPU=100, buyRAM=100):
+    def createAccountAndVerify(self, account, creator, stakedDeposit=1000):
         """create account, verify account and return transaction id"""
         assert(len(self.nodes) > 0)
         node=self.nodes[0]
-        trans=node.createInitializeAccount(account, creator, stakedDeposit, stakeNet=stakeNet, stakeCPU=stakeCPU, buyRAM=buyRAM, exitOnError=True)
+        trans=node.createInitializeAccount(account, creator, stakedDeposit, exitOnError=True)
         assert(node.verifyAccount(account))
         return trans
 
@@ -597,10 +597,10 @@ class Cluster(object):
     #         return transId
     #     return None
 
-    def createInitializeAccount(self, account, creatorAccount, stakedDeposit=1000, waitForTransBlock=False, stakeNet=100, stakeCPU=100, buyRAM=100, exitOnError=False):
+    def createInitializeAccount(self, account, creatorAccount, stakedDeposit=1000, waitForTransBlock=False, exitOnError=False):
         assert(len(self.nodes) > 0)
         node=self.nodes[0]
-        trans=node.createInitializeAccount(account, creatorAccount, stakedDeposit, waitForTransBlock, stakeNet=stakeNet, stakeCPU=stakeCPU, buyRAM=buyRAM)
+        trans=node.createInitializeAccount(account, creatorAccount, stakedDeposit, waitForTransBlock)
         return trans
 
     @staticmethod
@@ -728,6 +728,13 @@ class Cluster(object):
                 Utils.Print("ERROR: Failed to import %s account keys into ignition wallet." % (eosioName))
                 return None
 
+
+            Utils.Print("Set contract host to %s" % (eosioAccount.name))
+            trans=biosNode.setContractHost(eosioAccount.name, True)
+            if trans is None:
+                Utils.Print("ERROR: Failed to set contract host to %s." % (eosioAccount.name))
+                return None
+
             contract="eosio.bios"
             contractDir="contracts/%s" % (contract)
             wasmFile="%s.wasm" % (contract)
@@ -825,31 +832,16 @@ class Cluster(object):
                 Utils.Print("ERROR: Failed to create account %s" % (eosioTokenAccount.name))
                 return None
 
-            eosioRamAccount=copy.deepcopy(eosioAccount)
-            eosioRamAccount.name="eosio.ram"
-            trans=biosNode.createAccount(eosioRamAccount, eosioAccount, 0)
-            if trans is None:
-                Utils.Print("ERROR: Failed to create account %s" % (eosioRamAccount.name))
-                return None
-
-            eosioRamfeeAccount=copy.deepcopy(eosioAccount)
-            eosioRamfeeAccount.name="eosio.ramfee"
-            trans=biosNode.createAccount(eosioRamfeeAccount, eosioAccount, 0)
-            if trans is None:
-                Utils.Print("ERROR: Failed to create account %s" % (eosioRamfeeAccount.name))
-                return None
-
-            eosioStakeAccount=copy.deepcopy(eosioAccount)
-            eosioStakeAccount.name="eosio.stake"
-            trans=biosNode.createAccount(eosioStakeAccount, eosioAccount, 0)
-            if trans is None:
-                Utils.Print("ERROR: Failed to create account %s" % (eosioStakeAccount.name))
-                return None
-
             Node.validateTransaction(trans)
             transId=Node.getTransId(trans)
             if not biosNode.waitForTransInBlock(transId):
                 Utils.Print("ERROR: Failed to validate transaction %s got rolled into a block on server port %d." % (transId, biosNode.port))
+                return None
+
+            Utils.Print("Set contract host to %s" % (eosioTokenAccount.name))
+            trans=biosNode.setContractHost(eosioTokenAccount.name, True)
+            if trans is None:
+                Utils.Print("ERROR: Failed to set contract host to %s." % (eosioTokenAccount.name))
                 return None
 
             contract="eosio.token"
@@ -879,6 +871,25 @@ class Cluster(object):
                 Utils.Print("ERROR: Failed to validate transaction %s got rolled into a block on server port %d." % (transId, biosNode.port))
                 return None
 
+
+            Utils.Print("Set contract host to %s" % (eosioAccount.name))
+            trans=biosNode.setContractHost(eosioAccount.name, True)
+            if trans is None:
+                Utils.Print("ERROR: Failed to set contract host to %s." % (eosioAccount.name))
+                return None
+
+            contract="eosio.system"
+            contractDir="contracts/%s" % (contract)
+            wasmFile="%s.wasm" % (contract)
+            abiFile="%s.abi" % (contract)
+            Utils.Print("Publish %s contract" % (contract))
+            trans=biosNode.publishContract(eosioAccount.name, contractDir, wasmFile, abiFile, waitForTransBlock=True)
+            if trans is None:
+                Utils.Print("ERROR: Failed to publish contract %s." % (contract))
+                return None
+
+            Node.validateTransaction(trans)
+
             contract=eosioTokenAccount.name
             Utils.Print("push issue action to %s contract" % (contract))
             action="issue"
@@ -907,18 +918,6 @@ class Cluster(object):
                             (expectedAmount, actualAmount))
                 return None
 
-            contract="eosio.system"
-            contractDir="contracts/%s" % (contract)
-            wasmFile="%s.wasm" % (contract)
-            abiFile="%s.abi" % (contract)
-            Utils.Print("Publish %s contract" % (contract))
-            trans=biosNode.publishContract(eosioAccount.name, contractDir, wasmFile, abiFile, waitForTransBlock=True)
-            if trans is None:
-                Utils.Print("ERROR: Failed to publish contract %s." % (contract))
-                return None
-
-            Node.validateTransaction(trans)
-
             initialFunds="1000000.0000 {0}".format(CORE_SYMBOL)
             Utils.Print("Transfer initial fund %s to individual accounts." % (initialFunds))
             trans=None
@@ -929,7 +928,7 @@ class Cluster(object):
                 opts="--permission %s@active" % (eosioAccount.name)
                 trans=biosNode.pushMessage(contract, action, data, opts)
                 if trans is None or not trans[0]:
-                    Utils.Print("ERROR: Failed to transfer funds from %s to %s." % (eosioTokenAccount.name, name))
+                    Utils.Print("ERROR: Failed to transfer funds from %s to %s." % (eosioAccount.name, name))
                     return None
 
                 Node.validateTransaction(trans[1])

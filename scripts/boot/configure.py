@@ -58,15 +58,13 @@ accounts_manager.create_system_accounts()
 
 contracts_manager = ContractsManager(args.contracts_dir, accounts_manager, cleos)
 contracts_manager.install_base_contracts()
+contracts_manager.install_system_contract()
 
 for data in [configs['system_token'], configs['support_token']]:
     token = Token(data['name'], data['max_supply'], cleos)
     token.create()
     if data['supply']:
         token.issue(data['supply'])
-
-
-contracts_manager.install_system_contract()
 
 accounts_manager.create_management_accounts()
 

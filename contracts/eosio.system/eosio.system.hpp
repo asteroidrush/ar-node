@@ -48,7 +48,8 @@ namespace eosiosystem {
       uint64_t             total_ram_bytes_reserved_for_accounts = 0;
 
       block_timestamp      last_producer_schedule_update;
-      uint64_t             payment_bucket_per_year = 1'000'000;
+      uint64_t             payment_bucket_per_year = 1'000'000'0000;
+      uint64_t             first_system_block_time = 0;
       uint64_t             last_pervote_bucket_fill = 0;
       int64_t              pervote_bucket = 0;
       int64_t              perblock_bucket = 0;
@@ -64,7 +65,7 @@ namespace eosiosystem {
                                 (max_ram_size)(max_ram_size_for_accounts)
                                 (total_ram_bytes_reserved)(total_ram_bytes_reserved_for_accounts)
                                 (max_accounts)(account_ram_size)
-                                (last_producer_schedule_update)(payment_bucket_per_year)(last_pervote_bucket_fill)
+                                (last_producer_schedule_update)(payment_bucket_per_year)(first_system_block_time)(last_pervote_bucket_fill)
                                 (pervote_bucket)(perblock_bucket)(total_unpaid_blocks)(total_activated_stake)(thresh_activated_stake_time)
                                 (last_producer_schedule_size)(total_producer_vote_weight)(last_name_close) )
    };
@@ -144,7 +145,7 @@ namespace eosiosystem {
    //   static constexpr uint32_t     max_inflation_rate = 5;  // 5% annual inflation
    static constexpr uint32_t     seconds_per_day = 24 * 3600;
    static constexpr uint64_t     system_token_symbol = CORE_SYMBOL;
-   static constexpr uint64_t     support_token_symbol = S(4, 'SPT'); // used for payments to miners
+   static constexpr uint64_t     support_token_symbol = S(4,SPT); // used for payments to miners
 
    class system_contract : public native {
       private:

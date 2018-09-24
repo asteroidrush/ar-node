@@ -15,6 +15,7 @@
 #include <Runtime/Runtime.h>
 
 #include <fc/variant_object.hpp>
+#include <eosio/chain/asset.hpp>
 
 #ifdef NON_VALIDATING_TEST
 #define TESTER tester
@@ -22,6 +23,12 @@
 #define TESTER validating_tester
 #endif
 
+#define SPT_SYMBOL SY(4,SPT)
+#define SPT_SYMBOL_NAME "SPT"
+
+eosio::chain::asset spt_from_string(const std::string& s) {
+   return eosio::chain::asset::from_string(s + " " SPT_SYMBOL_NAME);
+}
 
 using namespace eosio;
 using namespace eosio::chain;
@@ -40,6 +47,7 @@ std::vector<genesis_account> test_genesis( {
   {N(whale4), 40'000'000'0000ll},
   {N(whale3), 30'000'000'0000ll},
   {N(whale2), 20'000'000'0000ll},
+  {N(whale1), 10'000'000'0000ll},
   {N(proda),      1'000'000'0000ll},
   {N(prodb),      1'000'000'0000ll},
   {N(prodc),      1'000'000'0000ll},
@@ -80,23 +88,21 @@ public:
 
    }
 
-    auto buyram( name payer, name receiver, asset ram ) {
-       auto r = base_tester::push_action(config::system_account_name, N(buyram), payer, mvo()
-                    ("payer", payer)
-                    ("receiver", receiver)
-                    ("quant", ram)
-                    );
+    auto set_ram(name account, int64_t ram) {
+       auto r = base_tester::push_action(config::system_account_name, N(setaccntram), config::system_account_name, mvo()
+             ("account", account)
+             ("ram", ram)
+       );
        produce_block();
        return r;
     }
 
-    auto delegate_bandwidth( name from, name receiver, asset net, asset cpu, uint8_t transfer = 1) {
-       auto r = base_tester::push_action(config::system_account_name, N(delegatebw), from, mvo()
+    auto set_stake(name from, name receiver, int64_t stake, uint8_t transfer = 1) {
+       auto r = base_tester::push_action(N(eosio.token), N(transfer), from, mvo()
                     ("from", from )
-                    ("receiver", receiver)
-                    ("stake_net_quantity", net)
-                    ("stake_cpu_quantity", cpu)
-                    ("transfer", transfer)
+                    ("to", receiver)
+                    ("quantity", asset(stake, symbol(CORE_SYMBOL)).to_string())
+                    ("memo", "Stake initial value")
                     );
        produce_block();
        return r;
@@ -182,7 +188,7 @@ BOOST_FIXTURE_TEST_CASE( bootseq_test, bootseq_tester ) {
     try {
 
         // Create eosio.msig and eosio.token
-        create_accounts({N(eosio.msig), N(eosio.token), N(eosio.ram), N(eosio.ramfee), N(eosio.stake), N(eosio.vpay), N(eosio.bpay), N(eosio.saving) });
+        create_accounts({N(eosio.msig), N(eosio.token), N(eosio.vpay), N(eosio.bpay)});
 
         // Set code for the following accounts:
         //  - eosio (code: eosio.bios) (already set by tester constructor)
@@ -201,13 +207,19 @@ BOOST_FIXTURE_TEST_CASE( bootseq_test, bootseq_tester ) {
         const auto& eosio_token_acc = get<account_object, by_name>(N(eosio.token));
         BOOST_TEST(eosio_token_acc.privileged == true);
 
+        // Set eosio.system to eosio
+        set_code_abi(config::system_account_name, eosio_system_wast, eosio_system_abi);
 
         // Create SYS tokens in eosio.token, set its manager as eosio
-        auto max_supply = core_from_string("10000000000.0000"); /// 1x larger than 1B initial tokens
-        auto initial_supply = core_from_string("1000000000.0000"); /// 1x larger than 1B initial tokens
-        create_currency(N(eosio.token), config::system_account_name, max_supply);
+        auto core_max_supply = core_from_string("10000000000.0000"); /// 1x larger than 1B initial tokens
+        auto initial_supply = core_from_string("10000000000.0000"); /// 1x larger than 1B initial tokens
+        create_currency(N(eosio.token), config::system_account_name, core_max_supply);
         // Issue the genesis supply of 1 billion SYS tokens to eosio.system
         issue(N(eosio.token), config::system_account_name, config::system_account_name, initial_supply);
+
+        // Create SPT tokens in eosio.token, set its manager as eosio
+        auto spt_max_supply = spt_from_string("10000000000.0000"); /// 1x larger than 1B initial tokens
+        create_currency(N(eosio.token), config::system_account_name, spt_max_supply);
 
         auto actual = get_balance(config::system_account_name);
         BOOST_REQUIRE_EQUAL(initial_supply, actual);
@@ -217,20 +229,14 @@ BOOST_FIXTURE_TEST_CASE( bootseq_test, bootseq_tester ) {
            create_account( a.aname, config::system_account_name );
         }
 
-        // Set eosio.system to eosio
-        set_code_abi(config::system_account_name, eosio_system_wast, eosio_system_abi);
-
-        // Buy ram and stake cpu and net for each genesis accounts
         for( const auto& a : test_genesis ) {
            auto ib = a.initial_balance;
-           auto ram = 1000;
-           auto net = (ib - ram) / 2;
-           auto cpu = ib - net - ram;
+           auto ram = 6000;
 
-           auto r = buyram(config::system_account_name, a.aname, asset(ram));
+           auto r = set_ram(a.aname, ram);
            BOOST_REQUIRE( !r->except_ptr );
 
-           r = delegate_bandwidth(N(eosio.stake), a.aname, asset(net), asset(cpu));
+           r = set_stake(config::system_account_name, a.aname, ib);
            BOOST_REQUIRE( !r->except_ptr );
         }
 
@@ -258,11 +264,11 @@ BOOST_FIXTURE_TEST_CASE( bootseq_test, bootseq_tester ) {
         votepro( N(b1), { N(proda), N(prodb), N(prodc), N(prodd), N(prode), N(prodf), N(prodg),
                            N(prodh), N(prodi), N(prodj), N(prodk), N(prodl), N(prodm), N(prodn),
                            N(prodo), N(prodp), N(prodq), N(prodr), N(prods), N(prodt), N(produ)} );
-        votepro( N(whale2), {N(runnerup1), N(runnerup2), N(runnerup3)} );
+        votepro( N(whale1), {N(runnerup1), N(runnerup2), N(runnerup3)} );
         votepro( N(whale3), {N(proda), N(prodb), N(prodc), N(prodd), N(prode)} );
 
-        // Total Stakes = b1 + whale2 + whale3 stake = (100,000,000 - 1,000) + (20,000,000 - 1,000) + (30,000,000 - 1,000)
-        BOOST_TEST(get_global_state()["total_activated_stake"].as<int64_t>() == 1499999997000);
+        // Total Stakes = b1 + whale2 + whale3 stake
+        BOOST_TEST(get_global_state()["total_activated_stake"].as<int64_t>() == 140'000'000'0000);
 
         // No producers will be set, since the total activated stake is less than 150,000,000
         produce_blocks_for_n_rounds(2); // 2 rounds since new producer schedule is set when the first block of next round is irreversible
@@ -275,9 +281,9 @@ BOOST_FIXTURE_TEST_CASE( bootseq_test, bootseq_tester ) {
         // Since the total activated stake is less than 150,000,000, it shouldn't be possible to claim rewards
         BOOST_REQUIRE_THROW(claim_rewards(N(runnerup1)), eosio_assert_message_exception);
 
-        // This will increase the total vote stake by (40,000,000 - 1,000)
+        // This will increase the total vote stake by 40,000,000
         votepro( N(whale4), {N(prodq), N(prodr), N(prods), N(prodt), N(produ)} );
-        BOOST_TEST(get_global_state()["total_activated_stake"].as<int64_t>() == 1899999996000);
+        BOOST_TEST(get_global_state()["total_activated_stake"].as<int64_t>() == 180'000'000'0000);
 
         // Since the total vote stake is more than 150,000,000, the new producer set will be set
         produce_blocks_for_n_rounds(2); // 2 rounds since new producer schedule is set when the first block of next round is irreversible
@@ -315,16 +321,6 @@ BOOST_FIXTURE_TEST_CASE( bootseq_test, bootseq_tester ) {
         const auto first_june_2028 = fc::seconds(1843430400); // 2028-06-01
         // Ensure that now is yet 10 years after 2018-06-01 yet
         BOOST_REQUIRE(control->head_block_time().time_since_epoch() < first_june_2028);
-
-        // This should thrown an error, since block one can only unstake all his stake after 10 years
-
-        BOOST_REQUIRE_THROW(undelegate_bandwidth(N(b1), N(b1), core_from_string("49999500.0000"), core_from_string("49999500.0000")), eosio_assert_message_exception);
-
-        // Skip 10 years
-        produce_block(first_june_2028 - control->head_block_time().time_since_epoch());
-
-        // Block one should be able to unstake all his stake now
-        undelegate_bandwidth(N(b1), N(b1), core_from_string("49999500.0000"), core_from_string("49999500.0000"));
 
         return;
         produce_blocks(7000); /// produce blocks until virutal bandwidth can acomadate a small user
