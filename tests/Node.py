@@ -411,12 +411,12 @@ class Node(object):
 
 
     # Create & initialize account and return creation transactions. Return transaction json object
-    def createInitializeAccount(self, account, creatorAccount, stakedDeposit=1000, waitForTransBlock=False, stakeNet=100, stakeCPU=100, buyRAM=100, exitOnError=False):
+    def createInitializeAccount(self, account, creatorAccount, stakedDeposit=1000, waitForTransBlock=False, exitOnError=False):
         cmdDesc="system newaccount"
-        cmd='%s -j %s %s %s %s --stake-net "%s %s" --stake-cpu "%s %s" --buy-ram "%s %s"' % (
+        cmd='%s -j %s %s %s %s' % (
             cmdDesc, creatorAccount.name, account.name, account.ownerPublicKey,
-            account.activePublicKey, stakeNet, CORE_SYMBOL, stakeCPU, CORE_SYMBOL, buyRAM, CORE_SYMBOL)
-        msg="(creator account=%s, account=%s)" % (creatorAccount.name, account.name);
+            account.activePublicKey)
+        msg="(creator account=%s, account=%s)" % (creatorAccount.name, account.name)
         trans=self.processCmd(cmd, cmdDesc, silentErrors=False, exitOnError=exitOnError, exitMsg=msg)
         transId=Node.getTransId(trans)
 
@@ -441,6 +441,17 @@ class Node(object):
             self.waitForTransInBlock(transId) # seems like account creation needs to be finlized before transfer can happen
             trans = self.transferFunds(creatorAccount, account, "%0.04f %s" % (stakedDeposit/10000, CORE_SYMBOL), "init")
             transId=Node.getTransId(trans)
+
+        return self.waitForTransBlockIfNeeded(trans, waitForTransBlock, exitOnError=exitOnError)
+
+    def setAccountRam(self, account, ram, waitForTransBlock=False, exitOnError=False):
+        """Create account and return creation transactions. Return transaction json object.
+        waitForTransBlock: wait on creation transaction id to appear in a block."""
+        cmdDesc="set account ram"
+        cmd="%s -j %s %s" % (
+            cmdDesc, account.name, ram * 1024)
+        trans=self.processCmd(cmd, cmdDesc, silentErrors=False, exitOnError=exitOnError)
+        transId=Node.getTransId(trans)
 
         return self.waitForTransBlockIfNeeded(trans, waitForTransBlock, exitOnError=exitOnError)
 
@@ -758,6 +769,36 @@ class Node(object):
             msg=ex.output.decode("utf-8")
             Utils.Print("ERROR: Exception during code hash retrieval. %s" % (msg))
             return None
+
+
+    def setContractHost(self, account, waitForTransBlock=False,  shouldFail=False):
+        cmd = "%s %s set account contracthost -j %s 1" % (Utils.EosClientPath, self.endpointArgs, account)
+        if Utils.Debug: Utils.Print("cmd: %s" % (cmd))
+        trans=None
+        try:
+            trans=Utils.runCmdReturnJson(cmd, trace=False)
+        except subprocess.CalledProcessError as ex:
+            if not shouldFail:
+                msg=ex.output.decode("utf-8")
+                Utils.Print("ERROR: Exception during attempt to set contract host. %s" % (msg))
+                return None
+            else:
+                retMap={}
+                retMap["returncode"]=ex.returncode
+                retMap["cmd"]=ex.cmd
+                retMap["output"]=ex.output
+                # commented below as they are available only in Python3.5 and above
+                # retMap["stdout"]=ex.stdout
+                # retMap["stderr"]=ex.stderr
+                return retMap
+
+        if shouldFail:
+            Utils.Print("ERROR: Attempt to set contract host did not fail as expected.")
+            return None
+
+        Node.validateTransaction(trans)
+        return self.waitForTransBlockIfNeeded(trans, waitForTransBlock, exitOnError=False)
+
 
     # publish contract and return transaction as json object
     def publishContract(self, account, contractDir, wasmFile, abiFile, waitForTransBlock=False, shouldFail=False):

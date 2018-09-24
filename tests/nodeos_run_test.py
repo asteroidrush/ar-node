@@ -204,12 +204,16 @@ try:
     # create accounts via eosio as otherwise a bid is needed 
     Print("Create new account %s via %s" % (testeraAccount.name, cluster.eosioAccount.name))
     transId=node.createInitializeAccount(testeraAccount, cluster.eosioAccount, stakedDeposit=0, waitForTransBlock=False, exitOnError=True)
+    transId=node.setAccountRam(testeraAccount, 300)
+
 
     Print("Create new account %s via %s" % (currencyAccount.name, cluster.eosioAccount.name))
     transId=node.createInitializeAccount(currencyAccount, cluster.eosioAccount, stakedDeposit=5000, exitOnError=True)
+    transId=node.setAccountRam(currencyAccount, 300)
 
     Print("Create new account %s via %s" % (exchangeAccount.name, cluster.eosioAccount.name))
     transId=node.createInitializeAccount(exchangeAccount, cluster.eosioAccount, waitForTransBlock=True, exitOnError=True)
+    transId=node.setAccountRam(exchangeAccount, 1000)
 
     Print("Validating accounts after user accounts creation")
     accounts=[testeraAccount, currencyAccount, exchangeAccount]
@@ -317,6 +321,12 @@ try:
     hashNum=int(codeHash, 16)
     if hashNum != 0:
         errorExit("FAILURE - get code currency1111 failed", raw=True)
+
+    Print("Set contract host to %s" % (currencyAccount.name))
+    trans=node.setContractHost(currencyAccount.name, True)
+    if trans is None:
+        cmdError("ERROR: Failed to set contract host to %s." % (currencyAccount.name))
+        errorExit("Failed to set contract host.")
 
     contractDir="contracts/eosio.token"
     wasmFile="eosio.token.wasm"
@@ -602,6 +612,13 @@ try:
 
 
     Print("Exchange Contract Tests")
+
+    Print("Set contract host to %s" % (exchangeAccount.name))
+    trans=node.setContractHost(exchangeAccount.name, True)
+    if trans is None:
+        cmdError("ERROR: Failed to set contract host to %s." % (exchangeAccount.name))
+        errorExit("Failed to set contract host.")
+
     Print("upload exchange contract")
 
     contractDir="contracts/exchange"
