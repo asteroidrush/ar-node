@@ -33,7 +33,7 @@ class eosio_msig_tester : public tester {
 public:
 
    eosio_msig_tester() {
-      create_accounts( { N(eosio.msig), N(eosio.stake), N(eosio.ram), N(eosio.ramfee), N(alice), N(bob), N(carol) } );
+      create_accounts( { N(eosio.msig), N(eosio.stake), N(alice), N(bob), N(carol) } );
       produce_block();
 
       auto trace = base_tester::push_action(config::system_account_name, N(setpriv),
@@ -52,8 +52,7 @@ public:
       abi_ser.set_abi(abi, abi_serializer_max_time);
    }
 
-   transaction_trace_ptr create_account_with_resources( account_name a, account_name creator, asset ramfunds, bool multisig,
-                                                        asset net = core_from_string("10.0000"), asset cpu = core_from_string("10.0000") ) {
+   transaction_trace_ptr create_account_with_resources( account_name a, account_name creator, bool multisig, int64_t ram = 8000, int64_t net = 1, int64_t cpu = 1 ) {
       signed_transaction trx;
       set_transaction_headers(trx);
 
@@ -67,28 +66,24 @@ public:
 
       trx.actions.emplace_back( vector<permission_level>{{creator,config::active_name}},
                                 newaccount{
-                                   .creator  = creator,
-                                   .name     = a,
-                                   .owner    = owner_auth,
-                                   .active   = authority( get_public_key( a, "active" ) )
+                                      .creator  = creator,
+                                      .name     = a,
+                                      .owner    = owner_auth,
+                                      .active   = authority( get_public_key( a, "active" ) )
                                 });
 
-      trx.actions.emplace_back( get_action( config::system_account_name, N(buyram), vector<permission_level>{{creator,config::active_name}},
-                                            mvo()
-                                            ("payer", creator)
-                                            ("receiver", a)
-                                            ("quant", ramfunds) )
-                              );
+      trx.actions.emplace_back( get_action(config::system_account_name, N(setaccntram), vector<permission_level>{{config::system_account_name,config::active_name}},
+                                           mvo()
+                                           ("account", a)
+                                           ("ram", ram)
+                              ));
 
-      trx.actions.emplace_back( get_action( config::system_account_name, N(delegatebw), vector<permission_level>{{creator,config::active_name}},
-                                            mvo()
-                                            ("from", creator)
-                                            ("receiver", a)
-                                            ("stake_net_quantity", net )
-                                            ("stake_cpu_quantity", cpu )
-                                            ("transfer", 0 )
-                                          )
-                                );
+      trx.actions.emplace_back( get_action(config::system_account_name, N(setaccntbw), vector<permission_level>{{config::system_account_name,config::active_name}},
+                                           mvo()
+                                           ("account", a)
+                                           ("net", net)
+                                           ("cpu", cpu)
+                              ));
 
       set_transaction_headers(trx);
       trx.sign( get_private_key( creator, "active" ), control->get_chain_id()  );
@@ -369,9 +364,13 @@ BOOST_FIXTURE_TEST_CASE( big_transaction, eosio_msig_tester ) try {
    );
 
    transaction_trace_ptr trace;
-   control->applied_transaction.connect([&]( const transaction_trace_ptr& t) { if (t->scheduled) { trace = t; } } );
+   control->applied_transaction.connect([&]( const transaction_trace_ptr& t) {
+      if (t->scheduled) {
+         trace = t;
+      }
+   } );
 
-   push_action( N(alice), N(exec), mvo()
+   trace = push_action( N(alice), N(exec), mvo()
                   ("proposer",      "alice")
                   ("proposal_name", "first")
                   ("executer",      "alice")
@@ -385,7 +384,6 @@ BOOST_FIXTURE_TEST_CASE( big_transaction, eosio_msig_tester ) try {
 
 
 BOOST_FIXTURE_TEST_CASE( update_system_contract_all_approve, eosio_msig_tester ) try {
-
    // required to set up the link between (eosio active) and (eosio.prods active)
    //
    //                  eosio active
@@ -408,20 +406,18 @@ BOOST_FIXTURE_TEST_CASE( update_system_contract_all_approve, eosio_msig_tester )
 
    create_currency( N(eosio.token), config::system_account_name, core_from_string("10000000000.0000") );
    issue(config::system_account_name, core_from_string("1000000000.0000"));
-   BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"),
-                        get_balance("eosio") + get_balance("eosio.ramfee") + get_balance("eosio.stake") + get_balance("eosio.ram") );
+   BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"), get_balance("eosio") );
 
    set_code( config::system_account_name, eosio_system_wast );
    set_abi( config::system_account_name, eosio_system_abi );
 
    produce_blocks();
 
-   create_account_with_resources( N(alice1111111), config::system_account_name, core_from_string("1.0000"), false );
-   create_account_with_resources( N(bob111111111), config::system_account_name, core_from_string("0.4500"), false );
-   create_account_with_resources( N(carol1111111), config::system_account_name, core_from_string("1.0000"), false );
+   create_account_with_resources( N(alice1111111), config::system_account_name, false );
+   create_account_with_resources( N(bob111111111), config::system_account_name, false );
+   create_account_with_resources( N(carol1111111), config::system_account_name, false );
 
-   BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"),
-                        get_balance("eosio") + get_balance("eosio.ramfee") + get_balance("eosio.stake") + get_balance("eosio.ram") );
+   BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"), get_balance("eosio") );
 
    vector<permission_level> perm = { { N(alice), config::active_name }, { N(bob), config::active_name },
       {N(carol), config::active_name} };
@@ -496,7 +492,7 @@ BOOST_FIXTURE_TEST_CASE( update_system_contract_all_approve, eosio_msig_tester )
 
    // can't create account because system contract was replace by the test_api contract
 
-   BOOST_REQUIRE_EXCEPTION( create_account_with_resources( N(alice1111112), config::system_account_name, core_from_string("1.0000"), false ),
+   BOOST_REQUIRE_EXCEPTION( create_account_with_resources( N(alice1111112), config::system_account_name, false ),
                             eosio_assert_message_exception, eosio_assert_message_is("Unknown Test")
 
    );
@@ -527,12 +523,11 @@ BOOST_FIXTURE_TEST_CASE( update_system_contract_major_approve, eosio_msig_tester
 
    produce_blocks();
 
-   create_account_with_resources( N(alice1111111), config::system_account_name, core_from_string("1.0000"), false );
-   create_account_with_resources( N(bob111111111), config::system_account_name, core_from_string("0.4500"), false );
-   create_account_with_resources( N(carol1111111), config::system_account_name, core_from_string("1.0000"), false );
+   create_account_with_resources( N(alice1111111), config::system_account_name, false );
+   create_account_with_resources( N(bob111111111), config::system_account_name, false );
+   create_account_with_resources( N(carol1111111), config::system_account_name, false );
 
-   BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"),
-                        get_balance("eosio") + get_balance("eosio.ramfee") + get_balance("eosio.stake") + get_balance("eosio.ram") );
+   BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"), get_balance("eosio") );
 
    vector<permission_level> perm = { { N(alice), config::active_name }, { N(bob), config::active_name },
       {N(carol), config::active_name}, {N(apple), config::active_name}};
@@ -619,7 +614,7 @@ BOOST_FIXTURE_TEST_CASE( update_system_contract_major_approve, eosio_msig_tester
 
    // can't create account because system contract was replace by the test_api contract
 
-   BOOST_REQUIRE_EXCEPTION( create_account_with_resources( N(alice1111112), config::system_account_name, core_from_string("1.0000"), false ),
+   BOOST_REQUIRE_EXCEPTION( create_account_with_resources( N(alice1111112), config::system_account_name, false ),
                             eosio_assert_message_exception, eosio_assert_message_is("Unknown Test")
 
    );

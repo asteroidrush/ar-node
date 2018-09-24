@@ -191,8 +191,9 @@ namespace eosio { namespace testing {
             return get_private_key<KeyType>( keyname, role ).get_public_key();
          }
 
-         void              set_code( account_name name, const char* wast, const private_key_type* signer = nullptr );
-         void              set_code( account_name name, const vector<uint8_t> wasm, const private_key_type* signer = nullptr  );
+         void              set_contracthost( account_name account, bool value, const private_key_type* signer = nullptr );
+         void              set_code( account_name name, const char* wast, const private_key_type* signer = nullptr, bool autoset_contracthost=true  );
+         void              set_code( account_name name, const vector<uint8_t> wasm, const private_key_type* signer = nullptr, bool autoset_contracthost=true  );
          void              set_abi( account_name name, const char* abi_json, const private_key_type* signer = nullptr );
 
          bool                          chain_has_transaction( const transaction_id_type& txid ) const;
