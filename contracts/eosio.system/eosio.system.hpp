@@ -141,6 +141,7 @@ namespace eosiosystem {
    typedef eosio::multi_index<N(stat), currency_stats> stats;
 
 
+
    typedef eosio::singleton<N(global), eosio_global_state> global_state_singleton;
 
    //   static constexpr uint32_t     max_inflation_rate = 5;  // 5% annual inflation
@@ -215,7 +216,16 @@ namespace eosiosystem {
 
          void bidname( account_name bidder, account_name newname, asset bid );
       private:
+         struct account {
+            asset    balance;
+
+            uint64_t primary_key()const { return balance.symbol.name(); }
+         };
+         typedef eosio::multi_index<N(accounts), account> balances;
+
+
          void update_elected_producers( block_timestamp timestamp );
+         void require_be_stakeholder( account_name account );
 
          // Implementation details:
 

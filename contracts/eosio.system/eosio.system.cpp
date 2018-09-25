@@ -116,6 +116,12 @@ namespace eosiosystem {
       }
    }
 
+   void system_contract::require_be_stakeholder( account_name account ){
+      balances accounts_table(N(eosio.token), account);
+      accounts_table.get(eosio::symbol_type(CORE_SYMBOL).name(), "you must be stakeholder");
+   }
+
+
    /**
     *  Called after a new account is created. This code enforces resource-limits rules
     *  for new accounts as well as new account naming conventions.

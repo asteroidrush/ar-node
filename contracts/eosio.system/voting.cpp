@@ -91,6 +91,7 @@ namespace eosiosystem {
       eosio_assert( url.size() < 512, "url too long" );
       eosio_assert( producer_key != eosio::public_key(), "public key should not be the default value" );
       require_auth( producer );
+      require_be_stakeholder( producer );
 
       auto prod = _producers.find( producer );
 
@@ -104,7 +105,6 @@ namespace eosiosystem {
       } else {
          _producers.emplace( _self, [&]( producer_info& info ){
                info.owner         = producer;
-               info.total_votes   = 0;
                info.producer_key  = producer_key;
                info.is_active     = true;
                info.url           = url;
@@ -173,6 +173,7 @@ namespace eosiosystem {
     */
    void system_contract::voteproducer( const account_name voter_name, const account_name proxy, const std::vector<account_name>& producers ) {
       require_auth( voter_name );
+      require_be_stakeholder( voter_name );
       update_votes( voter_name, proxy, producers, true );
    }
 
@@ -282,6 +283,7 @@ namespace eosiosystem {
     */
    void system_contract::regproxy( const account_name proxy, bool isproxy ) {
       require_auth( proxy );
+      require_be_stakeholder( proxy );
 
       auto pitr = _voters.find(proxy);
       if ( pitr != _voters.end() ) {
