@@ -33,7 +33,28 @@ class eosio_msig_tester : public tester {
 public:
 
    eosio_msig_tester() {
-      create_accounts( { N(eosio.msig), N(eosio.stake), N(alice), N(bob), N(carol) } );
+      create_accounts( { N(eosio.msig), N(eosio.token) } );
+
+      create_accounts( { N(alice), N(bob), N(carol), N(apple) } );
+      set_producers( {N(alice),N(bob),N(carol),N(apple)} );
+
+      set_code( config::system_account_name, eosio_system_wast );
+      set_abi( config::system_account_name, eosio_system_abi );
+
+      set_code( N(eosio.token), eosio_token_wast );
+      set_abi( N(eosio.token), eosio_token_abi );
+
+      create_currency( N(eosio.token), config::system_account_name, core_from_string("10000000000.0000") );
+      issue(config::system_account_name, core_from_string("1000000000.0000"));
+      BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"), get_balance("eosio") );
+
+      transfer(config::system_account_name, N(alice), core_from_string("0.0001").to_string());
+      transfer(config::system_account_name, N(bob), core_from_string("0.0001").to_string());
+      transfer(config::system_account_name, N(carol), core_from_string("0.0001").to_string());
+      transfer(config::system_account_name, N(apple), core_from_string("0.0001").to_string());
+
+      BOOST_REQUIRE_EQUAL( core_from_string("999999999.9996"), get_balance("eosio") );
+
       produce_block();
 
       auto trace = base_tester::push_action(config::system_account_name, N(setpriv),
@@ -52,7 +73,18 @@ public:
       abi_ser.set_abi(abi, abi_serializer_max_time);
    }
 
-   transaction_trace_ptr create_account_with_resources( account_name a, account_name creator, bool multisig, int64_t ram = 8000, int64_t net = 1, int64_t cpu = 1 ) {
+   vector<transaction_trace_ptr>  create_accounts_with_resources( vector<account_name> names,
+                                                   bool multisig = false
+   )
+   {
+      vector<transaction_trace_ptr> traces;
+      traces.reserve(names.size());
+      for( auto n : names ) traces.emplace_back( create_account_with_resources( n, config::system_account_name, multisig ) );
+      return traces;
+   }
+
+
+   transaction_trace_ptr create_account_with_resources( account_name a, account_name creator, bool multisig, int64_t ram = 4000, int64_t net = 1, int64_t cpu = 1, int64_t staked = 1 ) {
       signed_transaction trx;
       set_transaction_headers(trx);
 
@@ -84,6 +116,18 @@ public:
                                            ("net", net)
                                            ("cpu", cpu)
                               ));
+
+      if(staked){
+         trx.actions.emplace_back( get_action(N(eosio.token), N(transfer), vector<permission_level>{{config::system_account_name,config::active_name}},
+                                              mvo()
+                                              ("from",    "eosio")
+                                              ("to",      a )
+                                              ("quantity", asset(1) )
+                                              ("memo", "")
+                                              )
+         );
+      }
+
 
       set_transaction_headers(trx);
       trx.sign( get_private_key( creator, "active" ), control->get_chain_id()  );
@@ -397,27 +441,7 @@ BOOST_FIXTURE_TEST_CASE( update_system_contract_all_approve, eosio_msig_tester )
       vector<permission_level_weight>{{{N(eosio.prods), config::active_name}, 1}}), "owner",
       { { config::system_account_name, "active" } }, { get_private_key( config::system_account_name, "active" ) });
 
-   set_producers( {N(alice),N(bob),N(carol)} );
    produce_blocks(50);
-
-   create_accounts( { N(eosio.token) } );
-   set_code( N(eosio.token), eosio_token_wast );
-   set_abi( N(eosio.token), eosio_token_abi );
-
-   create_currency( N(eosio.token), config::system_account_name, core_from_string("10000000000.0000") );
-   issue(config::system_account_name, core_from_string("1000000000.0000"));
-   BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"), get_balance("eosio") );
-
-   set_code( config::system_account_name, eosio_system_wast );
-   set_abi( config::system_account_name, eosio_system_abi );
-
-   produce_blocks();
-
-   create_account_with_resources( N(alice1111111), config::system_account_name, false );
-   create_account_with_resources( N(bob111111111), config::system_account_name, false );
-   create_account_with_resources( N(carol1111111), config::system_account_name, false );
-
-   BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"), get_balance("eosio") );
 
    vector<permission_level> perm = { { N(alice), config::active_name }, { N(bob), config::active_name },
       {N(carol), config::active_name} };
@@ -506,28 +530,7 @@ BOOST_FIXTURE_TEST_CASE( update_system_contract_major_approve, eosio_msig_tester
       vector<permission_level_weight>{{{N(eosio.prods), config::active_name}, 1}}), "owner",
       { { config::system_account_name, "active" } }, { get_private_key( config::system_account_name, "active" ) });
 
-   create_accounts( { N(apple) } );
-   set_producers( {N(alice),N(bob),N(carol), N(apple)} );
    produce_blocks(50);
-
-   create_accounts( { N(eosio.token) } );
-   set_code( N(eosio.token), eosio_token_wast );
-   set_abi( N(eosio.token), eosio_token_abi );
-
-   create_currency( N(eosio.token), config::system_account_name, core_from_string("10000000000.0000") );
-   issue(config::system_account_name, core_from_string("1000000000.0000"));
-   BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"), get_balance( "eosio" ) );
-
-   set_code( config::system_account_name, eosio_system_wast );
-   set_abi( config::system_account_name, eosio_system_abi );
-
-   produce_blocks();
-
-   create_account_with_resources( N(alice1111111), config::system_account_name, false );
-   create_account_with_resources( N(bob111111111), config::system_account_name, false );
-   create_account_with_resources( N(carol1111111), config::system_account_name, false );
-
-   BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"), get_balance("eosio") );
 
    vector<permission_level> perm = { { N(alice), config::active_name }, { N(bob), config::active_name },
       {N(carol), config::active_name}, {N(apple), config::active_name}};

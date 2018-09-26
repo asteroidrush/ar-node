@@ -71,7 +71,7 @@ namespace eosiosystem {
       require_auth( _self );
       auto prod = _producers.find( producer );
       eosio_assert( prod != _producers.end(), "producer not found" );
-      _producers.modify( prod, 0, [&](auto& p) {
+      _producers.modify( prod, _self, [&](auto& p) {
             p.deactivate();
          });
    }
@@ -93,7 +93,7 @@ namespace eosiosystem {
       print( name{bidder}, " bid ", bid, " on ", name{newname}, "\n" );
       auto current = bids.find( newname );
       if( current == bids.end() ) {
-         bids.emplace( bidder, [&]( auto& b ) {
+         bids.emplace( _self, [&]( auto& b ) {
             b.newname = newname;
             b.high_bidder = bidder;
             b.high_bid = bid.amount;
@@ -108,13 +108,19 @@ namespace eosiosystem {
                                                        { N(eosio.names), current->high_bidder, asset(current->high_bid),
                                                        std::string("refund bid on name ")+(name{newname}).to_string()  } );
 
-         bids.modify( current, bidder, [&]( auto& b ) {
+         bids.modify( current, _self, [&]( auto& b ) {
             b.high_bidder = bidder;
             b.high_bid = bid.amount;
             b.last_bid_time = current_time();
          });
       }
    }
+
+   void system_contract::require_be_stakeholder( account_name account ){
+      balances accounts_table(N(eosio.token), account);
+      accounts_table.get(eosio::symbol_type(CORE_SYMBOL).name(), "you must be stakeholder");
+   }
+
 
    /**
     *  Called after a new account is created. This code enforces resource-limits rules
