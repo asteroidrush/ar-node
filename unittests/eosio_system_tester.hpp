@@ -193,12 +193,12 @@ public:
       return trace;
    }
 
-   action_result setram( const account_name& account, int64_t ram ) {
-      return push_action( config::system_account_name, N(setaccntram), mvo()( "account",account)("ram",ram) );
+   action_result setram( const account_name& account, int64_t ram, const account_name signer = config::system_account_name) {
+      return push_action( signer, N(setaccntram), mvo()( "account",account)("ram",ram) );
    }
 
-   action_result setbw( const account_name& account, int64_t net, int64_t cpu ) {
-      return push_action( config::system_account_name, N(setaccntbw), mvo()( "account",account)("net",net)("cpu", cpu) );
+   action_result setbw( const account_name& account, int64_t net, int64_t cpu, const account_name signer = config::system_account_name ) {
+      return push_action( signer, N(setaccntbw), mvo()( "account",account)("net",net)("cpu", cpu) );
    }
 
    action_result push_action( const account_name& signer, const action_name &name, const variant_object &data,

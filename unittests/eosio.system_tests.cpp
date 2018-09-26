@@ -22,6 +22,9 @@ BOOST_FIXTURE_TEST_CASE( set_resources, eosio_system_tester ) try {
 
    BOOST_REQUIRE_EQUAL( core_from_string("1000.0000"), get_balance( "alice1111111" ) );
 
+   BOOST_REQUIRE_EQUAL( error("missing authority of eosio"), setram("alice1111111", 6*1024, "alice1111111") );
+   BOOST_REQUIRE_EQUAL( error("missing authority of eosio"), setbw("alice1111111", 5, 5, "alice1111111") );
+
    auto total = get_total_stake("alice1111111");
    BOOST_REQUIRE_EQUAL( 1, total["net_weight"].as<int64_t>());
    BOOST_REQUIRE_EQUAL( 1, total["cpu_weight"].as<int64_t>());
