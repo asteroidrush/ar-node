@@ -1,4 +1,5 @@
 #pragma once
+#include <eosiolib/asset.hpp>
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/transaction.hpp>
 
@@ -31,6 +32,15 @@ namespace eosio {
             auto primary_key()const { return proposal_name.value; }
          };
          typedef eosio::multi_index<N(approvals),approvals_info> approvals;
+
+         struct account {
+            asset    balance;
+
+            uint64_t primary_key()const { return balance.symbol.name(); }
+         };
+         typedef eosio::multi_index<N(accounts), account> balances;
+
+         void require_be_stakeholder( account_name account );
    };
 
 } /// namespace eosio
