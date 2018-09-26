@@ -9,6 +9,9 @@
 #include <eosio.sudo/eosio.sudo.wast.hpp>
 #include <eosio.sudo/eosio.sudo.abi.hpp>
 
+#include <eosio.token/eosio.token.wast.hpp>
+#include <eosio.token/eosio.token.abi.hpp>
+
 #include <test_api/test_api.wast.hpp>
 
 #include <Runtime/Runtime.h>
@@ -27,9 +30,21 @@ class eosio_sudo_tester : public tester {
 public:
 
    eosio_sudo_tester() {
-      create_accounts( { N(eosio.msig), N(prod1), N(prod2), N(prod3), N(prod4), N(prod5), N(alice), N(bob), N(carol) } );
+      const vector<account_name> accnts = { N(prod1), N(prod2), N(prod3), N(prod4), N(prod5), N(alice), N(bob), N(carol) };
+      create_accounts({N(eosio.msig), N(eosio.token)});
+      create_accounts(accnts );
       produce_block();
 
+      set_code( N(eosio.token), eosio_token_wast );
+      set_abi( N(eosio.token), eosio_token_abi );
+
+      create_currency( N(eosio.token), config::system_account_name, core_from_string("10000000000.0000") );
+      issue(config::system_account_name, core_from_string("1000000000.0000"));
+      BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"), get_balance("eosio") );
+
+      for( account_name a: accnts){
+         transfer(config::system_account_name, a, core_from_string("0.0001").to_string());
+      }
 
       base_tester::push_action(config::system_account_name, N(setpriv),
                                  config::system_account_name,  mutable_variant_object()
@@ -115,6 +130,49 @@ public:
                      ("level",         permission_level{unapprover, config::active_name})
       );
    }
+
+   void create_currency( name contract, name manager, asset maxsupply ) {
+      auto act =  mutable_variant_object()
+            ("issuer",       manager )
+            ("maximum_supply", maxsupply );
+
+      base_tester::push_action(contract, N(create), contract, act );
+   }
+   void issue( name to, const asset& amount, name manager = config::system_account_name ) {
+      base_tester::push_action( N(eosio.token), N(issue), manager, mutable_variant_object()
+            ("to",      to )
+            ("quantity", amount )
+            ("memo", "")
+      );
+   }
+   void transfer( name from, name to, const string& amount, name manager = config::system_account_name ) {
+      base_tester::push_action( N(eosio.token), N(transfer), manager, mutable_variant_object()
+            ("from",    from)
+            ("to",      to )
+            ("quantity", asset::from_string(amount) )
+            ("memo", "")
+      );
+   }
+   asset get_balance( const account_name& act ) {
+      //return get_currency_balance( config::system_account_name, symbol(CORE_SYMBOL), act );
+      //temporary code. current get_currency_balancy uses table name N(accounts) from currency.h
+      //generic_currency table name is N(account).
+      const auto& db  = control->db();
+      const auto* tbl = db.find<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), act, N(accounts)));
+      share_type result = 0;
+
+      // the balance is implied to be 0 if either the table or row does not exist
+      if (tbl) {
+         const auto *obj = db.find<key_value_object, by_scope_primary>(boost::make_tuple(tbl->id, symbol(CORE_SYMBOL).to_symbol_code()));
+         if (obj) {
+            // balance is the first field in the serialization
+            fc::datastream<const char *> ds(obj->value.data(), obj->value.size());
+            fc::raw::unpack(ds, result);
+         }
+      }
+      return asset( result, symbol(CORE_SYMBOL) );
+   }
+
 
    transaction sudo_exec( account_name executer, const transaction& trx, uint32_t expiration = base_tester::DEFAULT_EXPIRATION_DELTA );
 
