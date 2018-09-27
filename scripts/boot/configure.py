@@ -26,19 +26,26 @@ def prepare():
 configs = read_configs()
 parser = argparse.ArgumentParser()
 
-build_dir = configs['build_dir']
 parser.add_argument('--public-key', metavar='', help="Boot Public Key",
                     default='EOS6DovkiCze69bSzptXRnth7crDP1J6XvaXu1hJMJfgWdDPC45Fy', dest="public_key")
 parser.add_argument('--private-Key', metavar='', help="Boot Private Key",
                     default='5KfjdDqaKCiDpMern6mGmtL4HNzWiRxRSF5mZUg9uFDrfk3xYT1', dest="private_key")
 parser.add_argument('--wallet-dir', metavar='', help="Path to wallet directory", default='./wallet/')
 parser.add_argument('--genesis', metavar='', help="Path to genesis.json", default="./genesis.json")
-parser.add_argument('--keosd', metavar='', help="Path to keosd binary", default=build_dir + 'programs/keosd/keosd')
-parser.add_argument('--nodeos', metavar='', help="Path to nodeos binary", default=build_dir + 'programs/nodeos/nodeos')
+parser.add_argument('--keosd', metavar='', help="Path to keosd binary",
+                    default='../../build/programs/keosd/keosd --http-server-address=127.0.0.1:8020 '
+                                        '--http-alias=keosd:8020 --http-alias=localhost:8020'
+                    )
+parser.add_argument('--nodeos', metavar='', help="Path to nodeos binary",
+                    default='../../build/programs/nodeos/nodeos '
+                                        '-e --http-alias=nodeosd:8000 --http-alias=127.0.0.1:8000 '
+                                        '--http-alias=localhost:8000 --http-server-address = 0.0.0.0:8000 '
+                                        '--bnet-endpoint=0.0.0.0:8001 --p2p-listen-endpoint=0.0.0.0:8002'
+                    )
 parser.add_argument('--cleos', metavar='', help="Cleos command",
-                    default=build_dir + 'programs/cleos/cleos --wallet-url http://127.0.0.1:6666 ')
+                    default='../../build/programs/cleos/cleos --url http://nodeosd:8000 --wallet-url http://keosd:8020')
 parser.add_argument('--log-path', metavar='', help="Path to log file", default='./output.log')
-parser.add_argument('--contracts-dir', metavar='', help="Path to contracts directory", default=build_dir + 'contracts/')
+parser.add_argument('--contracts-dir', metavar='', help="Path to contracts directory", default='../../build/contracts/')
 
 args = parser.parse_args()
 
