@@ -1,0 +1,8 @@
+ARG version
+
+FROM asteroid_rush/base:$version
+
+ENTRYPOINT ["/opt/eosio/bin/keosd",
+                  "--wallet-dir=/opt/eosio/bin/data-dir", \
+                  "--http-server-address=127.0.0.1:8020", "--http-alias=localhost:8020" \
+          ]

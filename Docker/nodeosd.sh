@@ -7,6 +7,12 @@ if [ -f '/opt/eosio/bin/data-dir/config.ini' ]; then
     cp /config.ini /opt/eosio/bin/data-dir
 fi
 
+if [ -f '/opt/eosio/bin/data-dir/genesis.json' ]; then
+    echo
+  else
+    cp /genesis.json /opt/eosio/bin/data-dir
+fi
+
 if [ -d '/opt/eosio/bin/data-dir/contracts' ]; then
     echo
   else
