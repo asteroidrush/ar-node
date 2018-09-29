@@ -1,4 +1,4 @@
-from scripts.boot.components import Wallet
+from components import Wallet
 
 
 class AccountManager:

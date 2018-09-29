@@ -1,20 +1,22 @@
 import os
 import re
 
-from scripts.boot.process import ProcessManager
+from process import ProcessManager
 
 
 class BootNode:
 
-    def __init__(self, path, genesis):
+    def __init__(self, path, data_dir, genesis):
         self.path = path
+        self.data_dir = data_dir
         self.genesis = genesis
 
     def start(self, pub_key, pvt_key):
-        ProcessManager.background(self.path +
-                                  ' -e --producer-name eosio --private-key \'["%s","%s"]\' '
+        data_dir_str =  ' --data-dir=%s ' % self.data_dir if self.data_dir else ' '
+        ProcessManager.background(self.path + data_dir_str +
+                                  '-e --producer-name eosio --signature-provider "%s=KEY:%s" '
                                   '--verbose-http-errors --contracts-console '
-                                  '--genesis-json %s '
+                                  '--genesis-json %s --delete-all-blocks '
                                   '--max-transaction-time 1000 '
                                   '--plugin eosio::producer_plugin --plugin eosio::chain_api_plugin '
                                   '--plugin eosio::http_plugin' % (pub_key, pvt_key, os.path.abspath(self.genesis)))
@@ -50,7 +52,7 @@ class Wallet:
     def start(self):
         self.reset()
         ProcessManager.background(
-            self.path + ' --unlock-timeout %d --http-server-address 127.0.0.1:6666 --wallet-dir %s' % (
+            self.path + ' --unlock-timeout %d --wallet-dir %s' % (
                 999999999, os.path.abspath(self.wallet_dir)))
         ProcessManager.sleep(.4)
         self.cleos.run('wallet create --to-console')

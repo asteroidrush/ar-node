@@ -3,12 +3,14 @@ import argparse
 import json
 
 from os.path import abspath
+from time import sleep
+import signal
 
-from scripts.boot.accounts import AccountsManager
-from scripts.boot.auth import AuthManager
-from scripts.boot.components import BootNode, Wallet, Cleos, Token
-from scripts.boot.contracts import ContractsManager
-from scripts.boot.process import ProcessManager
+from accounts import AccountsManager
+from auth import AuthManager
+from components import BootNode, Wallet, Cleos, Token
+from contracts import ContractsManager
+from process import ProcessManager
 
 
 def read_configs():
@@ -30,20 +32,21 @@ parser.add_argument('--public-key', metavar='', help="Boot Public Key",
                     default='EOS6DovkiCze69bSzptXRnth7crDP1J6XvaXu1hJMJfgWdDPC45Fy', dest="public_key")
 parser.add_argument('--private-Key', metavar='', help="Boot Private Key",
                     default='5KfjdDqaKCiDpMern6mGmtL4HNzWiRxRSF5mZUg9uFDrfk3xYT1', dest="private_key")
+parser.add_argument('--data-dir', metavar='', help="Path to data directory", default='')
 parser.add_argument('--wallet-dir', metavar='', help="Path to wallet directory", default='./wallet/')
-parser.add_argument('--genesis', metavar='', help="Path to genesis.json", default="./genesis.json")
+parser.add_argument('--genesis-json', metavar='', help="Path to genesis.json", default="./genesis.json")
 parser.add_argument('--keosd', metavar='', help="Path to keosd binary",
                     default='../../build/programs/keosd/keosd --http-server-address=127.0.0.1:8020 '
                                         '--http-alias=keosd:8020 --http-alias=localhost:8020'
                     )
 parser.add_argument('--nodeos', metavar='', help="Path to nodeos binary",
                     default='../../build/programs/nodeos/nodeos '
-                                        '-e --http-alias=nodeosd:8000 --http-alias=127.0.0.1:8000 '
-                                        '--http-alias=localhost:8000 --http-server-address = 0.0.0.0:8000 '
+                                        '--http-alias=nodeosd:8000 --http-alias=127.0.0.1:8000 '
+                                        '--http-alias=localhost:8000 --http-server-address=0.0.0.0:8000 '
                                         '--bnet-endpoint=0.0.0.0:8001 --p2p-listen-endpoint=0.0.0.0:8002'
                     )
 parser.add_argument('--cleos', metavar='', help="Cleos command",
-                    default='../../build/programs/cleos/cleos --url http://nodeosd:8000 --wallet-url http://keosd:8020')
+                    default='../../build/programs/cleos/cleos --url=http://127.0.0.1:8000 --wallet-url=http://127.0.0.1:8020')
 parser.add_argument('--log-path', metavar='', help="Path to log file", default='./output.log')
 parser.add_argument('--contracts-dir', metavar='', help="Path to contracts directory", default='../../build/contracts/')
 
@@ -51,8 +54,10 @@ args = parser.parse_args()
 
 prepare()
 
-node = BootNode(args.nodeos, args.genesis)
+node = BootNode(args.nodeos, args.data_dir, args.genesis_json)
 node.start(args.public_key, args.private_key)
+
+sleep(2)
 
 cleos = Cleos(args.cleos)
 
@@ -77,7 +82,25 @@ accounts_manager.create_management_accounts()
 
 auth_manager = AuthManager(cleos)
 
-auth_manager.resign(AccountsManager.government_account, [account['name'] for account in configs['accounts'] if account['management']])
-auth_manager.resign('eosio', [AccountsManager.government_account])
+if configs['enable_government']:
+    auth_manager.resign(AccountsManager.government_account, [account['name'] for account in configs['accounts'] if account['management']])
+    auth_manager.resign('eosio', [AccountsManager.government_account])
+
 for a in AccountsManager.system_accounts:
     auth_manager.resign(a, ['eosio'])
+
+
+run = True
+
+def stop(*args):
+    global run
+    print("Stopping...")
+    run = False
+
+signal.signal(signal.SIGINT, stop)
+signal.signal(signal.SIGTERM, stop)
+
+while run:
+    sleep(1)
+
+print("Complete")
