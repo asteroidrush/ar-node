@@ -2,7 +2,7 @@ import json
 
 from math import floor
 
-from scripts.boot.process import ProcessManager
+from process import ProcessManager
 
 
 class AuthManager:
