@@ -63,8 +63,8 @@ services:
   keosd:
     build:
       context: ../
-      dockerfile: dockerfiles/Dockerfile.Keosd
-    image: asteroid_rush/keosd:$VERSION
+      dockerfile: dockerfiles/Dockerfile.Keos
+    image: asteroid_rush/keos:$VERSION
     hostname: keosd
     links:
       - nodeosd
