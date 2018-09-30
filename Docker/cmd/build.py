@@ -1,10 +1,9 @@
-from time import sleep
 import configparser
 import datetime
 
 import docker
 
-from cmd.base import Command, DockerUtils
+from cmd.base import Command
 
 
 class BuildCommand(Command):
@@ -22,13 +21,6 @@ class BuildCommand(Command):
         credentials.read("credentials.ini")
         return credentials['repository']
 
-    def image_exists(self, tag):
-        try:
-            self.docker_client.images.get(tag)
-            return True
-        except docker.errors.ImageNotFound:
-            return False
-
     def build(self, *args, **kwargs):
         need_build = kwargs.pop('rebuild') or not self.image_exists(kwargs['tag'])
 
@@ -38,18 +30,18 @@ class BuildCommand(Command):
 
         print("Start building \"%s\"" % kwargs['tag'])
         st = datetime.datetime.now()
-        self.docker_client.images.build(*args, **kwargs)
+        self.docker_api.client.images.build(*args, **kwargs)
         et = datetime.datetime.now()
         print("Complete \"%s\". Elapsed %s" % (kwargs['tag'], et - st))
 
     def exec(self, args):
         credentials = self.get_credentials()
 
-        self.build(path='.', dockerfile=DockerUtils.get_dockerfile('Dockerfile.Builder'),
-                   tag=DockerUtils.get_image_name('builder'), rebuild=False)
+        self.build(path='.', dockerfile=self.docker_api.get_dockerfile('Dockerfile.Builder'),
+                   tag=self.docker_api.get_image_name('builder'), rebuild=False)
 
-        self.build(path='.', dockerfile=DockerUtils.get_dockerfile('Dockerfile.Base'),
-                   tag=DockerUtils.get_image_name('base', args.tag),
+        self.build(path='.', dockerfile=self.docker_api.get_dockerfile('Dockerfile.Base'),
+                   tag=self.docker_api.get_image_name('base', args.tag),
                    buildargs={
                        'branch': args.tag,
                        'login': credentials['login'],
@@ -57,21 +49,21 @@ class BuildCommand(Command):
                        'environment': args.environment
                    }, rebuild=args.force)
 
-        version = DockerUtils.get_tag_name(args.tag)
-        self.build(path='.', dockerfile=DockerUtils.get_dockerfile('Dockerfile.Boot'),
-                   tag=DockerUtils.get_image_name('boot', args.tag),
+        version = self.docker_api.get_tag_name(args.tag)
+        self.build(path='.', dockerfile=self.docker_api.get_dockerfile('Dockerfile.Boot'),
+                   tag=self.docker_api.get_image_name('boot', args.tag),
                    buildargs={
                        'version': version
                    }, rebuild=args.force)
 
-        self.build(path='.', dockerfile=DockerUtils.get_dockerfile('Dockerfile.Node'),
-                   tag=DockerUtils.get_image_name('node', args.tag),
+        self.build(path='.', dockerfile=self.docker_api.get_dockerfile('Dockerfile.Node'),
+                   tag=self.docker_api.get_image_name('node', args.tag),
                    buildargs={
                        'version': version
                    }, rebuild=args.force)
 
-        self.build(path='.', dockerfile=DockerUtils.get_dockerfile('Dockerfile.Keos'),
-                   tag=DockerUtils.get_image_name('keos', args.tag),
+        self.build(path='.', dockerfile=self.docker_api.get_dockerfile('Dockerfile.Keos'),
+                   tag=self.docker_api.get_image_name('keos', args.tag),
                    buildargs={
                        'version': version
                    }, rebuild=args.force)

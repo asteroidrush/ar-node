@@ -18,7 +18,6 @@ def read_configs():
     return json.load(config_file)
 
 
-
 def prepare():
     ProcessManager.init_log(open(args.log_path, 'a'))
     ProcessManager.run('killall keosd nodeos || true')
@@ -37,13 +36,13 @@ parser.add_argument('--wallet-dir', metavar='', help="Path to wallet directory",
 parser.add_argument('--genesis-json', metavar='', help="Path to genesis.json", default="./genesis.json")
 parser.add_argument('--keosd', metavar='', help="Path to keosd binary",
                     default='../../build/programs/keosd/keosd --http-server-address=127.0.0.1:8020 '
-                                        '--http-alias=keosd:8020 --http-alias=localhost:8020'
+                            '--http-alias=keosd:8020 --http-alias=localhost:8020'
                     )
 parser.add_argument('--nodeos', metavar='', help="Path to nodeos binary",
                     default='../../build/programs/nodeos/nodeos '
-                                        '--http-alias=nodeosd:8000 --http-alias=127.0.0.1:8000 '
-                                        '--http-alias=localhost:8000 --http-server-address=0.0.0.0:8000 '
-                                        '--bnet-endpoint=0.0.0.0:8001 --p2p-listen-endpoint=0.0.0.0:8002'
+                            '--http-alias=nodeosd:8000 --http-alias=127.0.0.1:8000 '
+                            '--http-alias=localhost:8000 --http-server-address=0.0.0.0:8000 '
+                            '--bnet-endpoint=0.0.0.0:8001 --p2p-listen-endpoint=0.0.0.0:8002'
                     )
 parser.add_argument('--cleos', metavar='', help="Cleos command",
                     default='../../build/programs/cleos/cleos --url=http://127.0.0.1:8000 --wallet-url=http://127.0.0.1:8020')
@@ -83,19 +82,21 @@ accounts_manager.create_management_accounts()
 auth_manager = AuthManager(cleos)
 
 if configs['enable_government']:
-    auth_manager.resign(AccountsManager.government_account, [account['name'] for account in configs['accounts'] if account['management']])
+    auth_manager.resign(AccountsManager.government_account,
+                        [account['name'] for account in configs['accounts'] if account['management']])
     auth_manager.resign('eosio', [AccountsManager.government_account])
 
 for a in AccountsManager.system_accounts:
     auth_manager.resign(a, ['eosio'])
 
-
 run = True
+
 
 def stop(*args):
     global run
     print("Stopping...")
     run = False
+
 
 signal.signal(signal.SIGINT, stop)
 signal.signal(signal.SIGTERM, stop)
