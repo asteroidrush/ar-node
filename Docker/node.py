@@ -5,11 +5,13 @@ import argparse
 from cmd.build import BuildCommand
 from cmd.start import StartCommand
 from cmd.stop import StopCommand
+from cmd.status import StatusCommand
 
 commands = {
     BuildCommand.name: BuildCommand(),
     StartCommand.name: StartCommand(),
-    StopCommand.name: StopCommand()
+    StopCommand.name: StopCommand(),
+    StatusCommand.name: StatusCommand()
 }
 
 parser = argparse.ArgumentParser()

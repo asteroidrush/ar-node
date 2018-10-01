@@ -41,7 +41,7 @@ class Command:
     def __init__(self, *args, **kwargs):
         self.docker_api = DockerApi()
 
-    def add_parser(self):
+    def add_parser(self, subparsers):
         return NotImplemented
 
     def exec(self, args):
