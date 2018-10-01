@@ -56,7 +56,8 @@ class BuildCommand(Command):
         self.build(path='.', dockerfile=self.docker_api.get_dockerfile('Dockerfile.Boot'),
                    tag=self.docker_api.get_image_name('boot', args.tag),
                    buildargs={
-                       'version': version
+                       'version': version,
+                       'environment': args.environment
                    }, rebuild=args.force)
 
     def build_nodeos(self, args):
