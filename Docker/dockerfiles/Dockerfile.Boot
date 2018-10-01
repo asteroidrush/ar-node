@@ -2,6 +2,10 @@ ARG version
 
 FROM asteroid_rush/base:$version
 
+ARG environment
+
+ADD $environment/boot_config.json /scripts/boot/
+
 ENTRYPOINT cd /scripts/boot && python3 configure.py --data-dir=/opt/eosio/bin/data-dir --wallet-dir=/opt/eosio/bin/data-dir/wallet \
                             --genesis-json=/opt/eosio/bin/data-dir/genesis.json \
                             --keosd="/opt/eosio/bin/keosd --http-server-address=0.0.0.0:8020 --http-alias=localhost:8020" \

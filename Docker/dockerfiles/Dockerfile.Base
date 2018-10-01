@@ -23,7 +23,6 @@ COPY --from=builder /ar-node/scripts/boot /scripts/boot
 
 ADD $environment/config.ini /
 ADD $environment/genesis.json /
-ADD $environment/boot_config.json /scripts/boot/
 ADD nodeosd.sh /opt/eosio/bin/nodeosd.sh
 
 RUN chmod +x /opt/eosio/bin/nodeosd.sh
