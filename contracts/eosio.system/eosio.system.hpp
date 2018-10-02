@@ -12,6 +12,8 @@
 
 #include <string>
 
+#define SYSTEM_MAXIMUM_RAM 1024ll*1024*1024*1024*1024
+
 namespace eosiosystem {
 
    using eosio::asset;
@@ -25,7 +27,7 @@ namespace eosiosystem {
       uint64_t free_accounts_ram()const { return max_ram_size_for_accounts - total_ram_bytes_reserved_for_accounts; }
 
       uint16_t             account_info_ram_size = 1024; // reserved ram for voting, proxying and etc.
-      uint16_t             account_ram_size = 3 * 1024;
+      uint32_t             account_ram_size = 3 * 1024 + account_info_ram_size;
       uint64_t             max_accounts = 1'000'000;
 
       uint64_t             max_ram_size = 64ll*1024 * 1024 * 1024;
@@ -173,9 +175,9 @@ namespace eosiosystem {
 
          void setmaxram( uint64_t max_ram_size );
 
-         void setaccntbw(account_name account, int64_t net, int64_t cpu);
+         void setaccntbw(account_name account, uint64_t net, uint64_t cpu);
 
-         void setaccntram(account_name account, int64_t ram);
+         void setaccntram(account_name account, uint64_t ram);
 
        // functions defined in voting.cpp
 
@@ -215,7 +217,7 @@ namespace eosiosystem {
          // Implementation details:
 
          //defined in resource_management.cpp
-         void set_account_resource_limits(account_name account, int64_t *ram = nullptr, int64_t *net = nullptr, int64_t *cpu = nullptr);
+         void set_account_resource_limits(account_name account, uint64_t *ram = nullptr, uint64_t *net = nullptr, uint64_t *cpu = nullptr);
          void init_account_resources(account_name account);
 
          //defined in voting.hpp
