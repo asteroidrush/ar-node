@@ -16,6 +16,11 @@ void multisig::propose( account_name proposer,
                         transaction  trx)
 */
 
+void multisig::require_be_stakeholder( account_name account ){
+   balances accounts_table(N(eosio.token), account);
+   accounts_table.get(eosio::symbol_type(CORE_SYMBOL).name(), "you must be stakeholder");
+}
+
 void multisig::propose() {
    constexpr size_t max_stack_buffer_size = 512;
    size_t size = action_data_size();
@@ -34,6 +39,7 @@ void multisig::propose() {
    ds >> trx_header;
 
    require_auth( proposer );
+   require_be_stakeholder( proposer );
    eosio_assert( trx_header.expiration >= eosio::time_point_sec(now()), "transaction expired" );
    //eosio_assert( trx_header.actions.size() > 0, "transaction must have at least one action" );
 
@@ -47,13 +53,13 @@ void multisig::propose() {
                                                );
    eosio_assert( res > 0, "transaction authorization failed" );
 
-   proptable.emplace( proposer, [&]( auto& prop ) {
+   proptable.emplace( _self, [&]( auto& prop ) {
       prop.proposal_name       = proposal_name;
       prop.packed_transaction  = bytes( buffer+trx_pos, buffer+size );
    });
 
    approvals apptable(  _self, proposer );
-   apptable.emplace( proposer, [&]( auto& a ) {
+   apptable.emplace( _self, [&]( auto& a ) {
       a.proposal_name       = proposal_name;
       a.requested_approvals = std::move(requested);
    });
@@ -61,6 +67,7 @@ void multisig::propose() {
 
 void multisig::approve( account_name proposer, name proposal_name, permission_level level ) {
    require_auth( level );
+   require_be_stakeholder( proposer );
 
    approvals apptable(  _self, proposer );
    auto& apps = apptable.get( proposal_name, "proposal not found" );
@@ -68,7 +75,7 @@ void multisig::approve( account_name proposer, name proposal_name, permission_le
    auto itr = std::find( apps.requested_approvals.begin(), apps.requested_approvals.end(), level );
    eosio_assert( itr != apps.requested_approvals.end(), "approval is not on the list of requested approvals" );
 
-   apptable.modify( apps, proposer, [&]( auto& a ) {
+   apptable.modify( apps, _self, [&]( auto& a ) {
       a.provided_approvals.push_back( level );
       a.requested_approvals.erase( itr );
    });
@@ -76,13 +83,14 @@ void multisig::approve( account_name proposer, name proposal_name, permission_le
 
 void multisig::unapprove( account_name proposer, name proposal_name, permission_level level ) {
    require_auth( level );
+   require_be_stakeholder( proposer );
 
    approvals apptable(  _self, proposer );
    auto& apps = apptable.get( proposal_name, "proposal not found" );
    auto itr = std::find( apps.provided_approvals.begin(), apps.provided_approvals.end(), level );
    eosio_assert( itr != apps.provided_approvals.end(), "no approval previously granted" );
 
-   apptable.modify( apps, proposer, [&]( auto& a ) {
+   apptable.modify( apps, _self, [&]( auto& a ) {
       a.requested_approvals.push_back(level);
       a.provided_approvals.erase(itr);
    });
@@ -90,6 +98,7 @@ void multisig::unapprove( account_name proposer, name proposal_name, permission_
 
 void multisig::cancel( account_name proposer, name proposal_name, account_name canceler ) {
    require_auth( canceler );
+   require_be_stakeholder( proposer );
 
    proposals proptable( _self, proposer );
    auto& prop = proptable.get( proposal_name, "proposal not found" );
@@ -107,6 +116,7 @@ void multisig::cancel( account_name proposer, name proposal_name, account_name c
 
 void multisig::exec( account_name proposer, name proposal_name, account_name executer ) {
    require_auth( executer );
+   require_be_stakeholder( executer );
 
    proposals proptable( _self, proposer );
    auto& prop = proptable.get( proposal_name, "proposal not found" );
@@ -126,7 +136,7 @@ void multisig::exec( account_name proposer, name proposal_name, account_name exe
                                                );
    eosio_assert( res > 0, "transaction authorization failed" );
 
-   send_deferred( (uint128_t(proposer) << 64) | proposal_name, executer, prop.packed_transaction.data(), prop.packed_transaction.size() );
+   send_deferred( (uint128_t(proposer) << 64) | proposal_name, _self, prop.packed_transaction.data(), prop.packed_transaction.size() );
 
    proptable.erase(prop);
    apptable.erase(apps);

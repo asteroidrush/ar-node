@@ -12,6 +12,8 @@
 
 #include <string>
 
+#define SYSTEM_MAXIMUM_RAM 1024ll*1024*1024*1024*1024
+
 namespace eosiosystem {
 
    using eosio::asset;
@@ -19,26 +21,13 @@ namespace eosiosystem {
    using eosio::const_mem_fun;
    using eosio::block_timestamp;
 
-   struct name_bid {
-     account_name            newname;
-     account_name            high_bidder;
-     int64_t                 high_bid = 0; ///< negative high_bid == closed auction waiting to be claimed
-     uint64_t                last_bid_time = 0;
-
-     auto     primary_key()const { return newname;                          }
-     uint64_t by_high_bid()const { return static_cast<uint64_t>(-high_bid); }
-   };
-
-   typedef eosio::multi_index< N(namebids), name_bid,
-                               indexed_by<N(highbid), const_mem_fun<name_bid, uint64_t, &name_bid::by_high_bid>  >
-                               >  name_bid_table;
-
 
    struct eosio_global_state : eosio::blockchain_parameters {
       uint64_t free_ram()const { return max_ram_size - total_ram_bytes_reserved; }
       uint64_t free_accounts_ram()const { return max_ram_size_for_accounts - total_ram_bytes_reserved_for_accounts; }
 
-      uint16_t             account_ram_size = 3 * 1024;
+      uint16_t             account_info_ram_size = 1024; // reserved ram for voting, proxying and etc.
+      uint32_t             account_ram_size = 3 * 1024 + account_info_ram_size;
       uint64_t             max_accounts = 1'000'000;
 
       uint64_t             max_ram_size = 64ll*1024 * 1024 * 1024;
@@ -140,6 +129,7 @@ namespace eosiosystem {
    typedef eosio::multi_index<N(stat), currency_stats> stats;
 
 
+
    typedef eosio::singleton<N(global), eosio_global_state> global_state_singleton;
 
    //   static constexpr uint32_t     max_inflation_rate = 5;  // 5% annual inflation
@@ -185,9 +175,9 @@ namespace eosiosystem {
 
          void setmaxram( uint64_t max_ram_size );
 
-         void setaccntbw(account_name account, int64_t net, int64_t cpu);
+         void setaccntbw(account_name account, uint64_t net, uint64_t cpu);
 
-         void setaccntram(account_name account, int64_t ram);
+         void setaccntram(account_name account, uint64_t ram);
 
        // functions defined in voting.cpp
 
@@ -212,14 +202,22 @@ namespace eosiosystem {
 
          void rmvproducer( account_name producer );
 
-         void bidname( account_name bidder, account_name newname, asset bid );
       private:
+         struct account {
+            asset    balance;
+
+            uint64_t primary_key()const { return balance.symbol.name(); }
+         };
+         typedef eosio::multi_index<N(accounts), account> balances;
+
+
          void update_elected_producers( block_timestamp timestamp );
+         void require_be_stakeholder( account_name account );
 
          // Implementation details:
 
          //defined in resource_management.cpp
-         void set_account_resource_limits(account_name account, int64_t *ram = nullptr, int64_t *net = nullptr, int64_t *cpu = nullptr);
+         void set_account_resource_limits(account_name account, uint64_t *ram = nullptr, uint64_t *net = nullptr, uint64_t *cpu = nullptr);
          void init_account_resources(account_name account);
 
          //defined in voting.hpp

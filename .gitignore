@@ -23,6 +23,9 @@ compile_commands.json
 moc_*
 *.moc
 
+Docker/**/venv
+Docker/**/.env
+
 genesis.json
 hardfork.hpp
 

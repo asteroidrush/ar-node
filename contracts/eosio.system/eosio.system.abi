@@ -32,14 +32,6 @@
         {"name":"weight", "type":"weight_type"}
       ]
     },{
-      "name": "bidname",
-      "base": "",
-      "fields": [
-        {"name":"bidder",  "type":"account_name"},
-        {"name":"newname", "type":"account_name"},
-        {"name":"bid", "type":"asset"}
-      ]
-    },{
       "name": "permission_level_weight",
       "base": "",
       "fields": [
@@ -139,18 +131,18 @@
       "base": "",
       "fields": [
          {"name":"owner", "type":"account_name"},
-         {"name":"net_weight", "type":"int64"},
-         {"name":"cpu_weight", "type":"int64"},
-         {"name":"ram_bytes", "type":"int64"}
+         {"name":"net_weight", "type":"uint64"},
+         {"name":"cpu_weight", "type":"uint64"},
+         {"name":"ram_bytes", "type":"uint64"}
       ]
     },{
       "name": "total_resources",
       "base": "",
       "fields": [
          {"name":"owner", "type":"account_name"},
-         {"name":"net_weight", "type":"int64"},
-         {"name":"cpu_weight", "type":"int64"},
-         {"name":"ram_bytes", "type":"int64"}
+         {"name":"net_weight", "type":"uint64"},
+         {"name":"cpu_weight", "type":"uint64"},
+         {"name":"ram_bytes", "type":"uint64"}
       ]
     },{
       "name": "blockchain_parameters",
@@ -186,7 +178,7 @@
          {"name":"total_ram_bytes_reserved_for_accounts",
                                                   "type":"uint64"},
          {"name":"max_accounts",                  "type":"uint64"},
-         {"name":"account_ram_size",              "type":"uint16"},
+         {"name":"account_ram_size",              "type":"uint32"},
          {"name":"last_producer_schedule_update", "type":"block_timestamp_type"},
          {"name":"payment_bucket_per_year",       "type":"uint64"},
          {"name":"first_system_block_time",       "type":"uint64"},
@@ -239,15 +231,15 @@
        "base": "",
        "fields": [
          {"name":"account",         "type":"account_name"},
-         {"name":"net",             "type":"int64"},
-         {"name":"cpu",             "type":"int64"}
+         {"name":"net",             "type":"uint64"},
+         {"name":"cpu",             "type":"uint64"}
        ]
     },{
         "name": "setaccntram",
         "base": "",
         "fields": [
           {"name":"account",         "type":"account_name"},
-          {"name":"ram",             "type":"int64"}
+          {"name":"ram",             "type":"uint64"}
         ]
     },{
       "name": "regproxy",
@@ -300,9 +292,9 @@
       "base": "",
       "fields": [
         {"name":"account",    "type":"account_name"},
-        {"name":"ram_bytes",  "type":"int64"},
-        {"name":"net_weight", "type":"int64"},
-        {"name":"cpu_weight", "type":"int64"}
+        {"name":"ram_bytes",  "type":"uint64"},
+        {"name":"net_weight", "type":"uint64"},
+        {"name":"cpu_weight", "type":"uint64"}
       ]
     },{
       "name": "set_global_limits",
@@ -335,15 +327,6 @@
       "fields": [
         {"name":"params", "type":"blockchain_parameters"}
       ]
-    },{
-       "name": "namebid_info",
-       "base": "",
-       "fields": [
-          {"name":"newname", "type":"account_name"},
-          {"name":"high_bidder", "type":"account_name"},
-          {"name":"high_bid", "type":"int64"},
-          {"name":"last_bid_time", "type":"uint64"}
-       ]
     },{
        "name": "transfer",
        "base": "",
@@ -414,10 +397,6 @@
    },{
       "name": "setaccntram",
       "type": "setaccntram",
-      "ricardian_contract": ""
-   },{
-      "name": "bidname",
-      "type": "bidname",
       "ricardian_contract": ""
    },{
       "name": "unregprod",
@@ -496,12 +475,6 @@
       "index_type": "i64",
       "key_names" : ["owner"],
       "key_types" : ["uint64"]
-    },{
-       "name": "namebids",
-       "type": "namebid_info",
-       "index_type": "i64",
-       "key_names" : ["newname"],
-       "key_types" : ["account_name"]
     }
    ],
    "ricardian_clauses": [],

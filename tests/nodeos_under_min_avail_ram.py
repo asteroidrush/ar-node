@@ -118,7 +118,6 @@ try:
     for account in accounts:
         walletMgr.importKey(account, testWallet)
 
-    # create accounts via eosio as otherwise a bid is needed
     for account in accounts:
         Print("Create new account %s via %s" % (account.name, cluster.eosioAccount.name))
         trans=nodes[0].createInitializeAccount(account, cluster.eosioAccount, stakedDeposit=500000, waitForTransBlock=False, exitOnError=True)

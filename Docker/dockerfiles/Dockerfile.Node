@@ -1,0 +1,9 @@
+ARG version
+
+FROM asteroid_rush/base:$version
+
+ENTRYPOINT ["/opt/eosio/bin/nodeosd.sh", \
+                    "--data-dir=/opt/eosio/bin/data-dir", \
+                    "--http-server-address=0.0.0.0:8010", "--http-alias=localhost:8010", \
+                    "--bnet-endpoint=0.0.0.0:8011", "--p2p-listen-endpoint=0.0.0.0:8012" \
+            ]

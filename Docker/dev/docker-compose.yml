@@ -1,0 +1,77 @@
+version: "3"
+
+services:
+
+  nodeos-boot:
+      build:
+        context: ../
+        dockerfile: dockerfiles/Dockerfile.Boot
+      image: asteroid_rush/boot:$VERSION
+      hostname: nodeos-boot
+      ports:
+        - 8000:8000
+        - 8002:8002
+      expose:
+        - "8000"
+      networks:
+        - asteroid_rush/dev
+      volumes:
+        - ./data/nodeos-boot/:/opt/eosio/bin/data-dir/
+      cap_add:
+        - IPC_LOCK
+      stop_grace_period: 10m
+
+  nodeos:
+    build:
+      context: ../
+      dockerfile: dockerfiles/Dockerfile.Node
+    image: asteroid_rush/node:$VERSION
+    hostname: nodeosd
+    ports:
+      - 8010:8010
+      - 8012:8012
+    expose:
+      - "8010"
+    networks:
+      - asteroid_rush/dev
+    volumes:
+      - ./data/nodeos/:/opt/eosio/bin/data-dir
+    cap_add:
+      - IPC_LOCK
+    stop_grace_period: 10m
+
+  nodeos-clean:
+      build:
+        context: ../
+        dockerfile: dockerfiles/Dockerfile.Node
+      image: asteroid_rush/node:$VERSION
+      hostname: nodeos
+      command: --genesis-json=/opt/eosio/bin/data-dir/genesis.json --delete-all-blocks --hard-replay
+      ports:
+        - 8010:8010
+        - 8012:8012
+      expose:
+        - "8010"
+      networks:
+        - asteroid_rush/dev
+      volumes:
+        - ./data/nodeos/:/opt/eosio/bin/data-dir
+      cap_add:
+        - IPC_LOCK
+      stop_grace_period: 10m
+
+  keos:
+    build:
+      context: ../
+      dockerfile: dockerfiles/Dockerfile.Keos
+    image: asteroid_rush/keos:$VERSION
+    hostname: keos
+    networks:
+      - asteroid_rush/dev
+    volumes:
+      - ./data/keos/:/opt/eosio/bin/data-dir
+    stop_grace_period: 10m
+
+networks:
+  asteroid_rush/dev:
+    driver: bridge

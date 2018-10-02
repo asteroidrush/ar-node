@@ -30,9 +30,9 @@ namespace eosiosystem {
 
    struct user_resources {
       account_name  owner;
-      int64_t       net_weight = 0;
-      int64_t       cpu_weight = 0;
-      int64_t       ram_bytes = 0;
+      uint64_t       net_weight = 0;
+      uint64_t       cpu_weight = 0;
+      uint64_t       ram_bytes = 0;
 
       uint64_t primary_key()const { return owner; }
 
@@ -50,20 +50,20 @@ namespace eosiosystem {
    void system_contract::setmaxram( uint64_t max_ram_size ) {
       require_auth( _self );
 
-      eosio_assert( max_ram_size < 1024ll*1024*1024*1024*1024, "ram size is unrealistic" );
+      eosio_assert( max_ram_size < SYSTEM_MAXIMUM_RAM, "ram size is unrealistic" );
       eosio_assert( max_ram_size > _gstate.total_ram_bytes_reserved + _gstate.free_accounts_ram(), "attempt to set max below reserved" );
 
       _gstate.max_ram_size = max_ram_size;
       _global.set( _gstate, _self );
    }
 
-   void system_contract::set_account_resource_limits(account_name account, int64_t *ram, int64_t *net, int64_t *cpu){
+   void system_contract::set_account_resource_limits(account_name account, uint64_t *ram, uint64_t *net, uint64_t *cpu){
       user_resources_table  userres( _self, account );
       auto res_itr = userres.find( account );
 
       const auto set_userres = [&]( auto& res ) {
          if( ram != nullptr) {
-            int64_t delta = *ram - res.ram_bytes; // ram always greater than account_ram_size
+            int64_t delta = *ram - res.ram_bytes;
             _gstate.total_ram_bytes_reserved += delta;
 
             res.ram_bytes = *ram;
@@ -92,22 +92,33 @@ namespace eosiosystem {
 
       eosio_assert( _gstate.account_ram_size <= _gstate.free_accounts_ram(), "system have no ram for new account" );
       _gstate.total_ram_bytes_reserved_for_accounts += _gstate.account_ram_size;
+      _gstate.total_ram_bytes_reserved += _gstate.account_info_ram_size;
 
-      int64_t account_ram_size = _gstate.account_ram_size, net = 1, cpu = 1;
+      uint64_t account_ram_size = _gstate.account_ram_size - _gstate.account_info_ram_size, net = 1, cpu = 1;
       set_account_resource_limits( account, &account_ram_size, &net, &cpu );
    }
 
-   void system_contract::setaccntbw(account_name account, int64_t net, int64_t cpu){
+   void system_contract::setaccntbw(account_name account, uint64_t net, uint64_t cpu){
       require_auth( N(eosio) );
 
       set_account_resource_limits( account, nullptr, &net, &cpu );
    }
 
-   void system_contract::setaccntram(account_name account, int64_t ram){
+   void system_contract::setaccntram(account_name account, uint64_t ram){
       require_auth( N(eosio) );
+      eosio_assert( ram >= _gstate.account_ram_size - _gstate.account_info_ram_size, "ram be must more than minimal account ram size" );
+      eosio_assert( ram <= SYSTEM_MAXIMUM_RAM, "ram is unrealistic" );
 
-      eosio_assert( (uint64_t) ram < _gstate.max_ram_size - _gstate.total_ram_bytes_reserved - _gstate.free_accounts_ram(), "system have no such ram" );
-      eosio_assert( (uint64_t) ram >= _gstate.account_ram_size, "memory be must more than minimal account ram size" );
+      user_resources_table  userres( _self, account );
+      auto res_itr = userres.find( account );
+
+      eosio_assert(res_itr != userres.end(), "account does not exists");
+
+      int64_t delta = ram - res_itr->ram_bytes;
+      if(delta < 0)
+         delta = 0;
+
+      eosio_assert( delta < _gstate.free_ram() - _gstate.free_accounts_ram(), "system have no such ram" );
 
       set_account_resource_limits( account, &ram );
    }

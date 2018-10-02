@@ -87,11 +87,13 @@ public:
 
       produce_blocks();
 
-      create_account_with_resources( N(alice1111111), config::system_account_name, false );
-      create_account_with_resources( N(bob111111111), config::system_account_name, false );
-      create_account_with_resources( N(carol1111111), config::system_account_name, false );
-
       BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"), get_balance("eosio") );
+
+      create_account_with_resources( N(alice1111111), config::system_account_name, false, 8000, 1, 1, 1);
+      create_account_with_resources( N(bob111111111), config::system_account_name, false, 8000, 1, 1, 1 );
+      create_account_with_resources( N(carol1111111), config::system_account_name, false, 8000, 1, 1, 1 );
+
+      BOOST_REQUIRE_EQUAL( core_from_string("999999999.9997"), get_balance("eosio") );
    }
 
 
@@ -101,31 +103,11 @@ public:
       }
    }
 
-   transaction_trace_ptr create_account_with_resources( account_name a, account_name creator ) {
-      signed_transaction trx;
-      set_transaction_headers(trx);
-
-      authority owner_auth;
-      owner_auth =  authority( get_public_key( a, "owner" ) );
-
-      trx.actions.emplace_back( vector<permission_level>{{creator,config::active_name}},
-                                newaccount{
-                                   .creator  = creator,
-                                   .name     = a,
-                                   .owner    = owner_auth,
-                                   .active   = authority( get_public_key( a, "active" ) )
-                                });
-
-      set_transaction_headers(trx);
-      trx.sign( get_private_key( creator, "active" ), control->get_chain_id()  );
-
-      const transaction_trace_ptr trace = push_transaction( trx );
-      setram(a, 8000);
-
-      return trace;
+   transaction_trace_ptr create_account_with_resources( account_name a, account_name creator) {
+      return create_account_with_resources(a, creator, false);
    }
 
-   transaction_trace_ptr create_account_with_resources( account_name a, account_name creator, bool multisig, int64_t ram = 8000, int64_t net = 1, int64_t cpu = 1 ) {
+   transaction_trace_ptr create_account_with_resources( account_name a, account_name creator, bool multisig, int64_t ram = 8000, int64_t net = 1, int64_t cpu = 1, int64_t staked = 1 ) {
       signed_transaction trx;
       set_transaction_headers(trx);
 
@@ -160,7 +142,12 @@ public:
 
       set_transaction_headers(trx);
       trx.sign( get_private_key( creator, "active" ), control->get_chain_id()  );
-      return push_transaction( trx );
+      const transaction_trace_ptr trace = push_transaction( trx );
+
+      if( staked )
+         transfer(config::system_account_name, a, asset(staked, symbol(CORE_SYMBOL)));
+
+      return trace;
    }
 
    transaction_trace_ptr setup_producer_accounts( const std::vector<account_name>& accounts ) {
@@ -195,15 +182,23 @@ public:
 
       set_transaction_headers(trx);
       trx.sign( get_private_key( creator, "active" ), control->get_chain_id()  );
-      return push_transaction( trx );
+
+      transaction_trace_ptr trace = push_transaction( trx );
+
+      for (const auto& a: accounts) {
+         BOOST_REQUIRE_EQUAL(success(), transfer(config::system_account_name, a, core_from_string("1.0000")));
+         BOOST_REQUIRE_EQUAL( core_from_string("1.0000"), get_balance( a ) );
+      }
+
+      return trace;
    }
 
-   action_result setram( const account_name& account, int64_t ram ) {
-      return push_action( config::system_account_name, N(setaccntram), mvo()( "account",account)("ram",ram) );
+   action_result setram( const account_name& account, int64_t ram, const account_name signer = config::system_account_name) {
+      return push_action( signer, N(setaccntram), mvo()( "account",account)("ram",ram) );
    }
 
-   action_result setbw( const account_name& account, int64_t net, int64_t cpu ) {
-      return push_action( config::system_account_name, N(setaccntbw), mvo()( "account",account)("net",net)("cpu", cpu) );
+   action_result setbw( const account_name& account, int64_t net, int64_t cpu, const account_name signer = config::system_account_name ) {
+      return push_action( signer, N(setaccntbw), mvo()( "account",account)("net",net)("cpu", cpu) );
    }
 
    action_result push_action( const account_name& signer, const action_name &name, const variant_object &data,
@@ -216,14 +211,6 @@ public:
          act.data = abi_ser.variant_to_binary( action_type_name, data, abi_serializer_max_time );
 
          return base_tester::push_action( std::move(act), auth ? uint64_t(signer) : signer == N(bob111111111) ? N(alice1111111) : N(bob111111111) );
-   }
-
-   action_result bidname( const account_name& bidder, const account_name& newname, const asset& bid ) {
-      return push_action( name(bidder), N(bidname), mvo()
-                          ("bidder",  bidder)
-                          ("newname", newname)
-                          ("bid", bid)
-                          );
    }
 
    static fc::variant_object producer_parameters_example( int n ) {
@@ -485,7 +472,7 @@ inline fc::mutable_variant_object voter( account_name acct ) {
       ("owner", acct)
       ("proxy", name(0).to_string())
       ("producers", variants() )
-      ("staked", int64_t(0))
+      ("staked", int64_t(1))
       //("last_vote_weight", double(0))
       ("proxied_vote_weight", double(0))
       ("is_proxy", 0)
