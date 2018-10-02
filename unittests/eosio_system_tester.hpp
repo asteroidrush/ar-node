@@ -213,14 +213,6 @@ public:
          return base_tester::push_action( std::move(act), auth ? uint64_t(signer) : signer == N(bob111111111) ? N(alice1111111) : N(bob111111111) );
    }
 
-   action_result bidname( const account_name& bidder, const account_name& newname, const asset& bid ) {
-      return push_action( name(bidder), N(bidname), mvo()
-                          ("bidder",  bidder)
-                          ("newname", newname)
-                          ("bid", bid)
-                          );
-   }
-
    static fc::variant_object producer_parameters_example( int n ) {
       return mutable_variant_object()
          ("max_block_net_usage", 10000000 + n )
