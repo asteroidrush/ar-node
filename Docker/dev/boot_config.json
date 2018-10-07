@@ -2,20 +2,26 @@
   "enable_government": false,
   "accounts": [
     {
-      "name": "man1",
-      "pub": "EOS6XZtkZMes8ovp3zsGcnNNBepW3RDPF5VHVuuknHr4FL1LB1w4d",
-      "stake": 0.3,
+      "name": "prod1",
+      "pub": "EOS6zAbRAu1PhuBcMSWCn5Gdc91XVyPRiC8RnXUmHnv9cBqbK1UN1",
+      "stake": 0.5,
+      "management": true
+    },
+    {
+      "name": "prod2",
+      "pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM",
+      "stake": 0.5,
       "management": true
     }
   ],
   "system_token": {
     "supply": 0.4,
-    "max_supply": 10000000000.0000,
+    "max_supply": 10000000000000,
     "name": "SYS"
   },
   "support_token": {
     "supply": 0,
-    "max_supply": 10000000000.0000,
+    "max_supply": 10000000000000,
     "name": "SPT"
   },
   "ram_size": 0

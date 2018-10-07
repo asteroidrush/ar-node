@@ -25,8 +25,8 @@ services:
     build:
       context: ../
       dockerfile: dockerfiles/Dockerfile.Node
-    image: asteroid_rush/node:$VERSION
-    hostname: nodeosd
+    image: asteroid_rush/nodeos:$VERSION
+    hostname: nodeos
     ports:
       - 8010:8010
       - 8012:8012
@@ -44,7 +44,7 @@ services:
       build:
         context: ../
         dockerfile: dockerfiles/Dockerfile.Node
-      image: asteroid_rush/node:$VERSION
+      image: asteroid_rush/nodeos:$VERSION
       hostname: nodeos
       command: --genesis-json=/opt/eosio/bin/data-dir/genesis.json --delete-all-blocks --hard-replay
       ports:
@@ -66,6 +66,10 @@ services:
       dockerfile: dockerfiles/Dockerfile.Keos
     image: asteroid_rush/keos:$VERSION
     hostname: keos
+    ports:
+        - 127.0.0.1:8020:8020
+    expose:
+        - "8020"
     networks:
       - asteroid_rush/dev
     volumes:
