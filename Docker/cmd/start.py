@@ -19,7 +19,7 @@ class StartCommand(Command):
                             help='Component to start', default='nodeos')
 
     def check_all_images_exists(self, tag):
-        images = ['base', 'boot', 'node', 'keos']
+        images = ['base', 'boot', 'nodeos', 'keos']
         all_exists = True
 
         for im_name in images:
@@ -37,7 +37,7 @@ class StartCommand(Command):
 
         with open(env_file_path, 'r') as f:
             version = f.read()
-            res = re.search('VERSION=(\w+)', version)
+            res = re.search('VERSION=([\w.-]+)', version)
             if res:
                 return res.group(1)
             return None
