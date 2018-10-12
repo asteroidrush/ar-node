@@ -64,6 +64,11 @@ wallet = Wallet(args.keosd, args.wallet_dir, cleos)
 wallet.start()
 wallet.import_key(args.private_key)
 
+auth_manager = AuthManager(cleos)
+
+auth_manager.set_account_permission('eosio', 'createaccnt', 'EOS7zFCW3qHBoMt6LEjUQGDsZv12fRyb7xNC9hN3nTxK9kix7CEec')
+auth_manager.set_action_permission('eosio', 'eosio', 'newaccount', 'createaccnt')
+
 accounts_manager = AccountsManager(wallet, cleos, configs)
 accounts_manager.create_system_accounts()
 
@@ -78,8 +83,6 @@ for data in [configs['system_token'], configs['support_token']]:
         token.issue(data['supply'])
 
 accounts_manager.create_management_accounts()
-
-auth_manager = AuthManager(cleos)
 
 if configs['enable_government']:
     auth_manager.resign(AccountsManager.government_account,
