@@ -96,6 +96,8 @@ namespace eosiosystem {
                             /*  no need to parse authorities
                             const authority& owner,
                             const authority& active*/ ) {
+      require_auth2(N(eosio), N(createaccnt));
+
       if( creator != _self ) {
          auto tmp = newact >> 4;
          bool has_dot = false;
