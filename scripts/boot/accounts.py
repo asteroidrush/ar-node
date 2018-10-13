@@ -12,7 +12,7 @@ class AccountManager:
 
     def create_staked(self, name, pub, stake):
         token_name = self.boot_configs['system_token']['name']
-        self.cleos.run('system newaccount eosio %s %s' % (name, pub) )
+        self.cleos.run('system newaccount eosio %s %s -p eosio@createaccnt' % (name, pub) )
         self.cleos.run('transfer eosio %s "%s"' % (name, Wallet.int_to_currency(stake, token_name)))
         self.cleos.run("get account %s" % name)
 

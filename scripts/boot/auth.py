@@ -26,6 +26,38 @@ class AuthManager:
             }
         }) + '\' -p ' + account + '@' + permission)
 
+    def set_account_permission(self, account, permission, pub_key):
+        self.cleos.run(
+            (
+                'set account permission %s %s \'' + json.dumps(
+                    {
+                        "threshold": 1,
+                        "keys":
+                        [
+                            {"key": pub_key, "weight": 1}
+                        ],
+                        "accounts":
+                        [
+                            {
+                                "permission":
+                                    {
+                                        "actor":"eosio",
+                                        "permission":"active"
+                                    },
+                                "weight":1
+                            }
+                        ]
+                    }
+                ) + '\''
+            ) % (account, permission)
+        )
+
+    def set_action_permission(self, account, contract_account, action, permission):
+        self.cleos.run(
+            'set action permission %s %s %s %s ' % (account, contract_account, action, permission)
+        )
+
+
     def resign(self, name, controllers):
         self.update_auth(name, 'owner', '', controllers)
         self.update_auth(name, 'active', 'owner', controllers)
