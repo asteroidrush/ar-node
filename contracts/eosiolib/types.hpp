@@ -104,6 +104,32 @@ namespace eosio {
       return ( ((n & mask) << shift) + (thirteenth_character << (shift-1)) );
    }
 
+   static constexpr uint64_t name_prefix( uint64_t n ) {
+      uint32_t remaining_bits_after_last_actual_dot = 0;
+      uint32_t tmp = 0;
+      for( int32_t remaining_bits = 59; remaining_bits >= 4; remaining_bits -= 5 ) { // Note: remaining_bits must remain signed integer
+         // Get characters one-by-one in name in order from left to right (not including the 13th character)
+         auto c = (n >> remaining_bits) & 0x1Full;
+         if( !c ) { // if this character is a dot
+            tmp = static_cast<uint32_t>(remaining_bits);
+         } else { // if this character is not a dot
+            remaining_bits_after_last_actual_dot = tmp;
+         }
+      }
+
+      uint64_t thirteenth_character = n & 0x0Full;
+      if( thirteenth_character ) { // if 13th character is a dot
+         remaining_bits_after_last_actual_dot = tmp;
+      }
+
+      if( remaining_bits_after_last_actual_dot == 0 ) // there is no actual dot in the name other than potentially leading dots
+         return n;
+
+      // At this point remaining_bits_after_last_actual_dot has to be within the range of 4 to 59 (and restricted to increments of 5).
+
+      return (n >> remaining_bits_after_last_actual_dot) << remaining_bits_after_last_actual_dot;
+   }
+
    /**
     *  Wraps a uint64_t to ensure it is only passed to methods that expect a Name and
     *  that no mathematical operations occur.  It also enables specialization of print

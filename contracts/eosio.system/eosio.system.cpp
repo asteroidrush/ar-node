@@ -98,14 +98,19 @@ namespace eosiosystem {
                             const authority& active*/ ) {
       require_auth2(N(eosio), N(createaccnt));
 
-      if( creator != _self ) {
-         auto tmp = newact >> 4;
-         bool has_dot = false;
+      auto tmp = newact >> 4;
+      uint32_t mask = 0;
+      bool has_dot = false;
 
-         for( uint32_t i = 0; i < 12; ++i ) {
-           has_dot |= !(tmp & 0x1f);
-           tmp >>= 5;
-         }
+      for( int i = 0; i < 12; ++i ) {
+         has_dot |= !(tmp & 0x1f);
+         tmp >>= 5;
+      }
+
+      if( has_dot ) { // or is less than 12 characters
+         auto prefix = eosio::name_prefix(newact);
+         if(prefix != newact) // it means name has dot
+            eosio_assert( creator == prefix, "only prefix may create this account" );
       }
 
       user_resources_table  userres( _self, newact);
