@@ -8,15 +8,31 @@
       "management": true
     }
   ],
-  "system_token": {
-    "supply": 0.4,
-    "max_supply": 10000000000.0000,
-    "name": "SYS"
-  },
-  "support_token": {
-    "supply": 0,
-    "max_supply": 10000000000.0000,
-    "name": "SPT"
+  "tokens": {
+      "system": {
+        "supply": 0.4,
+        "max_supply": 10000000000000,
+        "name": "SYS",
+        "precision": 4
+      },
+      "support": {
+        "supply": 0,
+        "max_supply": 10000000000000,
+        "name": "SPT",
+        "precision": 4
+      },
+      "gateway.btc": {
+        "supply": 1,
+        "max_supply": 2100000000000000,
+        "name": "GATEBTC",
+        "precision": 8
+      },
+      "gateway.eth": {
+        "supply": 1,
+        "max_supply": 1000000000000000000,
+        "name": "GATEETH",
+        "precision": 8
+      }
   },
   "ram_size": 0
 }

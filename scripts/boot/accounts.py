@@ -11,21 +11,23 @@ class AccountManager:
         self.cleos.run('create account eosio %s %s' % (name, pub))
 
     def create_staked(self, name, pub, stake):
-        token_name = self.boot_configs['system_token']['name']
+        system_token = self.boot_configs['tokens']['system']
         self.cleos.run('system newaccount eosio %s %s -p eosio@createaccnt' % (name, pub) )
-        self.cleos.run('transfer eosio %s "%s"' % (name, Wallet.int_to_currency(stake, token_name)))
+        self.cleos.run('transfer eosio %s "%s"' % (name, Wallet.int_to_currency(stake, system_token['name'], system_token['precision'])))
         self.cleos.run("get account %s" % name)
 
 
 class AccountsManager:
 
+    gateway_account = 'eosio.gate'
     government_account = 'eosio.gov'
 
     system_accounts = [
         'eosio.bpay',
         'eosio.names',
         'eosio.saving',
-        'eosio.upay'
+        'eosio.upay',
+        government_account
     ]
 
     def __init__(self, wallet, cleos, boot_configs):
@@ -39,13 +41,15 @@ class AccountsManager:
         self.account_manager.create(name, keys['pub'])
 
     def create_system_accounts(self):
-        self.create_system_account(self.government_account)
         for account_name in self.system_accounts:
             self.create_system_account(account_name)
 
+    def create_gateway_account(self, public_key):
+        self.account_manager.create(self.gateway_account, public_key)
+
 
     def create_management_accounts(self):
-        token = self.boot_configs['system_token']
+        token = self.boot_configs['tokens']['system']
         supply = token['max_supply'] * token['supply']
         for account in self.boot_configs['accounts']:
             account_stake = account['stake'] * supply
