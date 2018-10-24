@@ -68,7 +68,21 @@ wallet.import_key(args.private_key)
 
 auth_manager = AuthManager(cleos)
 
-auth_manager.set_account_permission('eosio', 'createaccnt', 'EOS7zFCW3qHBoMt6LEjUQGDsZv12fRyb7xNC9hN3nTxK9kix7CEec')
+auth_manager.set_account_permission('eosio', 'createaccnt',
+                                        [
+                                            {
+                                                'pub': 'EOS7zFCW3qHBoMt6LEjUQGDsZv12fRyb7xNC9hN3nTxK9kix7CEec',
+                                                'weight': 1
+                                            }
+                                        ],
+                                        [
+                                            {
+                                                'name': 'eosio',
+                                                'permission': 'active',
+                                                'weight': 1
+                                            }
+                                        ]
+                                    )
 auth_manager.set_action_permission('eosio', 'eosio', 'newaccount', 'createaccnt')
 
 accounts_manager = AccountsManager(wallet, cleos, configs)

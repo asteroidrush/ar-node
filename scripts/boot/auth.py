@@ -26,7 +26,7 @@ class AuthManager:
             }
         }) + '\' -p ' + account + '@' + permission)
 
-    def set_account_permission(self, account, permission, pub_key):
+    def set_account_permission(self, account, permission, keys, accounts):
         self.cleos.run(
             (
                 'set account permission %s %s \'' + json.dumps(
@@ -34,18 +34,19 @@ class AuthManager:
                         "threshold": 1,
                         "keys":
                         [
-                            {"key": pub_key, "weight": 1}
+                            {"key": key['pub'], "weight": key['weight']}
+                            for key in keys
                         ],
                         "accounts":
                         [
                             {
                                 "permission":
-                                    {
-                                        "actor":"eosio",
-                                        "permission":"active"
-                                    },
-                                "weight":1
-                            }
+                                {
+                                    "actor": account['name'],
+                                    "permission": account['permission']
+                                },
+                                "weight": account['weight']
+                            } for account in accounts
                         ]
                     }
                 ) + '\''
