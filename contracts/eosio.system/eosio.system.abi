@@ -227,6 +227,12 @@
         {"name":"max_ram_size",     "type":"uint64"}
       ]
     },{
+       "name": "setmaxaccnts",
+       "base": "",
+       "fields": [
+         {"name":"max_accounts",     "type":"uint64"}
+       ]
+    },{
        "name": "setaccntbw",
        "base": "",
        "fields": [
@@ -389,6 +395,10 @@
    },{
       "name": "setmaxram",
       "type": "setmaxram",
+      "ricardian_contract": ""
+   },{
+      "name": "setmaxaccnts",
+      "type": "setmaxaccnts",
       "ricardian_contract": ""
    },{
       "name": "setaccntbw",

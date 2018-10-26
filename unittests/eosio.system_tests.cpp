@@ -42,6 +42,34 @@ BOOST_FIXTURE_TEST_CASE( set_resources, eosio_system_tester ) try {
 } FC_LOG_AND_RETHROW()
 
 
+BOOST_FIXTURE_TEST_CASE( max_accounts_test, eosio_system_tester ) try {
+   cross_15_percent_threshold();
+
+   BOOST_CHECK_EQUAL( success(), set_max_accounts(10) );
+   produce_blocks( 1 );
+
+   vector<char> alpha = {'1', '2', '3', '4', '5', 'a', 'b', 'c', 'd', 'e'};
+   for(int i=0; i < 10 - 4; i++){
+        string index = "";
+        int divider = i + 1;
+        while( divider > 0){
+           index += alpha[divider % 10];
+           divider /= 10;
+        }
+        auto acc_name = string_to_name(string("alice" + index).c_str());
+   	  create_account_with_resources( acc_name, config::system_account_name, false, 8000, 1, 1, 1);
+
+        produce_blocks( 1 );
+   }
+
+   BOOST_CHECK_THROW(create_account_with_resources( "finalacc", config::system_account_name, false, 8000, 1, 1, 1), eosio_assert_message_exception);
+
+   BOOST_REQUIRE_EQUAL( wasm_assert_msg( "attempt to set max accounts below reserved"), set_max_accounts(5) );
+   BOOST_REQUIRE_EQUAL( wasm_assert_msg( "have no enough ram for this accounts' count"), set_max_accounts(5'000'000'000) );
+
+} FC_LOG_AND_RETHROW()
+
+
 BOOST_FIXTURE_TEST_CASE( fail_without_auth, eosio_system_tester ) try {
    cross_15_percent_threshold();
 
