@@ -54,6 +54,27 @@ public:
 
       produce_blocks( 2 );
 
+      TESTER::push_action(config::system_account_name, updateauth::get_name(), config::system_account_name, mvo()
+            ("account",     name(config::system_account_name).to_string())
+            ("permission",     "createaccnt")
+            ("parent", "active")
+            ("auth", authority{1,{},{
+                  permission_level_weight{{config::system_account_name, config::active_name}, 1}
+                }
+             }
+            )
+      );
+
+
+      TESTER::push_action(config::system_account_name, linkauth::get_name(), config::system_account_name, mvo()
+            ("account",     name(config::system_account_name).to_string())
+            ("code",        name(config::system_account_name).to_string())
+            ("type",        "newaccount")
+            ("requirement", "createaccnt")
+      );
+
+      produce_blocks( 2 );
+
       create_accounts({ N(eosio.token), N(eosio.bpay), N(eosio.vpay), N(eosio.names) });
 
 
@@ -119,7 +140,7 @@ public:
          owner_auth =  authority( get_public_key( a, "owner" ) );
       }
 
-      trx.actions.emplace_back( vector<permission_level>{{creator,config::active_name}},
+      trx.actions.emplace_back( vector<permission_level>{{creator,N(createaccnt)}},
                                 newaccount{
                                    .creator  = creator,
                                    .name     = a,
@@ -158,7 +179,7 @@ public:
 
       for (const auto& a: accounts) {
          authority owner_auth( get_public_key( a, "owner" ) );
-         trx.actions.emplace_back( vector<permission_level>{{creator,config::active_name}},
+         trx.actions.emplace_back( vector<permission_level>{{creator, N(createaccnt)}},
                                    newaccount{
                                          .creator  = creator,
                                          .name     = a,

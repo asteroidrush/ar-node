@@ -210,6 +210,25 @@ BOOST_FIXTURE_TEST_CASE( bootseq_test, bootseq_tester ) {
         // Set eosio.system to eosio
         set_code_abi(config::system_account_name, eosio_system_wast, eosio_system_abi);
 
+        TESTER::push_action(config::system_account_name, updateauth::get_name(), config::system_account_name, mvo()
+             ("account",     name(config::system_account_name).to_string())
+             ("permission",     "createaccnt")
+             ("parent", "active")
+             ("auth", authority{1,{},{
+                    permission_level_weight{{config::system_account_name, config::active_name}, 1}
+              }
+              }
+             )
+        );
+
+
+        TESTER::push_action(config::system_account_name, linkauth::get_name(), config::system_account_name, mvo()
+             ("account",     name(config::system_account_name).to_string())
+             ("code",        name(config::system_account_name).to_string())
+             ("type",        "newaccount")
+             ("requirement", "createaccnt")
+        );
+
         // Create SYS tokens in eosio.token, set its manager as eosio
         auto core_max_supply = core_from_string("10000000000.0000"); /// 1x larger than 1B initial tokens
         auto initial_supply = core_from_string("10000000000.0000"); /// 1x larger than 1B initial tokens
@@ -226,7 +245,7 @@ BOOST_FIXTURE_TEST_CASE( bootseq_test, bootseq_tester ) {
 
         // Create genesis accounts
         for( const auto& a : test_genesis ) {
-           create_account( a.aname, config::system_account_name );
+           create_account( a.aname, config::system_account_name, false, true, N(createaccnt) );
         }
 
         for( const auto& a : test_genesis ) {
