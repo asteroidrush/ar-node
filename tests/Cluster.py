@@ -890,6 +890,16 @@ class Cluster(object):
 
             Node.validateTransaction(trans)
 
+            biosNode.setAccountPermission(eosioAccount.name, 'createaccnt', [], [
+                {
+                    'name': eosioAccount.name,
+                    'permission': 'active',
+                    'weight': 1
+                }
+            ])
+            biosNode.setPermission(eosioAccount.name, eosioAccount.name, 'newaccount', 'createaccnt')
+
+
             contract=eosioTokenAccount.name
             Utils.Print("push issue action to %s contract" % (contract))
             action="issue"
