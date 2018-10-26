@@ -57,6 +57,18 @@ namespace eosiosystem {
       _global.set( _gstate, _self );
    }
 
+   void system_contract::setmaxaccnts( uint64_t max_accounts ) {
+      require_auth( _self );
+
+      uint64_t ram_size_for_accounts = max_accounts * _gstate.account_ram_size;
+      eosio_assert( ram_size_for_accounts > _gstate.total_ram_bytes_reserved_for_accounts, "attempt to set max accounts below reserved" );
+      eosio_assert( ram_size_for_accounts < _gstate.free_ram(), "have no enough ram for this accounts' count" );
+
+      _gstate.max_accounts = max_accounts;
+      _gstate.max_ram_size_for_accounts = ram_size_for_accounts;
+      _global.set( _gstate, _self );
+   }
+   
    void system_contract::set_account_resource_limits(account_name account, uint64_t *ram, uint64_t *net, uint64_t *cpu){
       user_resources_table  userres( _self, account );
       auto res_itr = userres.find( account );

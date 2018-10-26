@@ -130,9 +130,9 @@ EOSIO_ABI_EX( eosiosystem::system_contract,
      // native.hpp (newaccount definition is actually in eosio.system.cpp)
      (updateauth)(deleteauth)(linkauth)(unlinkauth)(canceldelay)(onerror)
      // eosio.system.cpp
-     (newaccount)(setmaxram)(setparams)(setpriv)(rmvproducer)
+     (newaccount)(setparams)(setpriv)(rmvproducer)
      // resource_management.cpp
-     (setaccntbw)(setaccntram)
+     (setmaxram)(setmaxaccnts)(setaccntbw)(setaccntram)
      // voting.cpp
      (issue)(transfer)(regproducer)(unregprod)(voteproducer)(regproxy)
      // producer_pay.cpp

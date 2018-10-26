@@ -335,6 +335,19 @@ public:
       return base_tester::push_action( std::move(act), from );
    }
 
+   action_result set_max_accounts( uint64_t max_accounts ) {
+      string action_type_name = abi_ser.get_action_type(N(setmaxaccnts));
+
+      action act;
+      act.account = N(eosio);
+      act.name = N(setmaxaccnts);
+      act.data = abi_ser.variant_to_binary( action_type_name,  mvo()
+            ("max_accounts",    max_accounts),
+            abi_serializer_max_time );
+
+      return base_tester::push_action( std::move(act), N(eosio) );
+   }
+
    double stake2votes( asset stake ) {
       auto now = control->pending_block_time().time_since_epoch().count() / 1000000;
       return stake.get_amount() * pow(2, int64_t((now - (config::block_timestamp_epoch / 1000)) / (86400 * 7))/ double(52) ); // 52 week periods (i.e. ~years)
