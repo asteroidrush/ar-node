@@ -31,8 +31,6 @@ parser.add_argument('--public-key', metavar='', help="Boot Public Key",
                     default='EOS6DovkiCze69bSzptXRnth7crDP1J6XvaXu1hJMJfgWdDPC45Fy', dest="public_key")
 parser.add_argument('--private-Key', metavar='', help="Boot Private Key",
                     default='5KfjdDqaKCiDpMern6mGmtL4HNzWiRxRSF5mZUg9uFDrfk3xYT1', dest="private_key")
-parser.add_argument('--gateway-public-key', metavar='', help="Gateway Public Key",
-                    default='EOS6TD6sBiBcSWmXVAfkepJroC3aizo7VjVGmZbC982b6RXG9cRRu', dest="gateway_public_key")
 parser.add_argument('--data-dir', metavar='', help="Path to data directory", default='')
 parser.add_argument('--wallet-dir', metavar='', help="Path to wallet directory", default='./wallet/')
 parser.add_argument('--genesis-json', metavar='', help="Path to genesis.json", default="./genesis.json")
@@ -85,9 +83,8 @@ auth_manager.set_account_permission('eosio', 'createaccnt',
                                     )
 auth_manager.set_action_permission('eosio', 'eosio', 'newaccount', 'createaccnt')
 
-accounts_manager = AccountsManager(wallet, cleos, configs)
+accounts_manager = AccountsManager(wallet, cleos, configs['tokens'])
 accounts_manager.create_system_accounts()
-accounts_manager.create_gateway_account(args.gateway_public_key)
 
 
 contracts_manager = ContractsManager(args.contracts_dir, accounts_manager, cleos)
@@ -95,15 +92,12 @@ contracts_manager.install_base_contracts()
 contracts_manager.install_system_contract()
 
 for data in configs['tokens'].values():
-    token = Token(data['name'], data['max_supply'], data['precision'], cleos)
+    token = Token(data['shortcut'], data['max_supply'], data['precision'], cleos)
     token.create(data['precision'])
     if data['supply']:
         token.issue(data['supply'], data['precision'])
 
-    if data['name'].startswith('GATE'):
-        cleos.run('transfer eosio %s "%s"' % (AccountsManager.gateway_account, Wallet.int_to_currency(data['supply'] * data['max_supply'], data['name'], data['precision'])))
-
-accounts_manager.create_management_accounts()
+accounts_manager.create_accounts(configs['accounts'])
 
 if configs['enable_government']:
     auth_manager.resign(AccountsManager.government_account,

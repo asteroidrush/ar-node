@@ -3,23 +3,23 @@ from components import Wallet
 
 class AccountManager:
 
-    def __init__(self, cleos, boot_configs):
+    def __init__(self, cleos, tokens_info):
         self.cleos = cleos
-        self.boot_configs = boot_configs
+        self.tokens_info = tokens_info
 
     def create(self, name, pub):
         self.cleos.run('create account eosio %s %s' % (name, pub))
 
-    def create_staked(self, name, pub, stake):
-        system_token = self.boot_configs['tokens']['system']
+    def create_staked(self, name, pub, tokens):
         self.cleos.run('system newaccount eosio %s %s -p eosio@createaccnt' % (name, pub) )
-        self.cleos.run('transfer eosio %s "%s"' % (name, Wallet.int_to_currency(stake, system_token['name'], system_token['precision'])))
+        for token_name, amount in tokens.items():
+            token_data = self.tokens_info[token_name]
+            self.cleos.run('transfer eosio %s "%s"' % (name, Wallet.int_to_currency(amount, token_data['shortcut'], token_data['precision'])))
         self.cleos.run("get account %s" % name)
 
 
 class AccountsManager:
 
-    gateway_account = 'eosio.gate'
     government_account = 'eosio.gov'
 
     system_accounts = [
@@ -30,10 +30,9 @@ class AccountsManager:
         government_account
     ]
 
-    def __init__(self, wallet, cleos, boot_configs):
+    def __init__(self, wallet, cleos, tokens_info):
         self.wallet = wallet
-        self.account_manager = AccountManager(cleos, boot_configs)
-        self.boot_configs = boot_configs
+        self.account_manager = AccountManager(cleos, tokens_info)
 
     def create_system_account(self, name):
         keys = self.wallet.create_keys()
@@ -44,13 +43,7 @@ class AccountsManager:
         for account_name in self.system_accounts:
             self.create_system_account(account_name)
 
-    def create_gateway_account(self, public_key):
-        self.account_manager.create(self.gateway_account, public_key)
 
-
-    def create_management_accounts(self):
-        token = self.boot_configs['tokens']['system']
-        supply = token['max_supply'] * token['supply']
-        for account in self.boot_configs['accounts']:
-            account_stake = account['stake'] * supply
-            self.account_manager.create_staked(account['name'], account['pub'], account_stake)
+    def create_accounts(self, accounts):
+        for account in accounts:
+            self.account_manager.create_staked(account['name'], account['pub'], account['tokens'])

@@ -1,38 +1,41 @@
 {
   "enable_government": false,
-  "accounts": [
-    {
-      "name": "man1",
-      "pub": "EOS6XZtkZMes8ovp3zsGcnNNBepW3RDPF5VHVuuknHr4FL1LB1w4d",
-      "stake": 0.3,
-      "management": true
-    }
-  ],
   "tokens": {
       "system": {
         "supply": 0.4,
         "max_supply": 10000000000000,
-        "name": "SYS",
+        "shortcut": "SYS",
         "precision": 4
       },
       "support": {
         "supply": 0,
         "max_supply": 10000000000000,
-        "name": "SPT",
+        "shortcut": "SPT",
         "precision": 4
       },
-      "gateway.btc": {
+      "piastro": {
         "supply": 1,
         "max_supply": 2100000000000000,
-        "name": "GATEBTC",
-        "precision": 8
-      },
-      "gateway.eth": {
-        "supply": 1,
-        "max_supply": 1000000000000000000,
-        "name": "GATEETH",
+        "shortcut": "PSTR",
         "precision": 8
       }
   },
+  "accounts": [
+    {
+      "name": "man1",
+      "pub": "EOS6XZtkZMes8ovp3zsGcnNNBepW3RDPF5VHVuuknHr4FL1LB1w4d",
+      "tokens": {
+          "system": 1200000000000
+      },
+      "management": true
+    },
+    {
+      "name": "arpresale",
+      "pub": "EOS6TD6sBiBcSWmXVAfkepJroC3aizo7VjVGmZbC982b6RXG9cRRu",
+      "tokens": {
+          "piastro": 100000000000000
+      }
+    }
+  ],
   "ram_size": 0
 }
