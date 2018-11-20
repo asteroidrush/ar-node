@@ -3,6 +3,11 @@ from components import Wallet
 
 class AccountManager:
 
+    SIZES = {
+        'mb': 1024*1024,
+        'kb': 1024
+    }
+
     def __init__(self, cleos, tokens_info):
         self.cleos = cleos
         self.tokens_info = tokens_info
@@ -10,11 +15,26 @@ class AccountManager:
     def create(self, name, pub):
         self.cleos.run('create account eosio %s %s' % (name, pub))
 
-    def create_staked(self, name, pub, tokens):
+    def create_staked(self, name, pub, tokens, ram="default", net="default", cpu="default"):
         self.cleos.run('system newaccount eosio %s %s -p eosio@createaccnt' % (name, pub) )
         for token_name, amount in tokens.items():
             token_data = self.tokens_info[token_name]
             self.cleos.run('transfer eosio %s "%s"' % (name, Wallet.int_to_currency(amount, token_data['shortcut'], token_data['precision'])))
+
+        if ram != "default":
+            multiplier = self.SIZES[ram[-2:]]
+            size = int(ram[:-2])
+            self.cleos.run("set account ram %s %d -p eosio@active" % (name, size * multiplier))
+
+        if net == 'default':
+            net = 1
+
+        if cpu == 'default':
+            cpu = 1
+
+        if net > 1 or cpu > 1:
+            self.cleos.run("set account bandwidth %s %d %d -p eosio@active" % (name, net, cpu))
+
         self.cleos.run("get account %s" % name)
 
 
@@ -46,4 +66,4 @@ class AccountsManager:
 
     def create_accounts(self, accounts):
         for account in accounts:
-            self.account_manager.create_staked(account['name'], account['pub'], account['tokens'])
+            self.account_manager.create_staked(account['name'], account['pub'], account['tokens'], account['ram'], account['net'], account['cpu'])

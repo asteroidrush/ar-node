@@ -27,11 +27,17 @@
       "tokens": {
           "system": 1200000000000
       },
+      "ram": "default",
+      "net": "default",
+      "cpu": "default",
       "management": true
     },
     {
       "name": "arpresale",
       "pub": "EOS6TD6sBiBcSWmXVAfkepJroC3aizo7VjVGmZbC982b6RXG9cRRu",
+      "ram": "5mb",
+      "net": "default",
+      "cpu": "default",
       "tokens": {
           "piastro": 100000000000000
       }
