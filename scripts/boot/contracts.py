@@ -1,9 +1,8 @@
 class ContractsManager:
     system_contracts = ["eosio.token", "eosio.msig"]
 
-    def __init__(self, dir, accounts_manager, cleos):
+    def __init__(self, dir, cleos):
         self.cleos = cleos
-        self.accounts_manager = accounts_manager
         self.dir = dir
 
     def install(self, account_name, contract_name):
@@ -15,7 +14,6 @@ class ContractsManager:
 
     def install_base_contracts(self):
         for contract_name in self.system_contracts:
-            self.accounts_manager.create_system_account(contract_name)
             self.install(contract_name, contract_name)
 
     def install_system_contract(self):

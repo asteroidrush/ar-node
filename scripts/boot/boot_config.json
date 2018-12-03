@@ -30,6 +30,7 @@
       "ram": "default",
       "net": "default",
       "cpu": "default",
+      "contract_host": false,
       "management": true
     },
     {
@@ -38,6 +39,7 @@
       "ram": "5mb",
       "net": "default",
       "cpu": "default",
+      "contract_host": true,
       "tokens": {
           "piastro": 100000000000000
       }
