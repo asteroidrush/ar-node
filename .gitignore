@@ -11,6 +11,7 @@
 *.abi.hpp
 *.cmake
 *.ninja
+*.log
 \#*
 \.#*
 CMakeCache.txt
