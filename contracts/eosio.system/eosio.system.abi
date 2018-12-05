@@ -79,6 +79,14 @@
         {"name":"account", "type":"account_name"},
         {"name":"abi",     "type":"bytes"}
       ]
+    },
+    {
+      "name": "contracthost",
+      "base": "",
+      "fields": [
+        {"name":"account", "type":"account_name"},
+        {"name":"contract_host", "type":"uint8"}
+      ]
     },{
       "name": "updateauth",
       "base": "",
@@ -363,6 +371,10 @@
    },{
      "name": "setabi",
      "type": "setabi",
+     "ricardian_contract": ""
+   },{
+     "name": "contracthost",
+     "type": "contracthost",
      "ricardian_contract": ""
    },{
      "name": "updateauth",
