@@ -1,22 +1,94 @@
 {
   "enable_government": false,
+  "tokens": {
+      "system": {
+        "supply": 0.4,
+        "max_supply": 10000000000000,
+        "shortcut": "SYS",
+        "precision": 4
+      },
+      "support": {
+        "supply": 0,
+        "max_supply": 10000000000000,
+        "shortcut": "SPT",
+        "precision": 4
+      },
+      "piastro": {
+        "supply": 1,
+        "max_supply": 2100000000000000,
+        "shortcut": "PSTR",
+        "precision": 8
+      }
+  },
   "accounts": [
     {
       "name": "man1",
       "pub": "EOS6XZtkZMes8ovp3zsGcnNNBepW3RDPF5VHVuuknHr4FL1LB1w4d",
-      "stake": 0.3,
+      "tokens": {
+          "system": 1200000000000
+      },
+      "ram": "default",
+      "net": "default",
+      "cpu": "default",
+      "contract_host": false,
       "management": true
+    },
+    {
+      "name": "presale",
+      "pub": "EOS6TD6sBiBcSWmXVAfkepJroC3aizo7VjVGmZbC982b6RXG9cRRu",
+      "ram": "5mb",
+      "net": "default",
+      "cpu": "default",
+      "contract_host": true,
+      "tokens": {
+          "piastro": 100000000000000
+      }
+    },
+    {
+      "name": "argame",
+      "pub": "EOS6TD6sBiBcSWmXVAfkepJroC3aizo7VjVGmZbC982b6RXG9cRRu",
+      "ram": "5mb",
+      "net": "default",
+      "cpu": "default",
+      "contract_host": true,
+      "tokens": {}
+    },
+    {
+      "name": "resource",
+      "pub": "EOS6TD6sBiBcSWmXVAfkepJroC3aizo7VjVGmZbC982b6RXG9cRRu",
+      "ram": "5mb",
+      "net": "default",
+      "cpu": "default",
+      "contract_host": true,
+      "tokens": {}
+    },
+    {
+      "name": "cardrepo",
+      "pub": "EOS6TD6sBiBcSWmXVAfkepJroC3aizo7VjVGmZbC982b6RXG9cRRu",
+      "ram": "5mb",
+      "net": "default",
+      "cpu": "default",
+      "contract_host": true,
+      "tokens": {}
     }
   ],
-  "system_token": {
-    "supply": 0.4,
-    "max_supply": 10000000000.0000,
-    "name": "SYS"
-  },
-  "support_token": {
-    "supply": 0,
-    "max_supply": 10000000000.0000,
-    "name": "SPT"
-  },
+  "contracts": [
+    {
+      "name": "main",
+      "account": "argame"
+    },
+    {
+      "name": "cardrepo",
+      "account": "cardrepo"
+    },
+    {
+      "name": "token",
+      "account": "resource"
+    },
+    {
+      "name": "presale",
+      "account": "presale"
+    }
+  ],
   "ram_size": 0
 }

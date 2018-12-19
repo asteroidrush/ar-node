@@ -155,7 +155,8 @@ namespace eosio { namespace testing {
          transaction_trace_ptr create_account( account_name name,
                                                account_name creator = config::system_account_name,
                                                bool multisig = false,
-                                               bool include_code = true
+                                               bool include_code = true,
+                                               permission_name creator_permission = config::active_name
                                              );
 
          transaction_trace_ptr push_reqauth( account_name from, const vector<permission_level>& auths, const vector<private_key_type>& keys );

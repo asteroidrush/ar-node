@@ -54,6 +54,27 @@ public:
 
       produce_blocks( 2 );
 
+      TESTER::push_action(config::system_account_name, updateauth::get_name(), config::system_account_name, mvo()
+            ("account",     name(config::system_account_name).to_string())
+            ("permission",     "createaccnt")
+            ("parent", "active")
+            ("auth", authority{1,{},{
+                  permission_level_weight{{config::system_account_name, config::active_name}, 1}
+                }
+             }
+            )
+      );
+
+
+      TESTER::push_action(config::system_account_name, linkauth::get_name(), config::system_account_name, mvo()
+            ("account",     name(config::system_account_name).to_string())
+            ("code",        name(config::system_account_name).to_string())
+            ("type",        "newaccount")
+            ("requirement", "createaccnt")
+      );
+
+      produce_blocks( 2 );
+
       create_accounts({ N(eosio.token), N(eosio.bpay), N(eosio.vpay), N(eosio.names) });
 
 
@@ -119,7 +140,7 @@ public:
          owner_auth =  authority( get_public_key( a, "owner" ) );
       }
 
-      trx.actions.emplace_back( vector<permission_level>{{creator,config::active_name}},
+      trx.actions.emplace_back( vector<permission_level>{{creator,N(createaccnt)}},
                                 newaccount{
                                    .creator  = creator,
                                    .name     = a,
@@ -158,7 +179,7 @@ public:
 
       for (const auto& a: accounts) {
          authority owner_auth( get_public_key( a, "owner" ) );
-         trx.actions.emplace_back( vector<permission_level>{{creator,config::active_name}},
+         trx.actions.emplace_back( vector<permission_level>{{creator, N(createaccnt)}},
                                    newaccount{
                                          .creator  = creator,
                                          .name     = a,
@@ -312,6 +333,19 @@ public:
             ("memo", ""), abi_serializer_max_time );
 
       return base_tester::push_action( std::move(act), from );
+   }
+
+   action_result set_max_accounts( uint64_t max_accounts ) {
+      string action_type_name = abi_ser.get_action_type(N(setmaxaccnts));
+
+      action act;
+      act.account = N(eosio);
+      act.name = N(setmaxaccnts);
+      act.data = abi_ser.variant_to_binary( action_type_name,  mvo()
+            ("max_accounts",    max_accounts),
+            abi_serializer_max_time );
+
+      return base_tester::push_action( std::move(act), N(eosio) );
    }
 
    double stake2votes( asset stake ) {

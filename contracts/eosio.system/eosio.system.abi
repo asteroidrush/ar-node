@@ -79,6 +79,14 @@
         {"name":"account", "type":"account_name"},
         {"name":"abi",     "type":"bytes"}
       ]
+    },
+    {
+      "name": "contracthost",
+      "base": "",
+      "fields": [
+        {"name":"account", "type":"account_name"},
+        {"name":"contract_host", "type":"uint8"}
+      ]
     },{
       "name": "updateauth",
       "base": "",
@@ -227,6 +235,12 @@
         {"name":"max_ram_size",     "type":"uint64"}
       ]
     },{
+       "name": "setmaxaccnts",
+       "base": "",
+       "fields": [
+         {"name":"max_accounts",     "type":"uint64"}
+       ]
+    },{
        "name": "setaccntbw",
        "base": "",
        "fields": [
@@ -359,6 +373,10 @@
      "type": "setabi",
      "ricardian_contract": ""
    },{
+     "name": "contracthost",
+     "type": "contracthost",
+     "ricardian_contract": ""
+   },{
      "name": "updateauth",
      "type": "updateauth",
      "ricardian_contract": ""
@@ -389,6 +407,10 @@
    },{
       "name": "setmaxram",
       "type": "setmaxram",
+      "ricardian_contract": ""
+   },{
+      "name": "setmaxaccnts",
+      "type": "setmaxaccnts",
       "ricardian_contract": ""
    },{
       "name": "setaccntbw",

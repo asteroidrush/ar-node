@@ -66,28 +66,51 @@ wallet.import_key(args.private_key)
 
 auth_manager = AuthManager(cleos)
 
-auth_manager.set_account_permission('eosio', 'createaccnt', 'EOS7zFCW3qHBoMt6LEjUQGDsZv12fRyb7xNC9hN3nTxK9kix7CEec')
+auth_manager.set_account_permission('eosio', 'createaccnt',
+                                        [
+                                            {
+                                                'pub': 'EOS7zFCW3qHBoMt6LEjUQGDsZv12fRyb7xNC9hN3nTxK9kix7CEec',
+                                                'weight': 1
+                                            }
+                                        ],
+                                        [
+                                            {
+                                                'name': 'eosio',
+                                                'permission': 'active',
+                                                'weight': 1
+                                            }
+                                        ]
+                                    )
 auth_manager.set_action_permission('eosio', 'eosio', 'newaccount', 'createaccnt')
 
-accounts_manager = AccountsManager(wallet, cleos, configs)
+contracts_manager = ContractsManager(args.contracts_dir, cleos)
+accounts_manager = AccountsManager(wallet, cleos, contracts_manager, configs['tokens'], args.public_key)
+
+
 accounts_manager.create_system_accounts()
 
-contracts_manager = ContractsManager(args.contracts_dir, accounts_manager, cleos)
+contracts_manager.unlock_contract_uploading("eosio")
 contracts_manager.install_base_contracts()
 contracts_manager.install_system_contract()
 
-for data in [configs['system_token'], configs['support_token']]:
-    token = Token(data['name'], data['max_supply'], cleos)
-    token.create()
+for data in configs['tokens'].values():
+    token = Token(data['shortcut'], data['max_supply'], data['precision'], cleos)
+    token.create(data['precision'])
     if data['supply']:
-        token.issue(data['supply'])
+        token.issue(data['supply'], data['precision'])
 
-accounts_manager.create_management_accounts()
+accounts_manager.create_accounts(configs['accounts'])
+
+contracts_manager.install_contracts(configs['contracts'])
 
 if configs['enable_government']:
     auth_manager.resign(AccountsManager.government_account,
                         [account['name'] for account in configs['accounts'] if account['management']])
     auth_manager.resign('eosio', [AccountsManager.government_account])
+
+# All configs were applied, now we can setup real permissions
+for a in configs['accounts']:
+    auth_manager.update_key_auth(a['name'], a['pub'], a['pub'])
 
 for a in AccountsManager.system_accounts:
     auth_manager.resign(a, ['eosio'])

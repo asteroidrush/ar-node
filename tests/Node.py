@@ -413,9 +413,9 @@ class Node(object):
     # Create & initialize account and return creation transactions. Return transaction json object
     def createInitializeAccount(self, account, creatorAccount, stakedDeposit=1000, waitForTransBlock=False, exitOnError=False):
         cmdDesc="system newaccount"
-        cmd='%s -j %s %s %s %s' % (
+        cmd='%s -j %s %s %s %s -p %s@createaccnt' % (
             cmdDesc, creatorAccount.name, account.name, account.ownerPublicKey,
-            account.activePublicKey)
+            account.activePublicKey, creatorAccount.name)
         msg="(creator account=%s, account=%s)" % (creatorAccount.name, account.name)
         trans=self.processCmd(cmd, cmdDesc, silentErrors=False, exitOnError=exitOnError, exitMsg=msg)
         transId=Node.getTransId(trans)
@@ -799,6 +799,37 @@ class Node(object):
         Node.validateTransaction(trans)
         return self.waitForTransBlockIfNeeded(trans, waitForTransBlock, exitOnError=False)
 
+    def setAccountPermission(self, account, permission, keys, accounts):
+        data = json.dumps(
+            {
+                "threshold": 1,
+                "keys":
+                    [
+                        {"key": key['pub'], "weight": key['weight']}
+                        for key in keys
+                    ],
+                "accounts":
+                    [
+                        {
+                            "permission":
+                                {
+                                    "actor": account['name'],
+                                    "permission": account['permission']
+                                },
+                            "weight": account['weight']
+                        } for account in accounts
+                    ]
+            }
+        )
+        cmd = "set account permission -j %s %s '%s'" % (account, permission, data)
+
+        if Utils.Debug: Utils.Print("cmd: %s" % (cmd))
+        try:
+            trans=self.processCmd(cmd, "Set account permission %s " % permission, returnType=ReturnType.json, silentErrors=False, trace=True)
+        except subprocess.CalledProcessError as ex:
+            msg=ex.output.decode("utf-8")
+            Utils.Print("ERROR: Exception during attempt to create permission. %s" % (msg))
+
 
     # publish contract and return transaction as json object
     def publishContract(self, account, contractDir, wasmFile, abiFile, waitForTransBlock=False, shouldFail=False):
@@ -911,14 +942,14 @@ class Node(object):
 
         return self.waitForTransBlockIfNeeded(trans, waitForTransBlock, exitOnError=exitOnError)
 
-    def processCmd(self, cmd, cmdDesc, silentErrors=True, exitOnError=False, exitMsg=None, returnType=ReturnType.json):
+    def processCmd(self, cmd, cmdDesc, silentErrors=True, exitOnError=False, exitMsg=None, returnType=ReturnType.json, trace=False):
         assert(isinstance(returnType, ReturnType))
         cmd="%s %s %s" % (Utils.EosClientPath, self.endpointArgs, cmd)
         if Utils.Debug: Utils.Print("cmd: %s" % (cmd))
         trans=None
         try:
             if returnType==ReturnType.json:
-                trans=Utils.runCmdReturnJson(cmd, silentErrors=silentErrors)
+                trans=Utils.runCmdReturnJson(cmd, silentErrors=silentErrors, trace=trace)
             elif returnType==ReturnType.raw:
                 trans=Utils.runCmdReturnStr(cmd)
         except subprocess.CalledProcessError as ex:

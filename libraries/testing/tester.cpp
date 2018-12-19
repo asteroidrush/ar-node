@@ -276,7 +276,7 @@ namespace eosio { namespace testing {
   }
 
 
-   transaction_trace_ptr base_tester::create_account( account_name a, account_name creator, bool multisig, bool include_code ) {
+   transaction_trace_ptr base_tester::create_account( account_name a, account_name creator, bool multisig, bool include_code, permission_name creator_permission ) {
       signed_transaction trx;
       set_transaction_headers(trx);
 
@@ -309,7 +309,7 @@ namespace eosio { namespace testing {
          sort_permissions(active_auth);
       }
 
-      trx.actions.emplace_back( vector<permission_level>{{creator,config::active_name}},
+      trx.actions.emplace_back( vector<permission_level>{{creator,creator_permission}},
                                 newaccount{
                                    .creator  = creator,
                                    .name     = a,

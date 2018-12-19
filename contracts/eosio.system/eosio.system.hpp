@@ -175,6 +175,8 @@ namespace eosiosystem {
 
          void setmaxram( uint64_t max_ram_size );
 
+         void setmaxaccnts( uint64_t max_accounts );
+
          void setaccntbw(account_name account, uint64_t net, uint64_t cpu);
 
          void setaccntram(account_name account, uint64_t ram);

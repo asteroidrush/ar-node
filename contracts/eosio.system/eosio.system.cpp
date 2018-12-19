@@ -98,14 +98,19 @@ namespace eosiosystem {
                             const authority& active*/ ) {
       require_auth2(N(eosio), N(createaccnt));
 
-      if( creator != _self ) {
-         auto tmp = newact >> 4;
-         bool has_dot = false;
+      auto tmp = newact >> 4;
+      uint32_t mask = 0;
+      bool has_dot = false;
 
-         for( uint32_t i = 0; i < 12; ++i ) {
-           has_dot |= !(tmp & 0x1f);
-           tmp >>= 5;
-         }
+      for( int i = 0; i < 12; ++i ) {
+         has_dot |= !(tmp & 0x1f);
+         tmp >>= 5;
+      }
+
+      if( has_dot ) { // or is less than 12 characters
+         auto prefix = eosio::name_prefix(newact);
+         if(prefix != newact) // it means name has dot
+            eosio_assert( creator == prefix, "only prefix may create this account" );
       }
 
       user_resources_table  userres( _self, newact);
@@ -125,9 +130,9 @@ EOSIO_ABI_EX( eosiosystem::system_contract,
      // native.hpp (newaccount definition is actually in eosio.system.cpp)
      (updateauth)(deleteauth)(linkauth)(unlinkauth)(canceldelay)(onerror)
      // eosio.system.cpp
-     (newaccount)(setmaxram)(setparams)(setpriv)(rmvproducer)
+     (newaccount)(setparams)(setpriv)(rmvproducer)
      // resource_management.cpp
-     (setaccntbw)(setaccntram)
+     (setmaxram)(setmaxaccnts)(setaccntbw)(setaccntram)
      // voting.cpp
      (issue)(transfer)(regproducer)(unregprod)(voteproducer)(regproxy)
      // producer_pay.cpp
