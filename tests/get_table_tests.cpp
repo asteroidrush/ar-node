@@ -312,7 +312,7 @@ BOOST_FIXTURE_TEST_CASE( get_table_test, TESTER ) try {
 
 } FC_LOG_AND_RETHROW()
 
-BOOST_FIXTURE_TEST_CASE( get_table_by_seckey_test, TESTER ) try {
+/*BOOST_FIXTURE_TEST_CASE( get_table_by_seckey_test, TESTER ) try {
    produce_blocks(2);
 
    create_accounts({ N(eosio.token), N(eosio.ram), N(eosio.ramfee), N(eosio.stake),
@@ -444,6 +444,7 @@ BOOST_FIXTURE_TEST_CASE( get_table_by_seckey_test, TESTER ) try {
       BOOST_REQUIRE_EQUAL("100000", result.rows[0]["high_bid"].as_string());
    }
 
-} FC_LOG_AND_RETHROW()
+} FC_LOG_AND_RETHROW()*/
+// TODO: Add equal test but for another table
 
 BOOST_AUTO_TEST_SUITE_END()

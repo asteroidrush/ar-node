@@ -21,8 +21,8 @@ cmdError=Utils.cmdError
 from core_symbol import CORE_SYMBOL
 
 args = TestHelper.parse_args({"--host","--port","--prod-count","--defproducera_prvt_key","--defproducerb_prvt_key","--mongodb"
-                              ,"--dump-error-details","--dont-launch","--keep-logs","-v","--leave-running","--only-bios","--clean-run"
-                              ,"--sanity-test","--p2p-plugin","--wallet-port"})
+                                 ,"--dump-error-details","--dont-launch","--keep-logs","-v","--leave-running","--only-bios","--clean-run"
+                                 ,"--sanity-test","--p2p-plugin","--wallet-port"})
 server=args.host
 port=args.port
 debug=args.v
@@ -114,9 +114,7 @@ try:
 
     testWalletName="test"
     Print("Creating wallet \"%s\"." % (testWalletName))
-    walletAccounts=[cluster.defproduceraAccount,cluster.defproducerbAccount]
-    if not dontLaunch:
-        walletAccounts.append(cluster.eosioAccount)
+    walletAccounts=[cluster.defproduceraAccount,cluster.defproducerbAccount, cluster.eosioAccount]
     testWallet=walletMgr.create(testWalletName, walletAccounts)
 
     Print("Wallet \"%s\" password=%s." % (testWalletName, testWallet.password.encode("utf-8")))
@@ -204,16 +202,16 @@ try:
     Print("Validating accounts before user accounts creation")
     cluster.validateAccounts(None)
 
-    Print("Create new account %s via %s" % (testeraAccount.name, cluster.defproduceraAccount.name))
-    transId=node.createInitializeAccount(testeraAccount, cluster.defproduceraAccount, stakedDeposit=0, waitForTransBlock=False, exitOnError=True)
+    Print("Create new account %s via %s" % (testeraAccount.name, cluster.eosioAccount.name))
+    transId=node.createInitializeAccount(testeraAccount, cluster.eosioAccount, stakedDeposit=0, waitForTransBlock=False, exitOnError=True)
     transId=node.setAccountRam(testeraAccount, 300)
 
-    Print("Create new account %s via %s" % (currencyAccount.name, cluster.defproduceraAccount.name))
-    transId=node.createInitializeAccount(currencyAccount, cluster.defproduceraAccount, stakedDeposit=5000, exitOnError=True)
+    Print("Create new account %s via %s" % (currencyAccount.name, cluster.eosioAccount.name))
+    transId=node.createInitializeAccount(currencyAccount, cluster.eosioAccount, stakedDeposit=5000, exitOnError=True)
     transId=node.setAccountRam(currencyAccount, 300)
 
-    Print("Create new account %s via %s" % (exchangeAccount.name, cluster.defproduceraAccount.name))
-    transId=node.createInitializeAccount(exchangeAccount, cluster.defproduceraAccount, waitForTransBlock=True, exitOnError=True)
+    Print("Create new account %s via %s" % (exchangeAccount.name, cluster.eosioAccount.name))
+    transId=node.createInitializeAccount(exchangeAccount, cluster.eosioAccount, waitForTransBlock=True, exitOnError=True)
     transId=node.setAccountRam(exchangeAccount, 1000)
 
     Print("Validating accounts after user accounts creation")

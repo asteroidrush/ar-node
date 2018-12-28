@@ -209,8 +209,8 @@ class Cluster(object):
             numProducers=totalProducers if totalProducers is not None else totalNodes
             maxProducers=ord('z')-ord('a')+1
             assert numProducers<maxProducers, \
-                   "ERROR: topo of %s assumes names of \"defproducera\" to \"defproducerz\", so must have at most %d producers" % \
-                    (topo,maxProducers)
+                "ERROR: topo of %s assumes names of \"defproducera\" to \"defproducerz\", so must have at most %d producers" % \
+                (topo,maxProducers)
 
             # will make a map to node object to make identification easier
             biosNodeObject=None
@@ -316,7 +316,7 @@ class Cluster(object):
         nodes=self.discoverLocalNodes(totalNodes, timeout=Utils.systemWaitTimeout)
         if nodes is None or totalNodes != len(nodes):
             Utils.Print("ERROR: Unable to validate %s instances, expected: %d, actual: %d" %
-                          (Utils.EosServerName, totalNodes, len(nodes)))
+                        (Utils.EosServerName, totalNodes, len(nodes)))
             return False
 
         self.nodes=nodes
@@ -379,7 +379,7 @@ class Cluster(object):
         return True
 
     # Initialize the default nodes (at present just the root node)
-    def initializeNodes(self, defproduceraPrvtKey=None, defproducerbPrvtKey=None, onlyBios=False):
+    def initializeNodes(self, totalNodes=1, defproduceraPrvtKey=None, defproducerbPrvtKey=None, onlyBios=False):
         port=Cluster.__BiosPort if onlyBios else self.port
         host=Cluster.__BiosHost if onlyBios else self.host
         node=Node(host, port, walletMgr=self.walletMgr, enableMongo=self.enableMongo, mongoHost=self.mongoHost, mongoPort=self.mongoPort, mongoDb=self.mongoDb)
@@ -395,6 +395,20 @@ class Cluster(object):
         if defproducerbPrvtKey is not None:
             self.defproducerbAccount.ownerPrivateKey=defproducerbPrvtKey
             self.defproducerbAccount.activePrivateKey=defproducerbPrvtKey
+
+
+        eosioName="eosio"
+        producerKeys=Cluster.parseClusterKeys(totalNodes)
+        if producerKeys is None:
+            Utils.Print("ERROR: Unable to parse cluster info")
+            return False
+
+        eosioKeys=producerKeys[eosioName]
+        eosioAccount=self.eosioAccount
+        eosioAccount.ownerPrivateKey=eosioKeys["private"]
+        eosioAccount.ownerPublicKey=eosioKeys["public"]
+        eosioAccount.activePrivateKey=eosioKeys["private"]
+        eosioAccount.activePublicKey=eosioKeys["public"]
 
         return True
 
@@ -638,7 +652,7 @@ class Cluster(object):
             fromm=account
             to=accounts[i+1] if i < (count-1) else source
             Utils.Print("Transfer %s units from account %s to %s on eos server port %d." %
-                    (transferAmountStr, fromm.name, to.name, node.port))
+                        (transferAmountStr, fromm.name, to.name, node.port))
 
             trans=node.transferFunds(fromm, to, transferAmountStr)
             transId=Node.getTransId(trans)
@@ -1063,27 +1077,27 @@ class Cluster(object):
             Utils.Print("ERROR: Failed to create account %s" % (eosioTokenAccount.name))
             return None
 
-            Node.validateTransaction(trans)
-            transId=Node.getTransId(trans)
-            if not biosNode.waitForTransInBlock(transId):
-                Utils.Print("ERROR: Failed to validate transaction %s got rolled into a block on server port %d." % (transId, biosNode.port))
-                return None
+        Node.validateTransaction(trans)
+        transId=Node.getTransId(trans)
+        if not biosNode.waitForTransInBlock(transId):
+            Utils.Print("ERROR: Failed to validate transaction %s got rolled into a block on server port %d." % (transId, biosNode.port))
+            return None
 
-            Utils.Print("Set contract host to %s" % (eosioTokenAccount.name))
-            trans=biosNode.setContractHost(eosioTokenAccount.name, True)
-            if trans is None:
-                Utils.Print("ERROR: Failed to set contract host to %s." % (eosioTokenAccount.name))
-                return None
+        Utils.Print("Set contract host to %s" % (eosioTokenAccount.name))
+        trans=biosNode.setContractHost(eosioTokenAccount.name, True)
+        if trans is None:
+            Utils.Print("ERROR: Failed to set contract host to %s." % (eosioTokenAccount.name))
+            return None
 
-            contract="eosio.token"
-            contractDir="contracts/%s" % (contract)
-            wasmFile="%s.wasm" % (contract)
-            abiFile="%s.abi" % (contract)
-            Utils.Print("Publish %s contract" % (contract))
-            trans=biosNode.publishContract(eosioTokenAccount.name, contractDir, wasmFile, abiFile, waitForTransBlock=True)
-            if trans is None:
-                Utils.Print("ERROR: Failed to publish contract %s." % (contract))
-                return None
+        contract="eosio.token"
+        contractDir="contracts/%s" % (contract)
+        wasmFile="%s.wasm" % (contract)
+        abiFile="%s.abi" % (contract)
+        Utils.Print("Publish %s contract" % (contract))
+        trans=biosNode.publishContract(eosioTokenAccount.name, contractDir, wasmFile, abiFile, waitForTransBlock=True)
+        if trans is None:
+            Utils.Print("ERROR: Failed to publish contract %s." % (contract))
+            return None
 
         # Create currency0000, followed by issue currency0000
         contract=eosioTokenAccount.name
@@ -1159,20 +1173,20 @@ class Cluster(object):
                         (expectedAmount, actualAmount))
             return None
 
-            initialFunds="1000000.0000 {0}".format(CORE_SYMBOL)
-            Utils.Print("Transfer initial fund %s to individual accounts." % (initialFunds))
-            trans=None
-            contract=eosioTokenAccount.name
-            action="transfer"
-            for name, keys in producerKeys.items():
-                data="{\"from\":\"%s\",\"to\":\"%s\",\"quantity\":\"%s\",\"memo\":\"%s\"}" % (eosioAccount.name, name, initialFunds, "init transfer")
-                opts="--permission %s@active" % (eosioAccount.name)
-                trans=biosNode.pushMessage(contract, action, data, opts)
-                if trans is None or not trans[0]:
-                    Utils.Print("ERROR: Failed to transfer funds from %s to %s." % (eosioAccount.name, name))
-                    return None
+        initialFunds="1000000.0000 {0}".format(CORE_SYMBOL)
+        Utils.Print("Transfer initial fund %s to individual accounts." % (initialFunds))
+        trans=None
+        contract=eosioTokenAccount.name
+        action="transfer"
+        for name, keys in producerKeys.items():
+            data="{\"from\":\"%s\",\"to\":\"%s\",\"quantity\":\"%s\",\"memo\":\"%s\"}" % (eosioAccount.name, name, initialFunds, "init transfer")
+            opts="--permission %s@active" % (eosioAccount.name)
+            trans=biosNode.pushMessage(contract, action, data, opts)
+            if trans is None or not trans[0]:
+                Utils.Print("ERROR: Failed to transfer funds from %s to %s." % (eosioAccount.name, name))
+                return None
 
-            Node.validateTransaction(trans[1])
+        Node.validateTransaction(trans[1])
 
         Utils.Print("Wait for last transfer transaction to become finalized.")
         transId=Node.getTransId(trans[1])
@@ -1420,7 +1434,7 @@ class Cluster(object):
     def reportStatus(self):
         if hasattr(self, "biosNode") and self.biosNode is not None:
             self.biosNode.reportStatus()
-        if hasattr(self, "nodes"): 
+        if hasattr(self, "nodes"):
             for node in self.nodes:
                 try:
                     node.reportStatus()

@@ -4,7 +4,7 @@ from testUtils import Utils
 import testUtils
 from Cluster import Cluster
 from WalletMgr import WalletMgr
-from Node import Node
+from Node import Node, ReturnType
 from TestHelper import TestHelper
 
 import decimal
@@ -44,6 +44,7 @@ def validBlockProducer(prodsActive, prodsSeen, blockNum, node):
 def setActiveProducers(prodsActive, activeProducers):
     for prod in prodsActive:
         prodsActive[prod]=prod in activeProducers
+
 
 def verifyProductionRounds(trans, node, prodsActive, rounds):
     blockNum=node.getNextCleanProductionCycle(trans)
@@ -102,7 +103,7 @@ def verifyProductionRounds(trans, node, prodsActive, rounds):
         prodsSeen={}
         lastBlockProducer=None
         for j in range(0, 21):
-            # each new set of 12 blocks should have a different blockProducer 
+            # each new set of 12 blocks should have a different blockProducer
             if lastBlockProducer is not None and lastBlockProducer==node.getBlockProducerByNum(blockNum):
                 Utils.cmdError("expected blockNum %s to be produced by any of the valid producers except %s" % (blockNum, lastBlockProducer))
                 Utils.errorExit("Failed because of incorrect block producer order")
@@ -225,6 +226,7 @@ try:
     #first account will vote for node0 producers, all others will vote for node1 producers
     node=node0
     for account in accounts:
+        print(node.producers)
         trans=node.vote(account, node.producers, waitForTransBlock=True)
         node=node1
 
@@ -234,12 +236,12 @@ try:
 
     # test shifting all 21 away from one node to another
     # first account will vote for node2 producers, all others will vote for node3 producers
-    node1
+    node=node2
     for account in accounts:
         trans=node.vote(account, node.producers, waitForTransBlock=True)
-        node=node2
+        node=node3
 
-    setActiveProducers(prodsActive, node2.producers)
+    setActiveProducers(prodsActive, node3.producers)
 
     verifyProductionRounds(trans, node1, prodsActive, 2)
 
