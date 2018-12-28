@@ -437,6 +437,30 @@ BOOST_FIXTURE_TEST_CASE(action_tests, TESTER) { try {
    BOOST_REQUIRE_EQUAL( validate(), true );
 } FC_LOG_AND_RETHROW() }
 
+// test require_recipient loop (doesn't cause infinite loop)
+BOOST_FIXTURE_TEST_CASE(require_notice_tests, TESTER) { try {
+      produce_blocks(2);
+      create_account( N(testapi) );
+      create_account( N(acc5) );
+      produce_blocks(1);
+      set_code( N(testapi), test_api_wast );
+      set_code( N(acc5), test_api_wast );
+      produce_blocks(1);
+
+      // test require_notice
+      signed_transaction trx;
+      auto tm = test_api_action<TEST_METHOD( "test_action", "require_notice_tests" )>{};
+
+      action act( std::vector<permission_level>{{N( testapi ), config::active_name}}, tm );
+      trx.actions.push_back( act );
+
+      set_transaction_headers( trx );
+      trx.sign( get_private_key( N( testapi ), "active" ), control->get_chain_id() );
+      auto res = push_transaction( trx );
+      BOOST_CHECK_EQUAL( res->receipt->status, transaction_receipt::executed );
+
+   } FC_LOG_AND_RETHROW() }
+
 BOOST_FIXTURE_TEST_CASE(ram_billing_in_notify_tests, TESTER) { try {
    produce_blocks(2);
    create_account( N(testapi) );
@@ -998,11 +1022,12 @@ BOOST_FIXTURE_TEST_CASE(transaction_tests, TESTER) { try {
       }
    );
 
-   // test error handling on deferred transaction failure
-   CALL_TEST_FUNCTION(*this, "test_transaction", "send_transaction_trigger_error_handler", {});
+      // test error handling on deferred transaction failure
+      CALL_TEST_FUNCTION(*this, "test_transaction", "send_transaction_trigger_error_handler", {});
 
-   BOOST_CHECK(trace);
-   BOOST_CHECK_EQUAL(trace->receipt->status, transaction_receipt::soft_fail);
+      BOOST_REQUIRE(trace);
+      BOOST_CHECK_EQUAL(trace->receipt->status, transaction_receipt::soft_fail);
+      c.disconnect();
    }
 
    // test test_transaction_size
@@ -1022,7 +1047,7 @@ BOOST_FIXTURE_TEST_CASE(transaction_tests, TESTER) { try {
    // test send_action_recurse
    BOOST_CHECK_EXCEPTION(CALL_TEST_FUNCTION(*this, "test_transaction", "send_action_recurse", {}), eosio::chain::transaction_exception,
          [](const eosio::chain::transaction_exception& e) {
-            return expect_assert_message(e, "inline action recursion depth reached");
+            return expect_assert_message(e, "max inline action depth per transaction reached");
          }
       );
 
@@ -1144,61 +1169,66 @@ BOOST_FIXTURE_TEST_CASE(deferred_transaction_tests, TESTER) { try {
 
    produce_blocks(10);
 
-{
-   // Trigger a tx which in turn sends a deferred tx with payer != receiver
-   // Payer is alice in this case, this tx should fail since we don't have the authorization of alice
-   dtt_action dtt_act1;
-   dtt_act1.payer = N(alice);
-   BOOST_CHECK_THROW(CALL_TEST_FUNCTION(*this, "test_transaction", "send_deferred_tx_with_dtt_action", fc::raw::pack(dtt_act1)), missing_auth_exception);
+   {
+      // Trigger a tx which in turn sends a deferred tx with payer != receiver
+      // Payer is alice in this case, this tx should fail since we don't have the authorization of alice
+      dtt_action dtt_act1;
+      dtt_act1.payer = N(alice);
+      BOOST_CHECK_THROW(CALL_TEST_FUNCTION(*this, "test_transaction", "send_deferred_tx_with_dtt_action", fc::raw::pack(dtt_act1)), missing_auth_exception);
 
-   // Send a tx which in turn sends a deferred tx with the deferred tx's receiver != this tx receiver
-   // This will include the authorization of the receiver, and impose any related delay associated with the authority
-   // We set the authorization delay to be 10 sec here, and since the deferred tx delay is set to be 5 sec, so this tx should fail
-   dtt_action dtt_act2;
-   dtt_act2.deferred_account = N(testapi2);
-   dtt_act2.permission_name = N(additional);
-   dtt_act2.delay_sec = 5;
+      // Send a tx which in turn sends a deferred tx with the deferred tx's receiver != this tx receiver
+      // This will include the authorization of the receiver, and impose any related delay associated with the authority
+      // We set the authorization delay to be 10 sec here, and since the deferred tx delay is set to be 5 sec, so this tx should fail
+      dtt_action dtt_act2;
+      dtt_act2.deferred_account = N(testapi2);
+      dtt_act2.permission_name = N(additional);
+      dtt_act2.delay_sec = 5;
 
-   auto auth = authority(get_public_key("testapi", name(dtt_act2.permission_name).to_string()), 10);
-   auth.accounts.push_back( permission_level_weight{{N(testapi), config::eosio_code_name}, 1} );
+      auto auth = authority(get_public_key("testapi", name(dtt_act2.permission_name).to_string()), 10);
+      auth.accounts.push_back( permission_level_weight{{N(testapi), config::eosio_code_name}, 1} );
 
-   push_action(config::system_account_name, updateauth::get_name(), "testapi", fc::mutable_variant_object()
-           ("account", "testapi")
-           ("permission", name(dtt_act2.permission_name))
-           ("parent", "active")
-           ("auth", auth)
-   );
-   push_action(config::system_account_name, linkauth::get_name(), "testapi", fc::mutable_variant_object()
-           ("account", "testapi")
-           ("code", name(dtt_act2.deferred_account))
-           ("type", name(dtt_act2.deferred_action))
-           ("requirement", name(dtt_act2.permission_name)));
-   BOOST_CHECK_THROW(CALL_TEST_FUNCTION(*this, "test_transaction", "send_deferred_tx_with_dtt_action", fc::raw::pack(dtt_act2)), unsatisfied_authorization);
+      push_action(config::system_account_name, updateauth::get_name(), "testapi", fc::mutable_variant_object()
+              ("account", "testapi")
+              ("permission", name(dtt_act2.permission_name))
+              ("parent", "active")
+              ("auth", auth)
+      );
+      push_action(config::system_account_name, linkauth::get_name(), "testapi", fc::mutable_variant_object()
+              ("account", "testapi")
+              ("code", name(dtt_act2.deferred_account))
+              ("type", name(dtt_act2.deferred_action))
+              ("requirement", name(dtt_act2.permission_name)));
+      BOOST_CHECK_THROW(CALL_TEST_FUNCTION(*this, "test_transaction", "send_deferred_tx_with_dtt_action", fc::raw::pack(dtt_act2)), unsatisfied_authorization);
 
-   // But if the deferred transaction has a sufficient delay, then it should work.
-   dtt_act2.delay_sec = 10;
-   CALL_TEST_FUNCTION(*this, "test_transaction", "send_deferred_tx_with_dtt_action", fc::raw::pack(dtt_act2));
+      // But if the deferred transaction has a sufficient delay, then it should work.
+      dtt_act2.delay_sec = 10;
+      CALL_TEST_FUNCTION(*this, "test_transaction", "send_deferred_tx_with_dtt_action", fc::raw::pack(dtt_act2));
 
-   // Meanwhile, if the deferred tx receiver == this tx receiver, the delay will be ignored, this tx should succeed
-   dtt_action dtt_act3;
-   dtt_act3.deferred_account = N(testapi);
-   dtt_act3.permission_name = N(additional);
-   push_action(config::system_account_name, linkauth::get_name(), "testapi", fc::mutable_variant_object()
-         ("account", "testapi")
-         ("code", name(dtt_act3.deferred_account))
-         ("type", name(dtt_act3.deferred_action))
-         ("requirement", name(dtt_act3.permission_name)));
-   CALL_TEST_FUNCTION(*this, "test_transaction", "send_deferred_tx_with_dtt_action", fc::raw::pack(dtt_act3)); //will replace existing transaction
+      // If the deferred tx receiver == this tx receiver, the authorization checking would originally be bypassed.
+      // But not anymore. Now it should subjectively fail because testapi@additional permission is not unilaterally satisfied by testapi@eosio.code.
+      dtt_action dtt_act3;
+      dtt_act3.deferred_account = N(testapi);
+      dtt_act3.permission_name = N(additional);
+      push_action(config::system_account_name, linkauth::get_name(), "testapi", fc::mutable_variant_object()
+            ("account", "testapi")
+            ("code", name(dtt_act3.deferred_account))
+            ("type", name(dtt_act3.deferred_action))
+            ("requirement", name(dtt_act3.permission_name)));
+      BOOST_CHECK_THROW(CALL_TEST_FUNCTION(*this, "test_transaction", "send_deferred_tx_with_dtt_action", fc::raw::pack(dtt_act3)), subjective_block_production_exception);
 
-   // If we make testapi account to be priviledged account:
-   // - the deferred transaction will work no matter who is the payer
-   // - the deferred transaction will not care about the delay of the authorization
-   push_action(config::system_account_name, N(setpriv), config::system_account_name,  mutable_variant_object()
-                                                       ("account", "testapi")
-                                                       ("is_priv", 1));
-   CALL_TEST_FUNCTION(*this, "test_transaction", "send_deferred_tx_with_dtt_action", fc::raw::pack(dtt_act1));
-   CALL_TEST_FUNCTION(*this, "test_transaction", "send_deferred_tx_with_dtt_action", fc::raw::pack(dtt_act2));
-}
+      // But it should again work if the deferred transaction has a sufficient delay.
+      dtt_act3.delay_sec = 10;
+      CALL_TEST_FUNCTION(*this, "test_transaction", "send_deferred_tx_with_dtt_action", fc::raw::pack(dtt_act3));
+
+      // If we make testapi account to be priviledged account:
+      // - the deferred transaction will work no matter who is the payer
+      // - the deferred transaction will not care about the delay of the authorization
+      push_action(config::system_account_name, N(setpriv), config::system_account_name,  mutable_variant_object()
+                                                          ("account", "testapi")
+                                                          ("is_priv", 1));
+      CALL_TEST_FUNCTION(*this, "test_transaction", "send_deferred_tx_with_dtt_action", fc::raw::pack(dtt_act1));
+      CALL_TEST_FUNCTION(*this, "test_transaction", "send_deferred_tx_with_dtt_action", fc::raw::pack(dtt_act2));
+   }
 
    BOOST_REQUIRE_EQUAL( validate(), true );
 } FC_LOG_AND_RETHROW() }
@@ -1944,23 +1974,9 @@ BOOST_FIXTURE_TEST_CASE(new_api_feature_tests, TESTER) { try {
       });
 
    // change privilege
-   {
-      chainbase::database &db = control->db();
-      const account_object &account = db.get<account_object, by_name>(N(testapi));
-      db.modify(account, [&](account_object &v) {
-         v.privileged = true;
-      });
-   }
-
-#ifndef NON_VALIDATING_TEST
-   {
-      chainbase::database &db = validating_node->db();
-      const account_object &account = db.get<account_object, by_name>(N(testapi));
-      db.modify(account, [&](account_object &v) {
-         v.privileged = true;
-      });
-   }
-#endif
+   push_action(config::system_account_name, N(setpriv), config::system_account_name,  mutable_variant_object()
+                                                       ("account", "testapi")
+                                                       ("is_priv", 1));
 
    CALL_TEST_FUNCTION( *this, "test_transaction", "new_feature", {} );
 
