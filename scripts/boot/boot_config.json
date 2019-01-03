@@ -22,8 +22,8 @@
   },
   "accounts": [
     {
-      "name": "man1",
-      "pub": "EOS6XZtkZMes8ovp3zsGcnNNBepW3RDPF5VHVuuknHr4FL1LB1w4d",
+      "name": "prod1",
+      "pub": "EOS6zAbRAu1PhuBcMSWCn5Gdc91XVyPRiC8RnXUmHnv9cBqbK1UN1",
       "tokens": {
           "system": 1200000000000
       },
@@ -34,8 +34,20 @@
       "management": true
     },
     {
+      "name": "prod2",
+      "pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM",
+      "tokens": {
+        "system": 1200000000000
+      },
+      "ram": "default",
+      "net": "default",
+      "cpu": "default",
+      "contract_host": false,
+      "management": true
+    },
+    {
       "name": "presale",
-      "pub": "EOS6TD6sBiBcSWmXVAfkepJroC3aizo7VjVGmZbC982b6RXG9cRRu",
+      "pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM",
       "ram": "5mb",
       "net": "default",
       "cpu": "default",
@@ -46,7 +58,7 @@
     },
     {
       "name": "argame",
-      "pub": "EOS6TD6sBiBcSWmXVAfkepJroC3aizo7VjVGmZbC982b6RXG9cRRu",
+      "pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM",
       "ram": "5mb",
       "net": "default",
       "cpu": "default",
@@ -55,7 +67,7 @@
     },
     {
       "name": "resource",
-      "pub": "EOS6TD6sBiBcSWmXVAfkepJroC3aizo7VjVGmZbC982b6RXG9cRRu",
+      "pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM",
       "ram": "5mb",
       "net": "default",
       "cpu": "default",
@@ -64,7 +76,7 @@
     },
     {
       "name": "cardrepo",
-      "pub": "EOS6TD6sBiBcSWmXVAfkepJroC3aizo7VjVGmZbC982b6RXG9cRRu",
+      "pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM",
       "ram": "5mb",
       "net": "default",
       "cpu": "default",
@@ -74,19 +86,19 @@
   ],
   "contracts": [
     {
-      "name": "main",
+      "name": "ar-game-contract/main",
       "account": "argame"
     },
     {
-      "name": "cardrepo",
+      "name": "ar-game-contract/cardrepo",
       "account": "cardrepo"
     },
     {
-      "name": "token",
+      "name": "ar-game-contract/token",
       "account": "resource"
     },
     {
-      "name": "presale",
+      "name": "ar-game-contract/presale",
       "account": "presale"
     }
   ],
