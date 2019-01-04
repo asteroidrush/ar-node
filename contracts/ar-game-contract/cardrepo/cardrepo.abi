@@ -1,0 +1,158 @@
+{
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Dec 14 01:13:35 2018",
+    "version": "eosio::abi/1.1",
+    "structs": [
+        {
+            "name": "destroyc",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "id",
+                    "type": "card_id_t"
+                }
+            ]
+        },
+        {
+            "name": "logt",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "message",
+                    "type": "string"
+                },
+                {
+                    "name": "date",
+                    "type": "timestamp_t"
+                }
+            ]
+        },
+        {
+            "name": "newc",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "card_id",
+                    "type": "card_id_t"
+                }
+            ]
+        },
+        {
+            "name": "transfer",
+            "base": "",
+            "fields": [
+                {
+                    "name": "from",
+                    "type": "name"
+                },
+                {
+                    "name": "to",
+                    "type": "name"
+                },
+                {
+                    "name": "id",
+                    "type": "card_id_t"
+                }
+            ]
+        },
+        {
+            "name": "transfer2",
+            "base": "",
+            "fields": [
+                {
+                    "name": "from",
+                    "type": "name"
+                },
+                {
+                    "name": "to",
+                    "type": "name"
+                },
+                {
+                    "name": "id",
+                    "type": "card_id_t"
+                },
+                {
+                    "name": "obtain_source",
+                    "type": "card_obtain_source_id_t"
+                }
+            ]
+        },
+        {
+            "name": "usercardt",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "card_id_t"
+                },
+                {
+                    "name": "card_obtain_source_id",
+                    "type": "card_obtain_source_id_t"
+                },
+                {
+                    "name": "since_date",
+                    "type": "timestamp_t"
+                }
+            ]
+        }
+    ],
+    "types": [
+        {
+            "new_type_name": "card_id_t",
+            "type": "uint64"
+        },
+        {
+            "new_type_name": "card_obtain_source_id_t",
+            "type": "uint64"
+        },
+        {
+            "new_type_name": "timestamp_t",
+            "type": "uint64"
+        }
+    ],
+    "actions": [
+        {
+            "name": "destroyc",
+            "type": "destroyc",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "newc",
+            "type": "newc",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "transfer",
+            "type": "transfer",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "transfer2",
+            "type": "transfer2",
+            "ricardian_contract": ""
+        }
+    ],
+    "tables": [
+        {
+            "name": "usercardt",
+            "type": "usercardt",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        }
+    ],
+    "ricardian_clauses": [],
+    "variants": [],
+    "abi_extensions": []
+}

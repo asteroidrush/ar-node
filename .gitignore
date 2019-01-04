@@ -12,6 +12,8 @@
 *.cmake
 *.ninja
 *.log
+!contracts/ar-game-contract/*/*.wasm
+!contracts/ar-game-contract/*/*.abi
 \#*
 \.#*
 CMakeCache.txt
