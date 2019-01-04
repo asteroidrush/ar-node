@@ -30,6 +30,3 @@
 [submodule "libraries/wabt"]
 	path = libraries/wabt
 	url = http://github.com/EOSIO/wabt
-[submodule "contracts/ar-game-contract"]
-	path = contracts/ar-game-contract
-	url = https://bitbucket.org/a-rush/ar-game-contract/
