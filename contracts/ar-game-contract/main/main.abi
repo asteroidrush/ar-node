@@ -1,6 +1,6 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Nov  9 18:42:05 2018",
-    "version": "eosio::abi/1.0",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Dec 17 19:47:05 2018",
+    "version": "eosio::abi/1.1",
     "structs": [
         {
             "name": "acprofimadd",
@@ -289,6 +289,38 @@
             ]
         },
         {
+            "name": "cardgen",
+            "base": "",
+            "fields": [
+                {
+                    "name": "caller",
+                    "type": "name"
+                },
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "rarity_id",
+                    "type": "rarity_id_t"
+                }
+            ]
+        },
+        {
+            "name": "cardgenext",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "card_id",
+                    "type": "card_id_t"
+                }
+            ]
+        },
+        {
             "name": "cardparamadd",
             "base": "",
             "fields": [
@@ -555,6 +587,10 @@
                 {
                     "name": "rarity_id",
                     "type": "rarity_id_t"
+                },
+                {
+                    "name": "exterior",
+                    "type": "image_id_t[]"
                 }
             ]
         },
@@ -573,12 +609,192 @@
             ]
         },
         {
+            "name": "checkuser",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "chusername",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
             "name": "clearlog",
             "base": "",
             "fields": [
                 {
                     "name": "caller",
                     "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "extprtadd",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "newObj",
+                    "type": "extprtt"
+                }
+            ]
+        },
+        {
+            "name": "extprtclr",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "extprtradd",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "newObj",
+                    "type": "extprtrt"
+                }
+            ]
+        },
+        {
+            "name": "extprtrclr",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "extprtrem",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "id",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "extprtrrem",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "id",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "extprtrt",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "exterior_part_id",
+                    "type": "exterior_part_id_t"
+                },
+                {
+                    "name": "rarity_id",
+                    "type": "rarity_id_t"
+                },
+                {
+                    "name": "probability",
+                    "type": "uint8"
+                }
+            ]
+        },
+        {
+            "name": "extprtrupd",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "newObj",
+                    "type": "extprtrt"
+                }
+            ]
+        },
+        {
+            "name": "extprtt",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "exterior_part_id_t"
+                },
+                {
+                    "name": "order",
+                    "type": "uint64"
+                },
+                {
+                    "name": "gender_id",
+                    "type": "gender_id_t"
+                },
+                {
+                    "name": "image_id",
+                    "type": "image_id_t"
+                },
+                {
+                    "name": "linked_with_id",
+                    "type": "exterior_part_id_t"
+                },
+                {
+                    "name": "unique_group",
+                    "type": "int16"
+                }
+            ]
+        },
+        {
+            "name": "extprtupd",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "newObj",
+                    "type": "extprtt"
                 }
             ]
         },
@@ -653,11 +869,115 @@
             ]
         },
         {
+            "name": "genderadd",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "newObj",
+                    "type": "gendert"
+                }
+            ]
+        },
+        {
+            "name": "genderclr",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "genderrem",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "id",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "gendert",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "gender_id_t"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "genderupd",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "newObj",
+                    "type": "gendert"
+                }
+            ]
+        },
+        {
             "name": "init",
             "base": "",
             "fields": [
                 {
                     "name": "caller",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "inituser",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "loopactions",
+            "base": "",
+            "fields": [
+                {
+                    "name": "caller",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "loopactuser",
+            "base": "",
+            "fields": [
+                {
+                    "name": "caller",
+                    "type": "name"
+                },
+                {
+                    "name": "account",
                     "type": "name"
                 }
             ]
@@ -717,24 +1037,6 @@
                 {
                     "name": "value",
                     "type": "uint64"
-                }
-            ]
-        },
-        {
-            "name": "logt",
-            "base": "",
-            "fields": [
-                {
-                    "name": "id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "message",
-                    "type": "string"
-                },
-                {
-                    "name": "date",
-                    "type": "timestamp_t"
                 }
             ]
         },
@@ -1581,43 +1883,47 @@
             ]
         },
         {
-            "name": "wgaddw",
+            "name": "useraddprod",
             "base": "",
             "fields": [
+                {
+                    "name": "caller",
+                    "type": "name"
+                },
                 {
                     "name": "account",
                     "type": "name"
                 },
                 {
-                    "name": "id",
-                    "type": "work_group_id_t"
+                    "name": "product_id",
+                    "type": "product_id_t"
                 },
                 {
-                    "name": "worker",
-                    "type": "card_id_t"
+                    "name": "amount",
+                    "type": "uint8"
                 }
             ]
         },
         {
-            "name": "wgstart",
+            "name": "useraddvip",
             "base": "",
             "fields": [
+                {
+                    "name": "caller",
+                    "type": "name"
+                },
                 {
                     "name": "account",
                     "type": "name"
                 },
                 {
-                    "name": "id",
-                    "type": "work_group_id_t"
-                },
-                {
-                    "name": "duration_seconds",
+                    "name": "time",
                     "type": "uint64"
                 }
             ]
         },
         {
-            "name": "wgfinish",
+            "name": "usert",
             "base": "",
             "fields": [
                 {
@@ -1625,8 +1931,16 @@
                     "type": "name"
                 },
                 {
-                    "name": "id",
-                    "type": "work_group_id_t"
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "products",
+                    "type": "product_id_t[]"
+                },
+                {
+                    "name": "vip_time",
+                    "type": "timestamp_t"
                 }
             ]
         },
@@ -1641,6 +1955,24 @@
                 {
                     "name": "id",
                     "type": "work_group_id_t"
+                }
+            ]
+        },
+        {
+            "name": "wgaddw",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "id",
+                    "type": "work_group_id_t"
+                },
+                {
+                    "name": "worker",
+                    "type": "card_id_t"
                 }
             ]
         },
@@ -1663,16 +1995,6 @@
             ]
         },
         {
-            "name": "wgprint",
-            "base": "",
-            "fields": [
-                {
-                    "name": "account",
-                    "type": "name"
-                }
-            ]
-        },
-        {
             "name": "wgdelete",
             "base": "",
             "fields": [
@@ -1683,6 +2005,48 @@
                 {
                     "name": "id",
                     "type": "work_group_id_t"
+                }
+            ]
+        },
+        {
+            "name": "wgfinish",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "id",
+                    "type": "work_group_id_t"
+                }
+            ]
+        },
+        {
+            "name": "wgprint",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "wgstart",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "id",
+                    "type": "work_group_id_t"
+                },
+                {
+                    "name": "duration_seconds",
+                    "type": "uint64"
                 }
             ]
         },
@@ -1715,30 +2079,6 @@
                     "type": "uint64"
                 }
             ]
-        },
-        {
-            "name": "loopactions",
-            "base": "",
-            "fields": [
-                {
-                    "name": "caller",
-                    "type": "name"
-                }
-            ]
-        },
-        {
-            "name": "loopactuser",
-            "base": "",
-            "fields": [
-                {
-                    "name": "caller",
-                    "type": "name"
-                },
-                {
-                    "name": "account",
-                    "type": "name"
-                }
-            ]
         }
     ],
     "types": [
@@ -1759,11 +2099,19 @@
             "type": "uint64"
         },
         {
+            "new_type_name": "exterior_part_id_t",
+            "type": "uint64"
+        },
+        {
             "new_type_name": "game_config_id_t",
             "type": "uint64"
         },
         {
             "new_type_name": "gender_id_t",
+            "type": "uint64"
+        },
+        {
+            "new_type_name": "image_id_t",
             "type": "uint64"
         },
         {
@@ -1784,6 +2132,10 @@
         },
         {
             "new_type_name": "perk_type_id_t",
+            "type": "uint64"
+        },
+        {
+            "new_type_name": "product_id_t",
             "type": "uint64"
         },
         {
@@ -1879,6 +2231,16 @@
             "ricardian_contract": ""
         },
         {
+            "name": "cardgen",
+            "type": "cardgen",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "cardgenext",
+            "type": "cardgenext",
+            "ricardian_contract": ""
+        },
+        {
             "name": "cardparamadd",
             "type": "cardparamadd",
             "ricardian_contract": ""
@@ -1949,8 +2311,58 @@
             "ricardian_contract": ""
         },
         {
+            "name": "checkuser",
+            "type": "checkuser",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "chusername",
+            "type": "chusername",
+            "ricardian_contract": ""
+        },
+        {
             "name": "clearlog",
             "type": "clearlog",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "extprtadd",
+            "type": "extprtadd",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "extprtclr",
+            "type": "extprtclr",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "extprtradd",
+            "type": "extprtradd",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "extprtrclr",
+            "type": "extprtrclr",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "extprtrem",
+            "type": "extprtrem",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "extprtrrem",
+            "type": "extprtrrem",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "extprtrupd",
+            "type": "extprtrupd",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "extprtupd",
+            "type": "extprtupd",
             "ricardian_contract": ""
         },
         {
@@ -1974,8 +2386,43 @@
             "ricardian_contract": ""
         },
         {
+            "name": "genderadd",
+            "type": "genderadd",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "genderclr",
+            "type": "genderclr",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "genderrem",
+            "type": "genderrem",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "genderupd",
+            "type": "genderupd",
+            "ricardian_contract": ""
+        },
+        {
             "name": "init",
             "type": "init",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "inituser",
+            "type": "inituser",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "loopactions",
+            "type": "loopactions",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "loopactuser",
+            "type": "loopactuser",
             "ricardian_contract": ""
         },
         {
@@ -2229,6 +2676,26 @@
             "ricardian_contract": ""
         },
         {
+            "name": "useraddprod",
+            "type": "useraddprod",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "useraddvip",
+            "type": "useraddvip",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "wgabort",
+            "type": "wgabort",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "wgaddw",
+            "type": "wgaddw",
+            "ricardian_contract": ""
+        },
+        {
             "name": "wgcreate",
             "type": "wgcreate",
             "ricardian_contract": ""
@@ -2239,23 +2706,8 @@
             "ricardian_contract": ""
         },
         {
-            "name": "wgaddw",
-            "type": "wgaddw",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "wgstart",
-            "type": "wgstart",
-            "ricardian_contract": ""
-        },
-        {
             "name": "wgfinish",
             "type": "wgfinish",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "wgabort",
-            "type": "wgabort",
             "ricardian_contract": ""
         },
         {
@@ -2264,149 +2716,88 @@
             "ricardian_contract": ""
         },
         {
-            "name": "loopactions",
-            "type": "loopactions",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "loopactuser",
-            "type": "loopactuser",
+            "name": "wgstart",
+            "type": "wgstart",
             "ricardian_contract": ""
         }
     ],
     "tables": [
         {
-            "name": "cardactt",
-            "type": "cardactt",
-            "index_type": "i64",
-            "key_names" : [],
-            "key_types" : []
-        },
-        {
-            "name": "rarityt",
-            "type": "rarityt",
-            "index_type": "i64",
-            "key_names" : [],
-            "key_types" : []
-        },
-        {
-            "name": "proft",
-            "type": "proft",
-            "index_type": "i64",
-            "key_names" : [],
-            "key_types" : []
-        },
-        {
             "name": "acprofimt",
             "type": "acprofimt",
             "index_type": "i64",
-            "key_names" : ["id", "cai", "pi"],
-            "key_types" : ["i64", "i64", "i64"]
-        },
-        {
-            "name": "profsrct",
-            "type": "profsrct",
-            "index_type": "i64",
-            "key_names" : [],
-            "key_types" : []
-        },
-        {
-            "name": "profobprbt",
-            "type": "profobprbt",
-            "index_type": "i64",
-            "key_names" : ["id", "ri", "psi"],
-            "key_types" : ["i64", "i64", "i64"]
-        },
-        {
-            "name": "paramt",
-            "type": "paramt",
-            "index_type": "i64",
-            "key_names" : [],
-            "key_types" : []
-        },
-        {
-            "name": "rarpaddint",
-            "type": "rarpaddint",
-            "index_type": "i64",
-            "key_names" : ["id", "pi", "psi"],
-            "key_types" : ["i64", "i64", "i64"]
-        },
-        {
-            "name": "perkpartt",
-            "type": "perkpartt",
-            "index_type": "i64",
-            "key_names" : [],
-            "key_types" : []
-        },
-        {
-            "name": "perkecondt",
-            "type": "perkecondt",
-            "index_type": "i64",
-            "key_names" : [],
-            "key_types" : []
-        },
-        {
-            "name": "perkcompt",
-            "type": "perkcompt",
-            "index_type": "i64",
-            "key_names" : ["id", "pi", "ppi"],
-            "key_types" : ["i64", "i64", "i64"]
-        },
-        {
-            "name": "perkrart",
-            "type": "perkrart",
-            "index_type": "i64",
-            "key_names" : ["id", "pi", "ri"],
-            "key_types" : ["i64", "i64", "i64"]
-        },
-        {
-            "name": "perkt",
-            "type": "perkt",
-            "index_type": "i64",
-            "key_names" : [],
-            "key_types" : []
-        },
-        {
-            "name": "cardparamt",
-            "type": "cardparamt",
-            "index_type": "i64",
-            "key_names" : ["id", "ci", "pi"],
-            "key_types" : ["i64", "i64", "i64"]
-        },
-        {
-            "name": "cardperkt",
-            "type": "cardperkt",
-            "index_type": "i64",
-            "key_names" : ["id", "ci", "pi"],
-            "key_types" : ["i64", "i64", "i64"]
-        },
-        {
-            "name": "cardproft",
-            "type": "cardproft",
-            "index_type": "i64",
-            "key_names" : ["id", "ci", "pi"],
-            "key_types" : ["i64", "i64", "i64"]
-        },
-        {
-            "name": "cardt",
-            "type": "cardt",
-            "index_type": "i64",
-            "key_names" : ["id", "mi", "ri"],
-            "key_types" : ["i64", "i64", "i64"]
-        },
-        {
-            "name": "gameconft",
-            "type": "gameconft",
-            "index_type": "i64",
-            "key_names" : [],
-            "key_types" : []
+            "key_names": [],
+            "key_types": []
         },
         {
             "name": "astert",
             "type": "astert",
             "index_type": "i64",
-            "key_names": ["id", "ac", "ad", "med"],
-            "key_types": ["i64", "i64", "i64", "i64"]
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "cardactt",
+            "type": "cardactt",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "cardparamt",
+            "type": "cardparamt",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "cardperkt",
+            "type": "cardperkt",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "cardproft",
+            "type": "cardproft",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "cardt",
+            "type": "cardt",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "extprtrt",
+            "type": "extprtrt",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "extprtt",
+            "type": "extprtt",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "gameconft",
+            "type": "gameconft",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "gendert",
+            "type": "gendert",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
         },
         {
             "name": "mainloopt",
@@ -2416,8 +2807,85 @@
             "key_types": []
         },
         {
-            "name": "logt",
-            "type": "logt",
+            "name": "paramt",
+            "type": "paramt",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "perkcompt",
+            "type": "perkcompt",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "perkecondt",
+            "type": "perkecondt",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "perkpartt",
+            "type": "perkpartt",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "perkrart",
+            "type": "perkrart",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "perkt",
+            "type": "perkt",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "profobprbt",
+            "type": "profobprbt",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "profsrct",
+            "type": "profsrct",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "proft",
+            "type": "proft",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "rarityt",
+            "type": "rarityt",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "rarpaddint",
+            "type": "rarpaddint",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "usert",
+            "type": "usert",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
@@ -2431,5 +2899,6 @@
         }
     ],
     "ricardian_clauses": [],
+    "variants": [],
     "abi_extensions": []
 }

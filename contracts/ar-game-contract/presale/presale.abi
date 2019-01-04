@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Nov 29 13:58:53 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Dec 17 10:42:14 2018",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -21,6 +21,20 @@
                 {
                     "name": "trx_id",
                     "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "openpack",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "id",
+                    "type": "pack_type_id_t"
                 }
             ]
         },
@@ -109,6 +123,76 @@
                 {
                     "name": "symbol_code",
                     "type": "symbol_code"
+                }
+            ]
+        },
+        {
+            "name": "psprodadd",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "newObj",
+                    "type": "psprodt"
+                }
+            ]
+        },
+        {
+            "name": "psprodclr",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "psprodrem",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "id",
+                    "type": "product_id_t"
+                }
+            ]
+        },
+        {
+            "name": "psprodt",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "product_id_t"
+                },
+                {
+                    "name": "product_type_id",
+                    "type": "product_type_id_t"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "psprodupd",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "newObj",
+                    "type": "psprodt"
                 }
             ]
         },
@@ -265,6 +349,10 @@
             "type": "uint64"
         },
         {
+            "new_type_name": "product_type_id_t",
+            "type": "uint64"
+        },
+        {
             "new_type_name": "rarity_id_t",
             "type": "uint64"
         }
@@ -273,6 +361,31 @@
         {
             "name": "buy",
             "type": "buy",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "openpack",
+            "type": "openpack",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "psprodadd",
+            "type": "psprodadd",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "psprodclr",
+            "type": "psprodclr",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "psprodrem",
+            "type": "psprodrem",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "psprodupd",
+            "type": "psprodupd",
             "ricardian_contract": ""
         },
         {
@@ -310,6 +423,13 @@
         {
             "name": "packt",
             "type": "packt",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "psprodt",
+            "type": "psprodt",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

@@ -1,33 +1,7 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Nov  8 17:13:10 2018",
-    "version": "eosio::abi/1.0",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Dec 14 01:13:35 2018",
+    "version": "eosio::abi/1.1",
     "structs": [
-        {
-            "name": "cardt",
-            "base": "",
-            "fields": [
-                {
-                    "name": "id",
-                    "type": "card_id_t"
-                },
-                {
-                    "name": "generated_name",
-                    "type": "string"
-                },
-                {
-                    "name": "gender_id",
-                    "type": "gender_id_t"
-                },
-                {
-                    "name": "mentor_id",
-                    "type": "card_id_t"
-                },
-                {
-                    "name": "rarity_id",
-                    "type": "rarity_id_t"
-                }
-            ]
-        },
         {
             "name": "destroyc",
             "base": "",
@@ -43,6 +17,24 @@
             ]
         },
         {
+            "name": "logt",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "message",
+                    "type": "string"
+                },
+                {
+                    "name": "date",
+                    "type": "timestamp_t"
+                }
+            ]
+        },
+        {
             "name": "newc",
             "base": "",
             "fields": [
@@ -51,8 +43,8 @@
                     "type": "name"
                 },
                 {
-                    "name": "newObj",
-                    "type": "cardt"
+                    "name": "card_id",
+                    "type": "card_id_t"
                 }
             ]
         },
@@ -71,6 +63,28 @@
                 {
                     "name": "id",
                     "type": "card_id_t"
+                }
+            ]
+        },
+        {
+            "name": "transfer2",
+            "base": "",
+            "fields": [
+                {
+                    "name": "from",
+                    "type": "name"
+                },
+                {
+                    "name": "to",
+                    "type": "name"
+                },
+                {
+                    "name": "id",
+                    "type": "card_id_t"
+                },
+                {
+                    "name": "obtain_source",
+                    "type": "card_obtain_source_id_t"
                 }
             ]
         },
@@ -106,14 +120,6 @@
             "new_type_name": "timestamp_t",
             "type": "uint64"
         }
-        {
-            "new_type_name": "gender_id_t",
-            "type": "uint64"
-        }
-        {
-            "new_type_name": "rarity_id_t",
-            "type": "uint64"
-        }
     ],
     "actions": [
         {
@@ -130,6 +136,11 @@
             "name": "transfer",
             "type": "transfer",
             "ricardian_contract": ""
+        },
+        {
+            "name": "transfer2",
+            "type": "transfer2",
+            "ricardian_contract": ""
         }
     ],
     "tables": [
@@ -142,5 +153,6 @@
         }
     ],
     "ricardian_clauses": [],
+    "variants": [],
     "abi_extensions": []
 }
