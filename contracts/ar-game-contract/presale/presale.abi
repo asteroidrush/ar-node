@@ -1,0 +1,448 @@
+{
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Dec 17 10:42:14 2018",
+    "version": "eosio::abi/1.1",
+    "structs": [
+        {
+            "name": "buy",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "payment",
+                    "type": "asset"
+                },
+                {
+                    "name": "product_id",
+                    "type": "product_id_t"
+                },
+                {
+                    "name": "trx_id",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "openpack",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "id",
+                    "type": "pack_type_id_t"
+                }
+            ]
+        },
+        {
+            "name": "packt",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "pack_type_id_t"
+                },
+                {
+                    "name": "bought",
+                    "type": "uint32"
+                },
+                {
+                    "name": "reserved",
+                    "type": "uint32"
+                },
+                {
+                    "name": "opened",
+                    "type": "uint32"
+                },
+                {
+                    "name": "price",
+                    "type": "uint32"
+                },
+                {
+                    "name": "discount",
+                    "type": "uint8"
+                },
+                {
+                    "name": "products",
+                    "type": "pair_product_id_t_product_in_pack_t[]"
+                },
+                {
+                    "name": "cards_qty",
+                    "type": "uint8"
+                },
+                {
+                    "name": "cards_probability",
+                    "type": "pair_rarity_id_t_uint8[]"
+                }
+            ]
+        },
+        {
+            "name": "pair_product_id_t_product_in_pack_t",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "product_id_t"
+                },
+                {
+                    "name": "value",
+                    "type": "product_in_pack_t"
+                }
+            ]
+        },
+        {
+            "name": "pair_rarity_id_t_uint8",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "rarity_id_t"
+                },
+                {
+                    "name": "value",
+                    "type": "uint8"
+                }
+            ]
+        },
+        {
+            "name": "product_in_pack_t",
+            "base": "",
+            "fields": [
+                {
+                    "name": "time",
+                    "type": "int32"
+                },
+                {
+                    "name": "amount",
+                    "type": "int32"
+                },
+                {
+                    "name": "symbol_code",
+                    "type": "symbol_code"
+                }
+            ]
+        },
+        {
+            "name": "psprodadd",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "newObj",
+                    "type": "psprodt"
+                }
+            ]
+        },
+        {
+            "name": "psprodclr",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "psprodrem",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "id",
+                    "type": "product_id_t"
+                }
+            ]
+        },
+        {
+            "name": "psprodt",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "product_id_t"
+                },
+                {
+                    "name": "product_type_id",
+                    "type": "product_type_id_t"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "psprodupd",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "newObj",
+                    "type": "psprodt"
+                }
+            ]
+        },
+        {
+            "name": "remcardprob",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "id",
+                    "type": "pack_type_id_t"
+                },
+                {
+                    "name": "rarity_id",
+                    "type": "rarity_id_t"
+                }
+            ]
+        },
+        {
+            "name": "rempacktype",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "id",
+                    "type": "pack_type_id_t"
+                }
+            ]
+        },
+        {
+            "name": "remproduct",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "id",
+                    "type": "pack_type_id_t"
+                },
+                {
+                    "name": "product_id",
+                    "type": "product_id_t"
+                }
+            ]
+        },
+        {
+            "name": "setcardprob",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "id",
+                    "type": "pack_type_id_t"
+                },
+                {
+                    "name": "rarity_id",
+                    "type": "rarity_id_t"
+                },
+                {
+                    "name": "probability",
+                    "type": "uint8"
+                }
+            ]
+        },
+        {
+            "name": "setpacktype",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "id",
+                    "type": "pack_type_id_t"
+                },
+                {
+                    "name": "price",
+                    "type": "uint32"
+                },
+                {
+                    "name": "discount",
+                    "type": "uint8"
+                },
+                {
+                    "name": "cards_qty",
+                    "type": "uint8"
+                }
+            ]
+        },
+        {
+            "name": "setproduct",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "id",
+                    "type": "pack_type_id_t"
+                },
+                {
+                    "name": "product_id",
+                    "type": "product_id_t"
+                },
+                {
+                    "name": "product",
+                    "type": "product_in_pack_t"
+                }
+            ]
+        },
+        {
+            "name": "userpackt",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "pack_type_id_t"
+                },
+                {
+                    "name": "bought",
+                    "type": "uint32"
+                },
+                {
+                    "name": "reserved",
+                    "type": "uint32"
+                },
+                {
+                    "name": "opened",
+                    "type": "uint32"
+                }
+            ]
+        }
+    ],
+    "types": [
+        {
+            "new_type_name": "pack_type_id_t",
+            "type": "uint64"
+        },
+        {
+            "new_type_name": "product_id_t",
+            "type": "uint64"
+        },
+        {
+            "new_type_name": "product_type_id_t",
+            "type": "uint64"
+        },
+        {
+            "new_type_name": "rarity_id_t",
+            "type": "uint64"
+        }
+    ],
+    "actions": [
+        {
+            "name": "buy",
+            "type": "buy",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "openpack",
+            "type": "openpack",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "psprodadd",
+            "type": "psprodadd",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "psprodclr",
+            "type": "psprodclr",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "psprodrem",
+            "type": "psprodrem",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "psprodupd",
+            "type": "psprodupd",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "remcardprob",
+            "type": "remcardprob",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "rempacktype",
+            "type": "rempacktype",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "remproduct",
+            "type": "remproduct",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "setcardprob",
+            "type": "setcardprob",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "setpacktype",
+            "type": "setpacktype",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "setproduct",
+            "type": "setproduct",
+            "ricardian_contract": ""
+        }
+    ],
+    "tables": [
+        {
+            "name": "packt",
+            "type": "packt",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "psprodt",
+            "type": "psprodt",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "userpackt",
+            "type": "userpackt",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        }
+    ],
+    "ricardian_clauses": [],
+    "variants": [],
+    "abi_extensions": []
+}

@@ -21,8 +21,8 @@ cmdError=Utils.cmdError
 from core_symbol import CORE_SYMBOL
 
 args = TestHelper.parse_args({"--host","--port","--prod-count","--defproducera_prvt_key","--defproducerb_prvt_key","--mongodb"
-                              ,"--dump-error-details","--dont-launch","--keep-logs","-v","--leave-running","--only-bios","--clean-run"
-                              ,"--sanity-test","--p2p-plugin"})
+                                 ,"--dump-error-details","--dont-launch","--keep-logs","-v","--leave-running","--only-bios","--clean-run"
+                                 ,"--sanity-test","--p2p-plugin","--wallet-port"})
 server=args.host
 port=args.port
 debug=args.v
@@ -38,42 +38,49 @@ onlyBios=args.only_bios
 killAll=args.clean_run
 sanityTest=args.sanity_test
 p2pPlugin=args.p2p_plugin
+walletPort=args.wallet_port
 
 Utils.Debug=debug
 localTest=True if server == TestHelper.LOCAL_HOST else False
-cluster=Cluster(walletd=True, enableMongo=enableMongo, defproduceraPrvtKey=defproduceraPrvtKey, defproducerbPrvtKey=defproducerbPrvtKey)
-walletMgr=WalletMgr(True)
+cluster=Cluster(host=server, port=port, walletd=True, enableMongo=enableMongo, defproduceraPrvtKey=defproduceraPrvtKey, defproducerbPrvtKey=defproducerbPrvtKey)
+walletMgr=WalletMgr(True, port=walletPort)
 testSuccessful=False
 killEosInstances=not dontKill
 killWallet=not dontKill
-dontBootstrap=sanityTest
+dontBootstrap=sanityTest # intent is to limit the scope of the sanity test to just verifying that nodes can be started
 
-WalletdName="keosd"
+WalletdName=Utils.EosWalletName
 ClientName="cleos"
 timeout = .5 * 12 * 2 + 60 # time for finalization with 1 producer + 60 seconds padding
 Utils.setIrreversibleTimeout(timeout)
 
 try:
     TestHelper.printSystemInfo("BEGIN")
+    cluster.setWalletMgr(walletMgr)
     Print("SERVER: %s" % (server))
     Print("PORT: %d" % (port))
 
     if enableMongo and not cluster.isMongodDbRunning():
         errorExit("MongoDb doesn't seem to be running.")
 
-    walletMgr.killall(allInstances=killAll)
-    walletMgr.cleanup()
-
     if localTest and not dontLaunch:
         cluster.killall(allInstances=killAll)
         cluster.cleanup()
         Print("Stand up cluster")
-        if cluster.launch(prodCount=prodCount, onlyBios=onlyBios, dontKill=dontKill, dontBootstrap=dontBootstrap, p2pPlugin=p2pPlugin) is False:
+        if cluster.launch(prodCount=prodCount, onlyBios=onlyBios, dontBootstrap=dontBootstrap, p2pPlugin=p2pPlugin) is False:
             cmdError("launcher")
             errorExit("Failed to stand up eos cluster.")
     else:
+        Print("Collecting cluster info.")
         cluster.initializeNodes(defproduceraPrvtKey=defproduceraPrvtKey, defproducerbPrvtKey=defproducerbPrvtKey)
         killEosInstances=False
+        Print("Stand up %s" % (WalletdName))
+        walletMgr.killall(allInstances=killAll)
+        walletMgr.cleanup()
+        print("Stand up walletd")
+        if walletMgr.launch() is False:
+            cmdError("%s" % (WalletdName))
+            errorExit("Failed to stand up eos walletd.")
 
     if sanityTest:
         testSuccessful=True
@@ -105,16 +112,10 @@ try:
     exchangeAccount.ownerPrivateKey=PRV_KEY2
     exchangeAccount.ownerPublicKey=PUB_KEY2
 
-    Print("Stand up %s" % (WalletdName))
-    walletMgr.killall(allInstances=killAll)
-    walletMgr.cleanup()
-    if walletMgr.launch() is False:
-        cmdError("%s" % (WalletdName))
-        errorExit("Failed to stand up eos walletd.")
-
     testWalletName="test"
     Print("Creating wallet \"%s\"." % (testWalletName))
-    testWallet=walletMgr.create(testWalletName, [cluster.eosioAccount,cluster.defproduceraAccount,cluster.defproducerbAccount])
+    walletAccounts=[cluster.defproduceraAccount,cluster.defproducerbAccount, cluster.eosioAccount]
+    testWallet=walletMgr.create(testWalletName, walletAccounts)
 
     Print("Wallet \"%s\" password=%s." % (testWalletName, testWallet.password.encode("utf-8")))
 
@@ -204,7 +205,6 @@ try:
     Print("Create new account %s via %s" % (testeraAccount.name, cluster.eosioAccount.name))
     transId=node.createInitializeAccount(testeraAccount, cluster.eosioAccount, stakedDeposit=0, waitForTransBlock=False, exitOnError=True)
     transId=node.setAccountRam(testeraAccount, 300)
-
 
     Print("Create new account %s via %s" % (currencyAccount.name, cluster.eosioAccount.name))
     transId=node.createInitializeAccount(currencyAccount, cluster.eosioAccount, stakedDeposit=5000, exitOnError=True)
@@ -610,25 +610,6 @@ try:
         errorExit("Failed to lock wallet %s" % (defproduceraWallet.name))
 
 
-    Print("Exchange Contract Tests")
-
-    Print("Set contract host to %s" % (exchangeAccount.name))
-    trans=node.setContractHost(exchangeAccount.name, True)
-    if trans is None:
-        cmdError("ERROR: Failed to set contract host to %s." % (exchangeAccount.name))
-        errorExit("Failed to set contract host.")
-
-    Print("upload exchange contract")
-
-    contractDir="contracts/exchange"
-    wasmFile="exchange.wasm"
-    abiFile="exchange.abi"
-    Print("Publish exchange contract")
-    trans=node.publishContract(exchangeAccount.name, contractDir, wasmFile, abiFile, waitForTransBlock=True)
-    if trans is None:
-        cmdError("%s set contract exchange" % (ClientName))
-        errorExit("Failed to publish contract.")
-
     contractDir="contracts/simpledb"
     wasmFile="simpledb.wasm"
     abiFile="simpledb.abi"
@@ -638,7 +619,7 @@ try:
     if retMap is None:
         errorExit("Failed to publish, but should have returned a details map")
     if retMap["returncode"] == 0 or retMap["returncode"] == 139: # 139 SIGSEGV
-        errorExit("FAILURE - set contract exchange failed", raw=True)
+        errorExit("FAILURE - set contract simpledb failed", raw=True)
     else:
         Print("Test successful, %s returned error code: %d" % (ClientName, retMap["returncode"]))
 
