@@ -84,7 +84,7 @@ auth_manager.set_account_permission('eosio', 'createaccnt',
 auth_manager.set_action_permission('eosio', 'eosio', 'newaccount', 'createaccnt')
 
 contracts_manager = ContractsManager(args.contracts_dir, cleos)
-accounts_manager = AccountsManager(wallet, cleos, contracts_manager, configs['tokens'], args.public_key)
+accounts_manager = AccountsManager(wallet, cleos, contracts_manager, auth_manager, configs['tokens'], args.public_key)
 
 
 accounts_manager.create_system_accounts()
