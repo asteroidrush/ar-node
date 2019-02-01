@@ -55,8 +55,8 @@ class AuthManager:
                             {
                                 "permission":
                                 {
-                                    "actor": account['name'],
-                                    "permission": account['permission']
+                                    "actor": account['permission']['actor'],
+                                    "permission": account['permission']['permission']
                                 },
                                 "weight": account['weight']
                             } for account in accounts

@@ -14,7 +14,7 @@ class BootNode:
         self.genesis = genesis
 
     def start(self, pub_key, pvt_key):
-        data_dir_str =  ' --data-dir=%s ' % self.data_dir if self.data_dir else ' '
+        data_dir_str = ' --data-dir=%s ' % self.data_dir if self.data_dir else ' '
         ProcessManager.background(self.path + data_dir_str +
                                   '-e --producer-name eosio --signature-provider "%s=KEY:%s" '
                                   '--verbose-http-errors --contracts-console '
@@ -22,6 +22,7 @@ class BootNode:
                                   '--max-transaction-time 1000 '
                                   '--plugin eosio::producer_plugin --plugin eosio::chain_api_plugin '
                                   '--plugin eosio::http_plugin' % (pub_key, pvt_key, os.path.abspath(self.genesis)))
+
 
 class Cleos:
 
@@ -39,6 +40,7 @@ class Cleos:
 
     def get_output_json(self, command):
         return ProcessManager.get_json_output(self.path + ' ' + command)
+
 
 class Wallet:
 
@@ -72,7 +74,7 @@ class Wallet:
 
     @staticmethod
     def int_to_currency(value, symbol, precision):
-        return ('%d.%0'+ str(precision) +'d %s') % (value // pow(10, precision), value % pow(10, precision), symbol)
+        return ('%d.%0' + str(precision) + 'd %s') % (value // pow(10, precision), value % pow(10, precision), symbol)
 
 
 class Token:

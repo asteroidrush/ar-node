@@ -18,6 +18,12 @@
         "max_supply": 2100000000000000,
         "shortcut": "PSTR",
         "precision": 8
+      },
+      "founders": {
+        "supply": 1,
+        "max_supply": 500000,
+        "shortcut": "FND",
+        "precision": 0
       }
   },
   "accounts": [
@@ -47,23 +53,40 @@
     },
     {
       "name": "presale",
-      "pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM",
       "ram": "5mb",
       "net": "default",
       "cpu": "default",
       "contract_host": true,
       "tokens": {
-          "piastro": 100000000000000
-      }
+          "piastro": 100000000000000,
+          "founders": 100000
+      },
+      "permissions": [
+        {
+          "name": "active",
+          "threshold": 1,
+          "keys": [{"pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM", "weight": 1}],
+          "accounts": [{"permission":{"actor":"presale","permission":"eosio.code"},"weight":1}],
+          "actions": []
+        }
+      ]
     },
     {
       "name": "argame",
-      "pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM",
       "ram": "5mb",
       "net": "default",
       "cpu": "default",
       "contract_host": true,
-      "tokens": {}
+      "tokens": {},
+      "permissions": [
+        {
+          "name": "active",
+          "threshold": 1,
+          "keys": [{"pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM", "weight": 1}],
+          "accounts": [{"permission":{"actor":"argame","permission":"eosio.code"},"weight":1}],
+          "actions": []
+        }
+      ]
     },
     {
       "name": "resource",
@@ -76,16 +99,23 @@
     },
     {
       "name": "cardrepo",
-      "pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM",
       "ram": "5mb",
       "net": "default",
       "cpu": "default",
       "contract_host": true,
-      "tokens": {}
+      "tokens": {},
+      "permissions": [
+        {
+          "name": "active",
+          "threshold": 1,
+          "keys": [{"pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM", "weight": 1}],
+          "accounts": [{"permission":{"actor":"cardrepo","permission":"eosio.code"},"weight":1}],
+          "actions": []
+        }
+      ]
     },
     {
       "name": "proxy",
-      "pub": "EOS8jDjUNCBz6dvvDYCPJihnWNJd6oA9xhmeH9ZwpBZeihUietRtv",
       "ram": "5mb",
       "net": "default",
       "cpu": "default",
@@ -151,6 +181,13 @@
             "gameconfclr","cardperkadd","cardperkupd","cardperkrem","cardperkclr","asteradd","asterupd","asterrem",
             "asterclr","extprtadd","extprtupd","extprtrem","extprtclr","extprtradd","extprtrupd","extprtrrem",
             "extprtrclr","genderadd","genderupd","genderrem","genderclr","clearlog"]
+        },
+        {
+          "name": "active",
+          "threshold": 1,
+          "keys": [{"pub": "EOS8jDjUNCBz6dvvDYCPJihnWNJd6oA9xhmeH9ZwpBZeihUietRtv", "weight": 1}],
+          "accounts": [],
+          "actions": []
         }
       ]
     }

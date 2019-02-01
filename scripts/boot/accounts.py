@@ -58,10 +58,9 @@ class AccountsManager:
         government_account
     ] + ContractsManager.system_contracts
 
-    def __init__(self, wallet, cleos, contracts_manager, auth_manager, tokens_info, contracthost_temp_key):
+    def __init__(self, wallet, cleos, contracts_manager, tokens_info, contracthost_temp_key):
         self.wallet = wallet
         self.account_manager = AccountManager(cleos, contracts_manager, tokens_info, contracthost_temp_key)
-        self.auth_manager = auth_manager
 
     def create_system_account(self, name):
         keys = self.wallet.create_keys()
@@ -77,11 +76,3 @@ class AccountsManager:
         for account in accounts:
             self.account_manager.create_staked(account['name'], account['tokens'],
                                                account['ram'], account['net'], account['cpu'], account['contract_host'])
-            permissions = account.get('permissions')
-            if not permissions:
-                continue
-
-            for perm in permissions:
-                self.auth_manager.set_account_permission(account['name'], perm['name'], perm['keys'], perm['accounts'])
-                for action in perm['actions']:
-                    self.auth_manager.set_action_permission(account['name'], account['name'], action, perm['name'])
