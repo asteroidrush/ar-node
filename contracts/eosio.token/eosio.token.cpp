@@ -48,7 +48,7 @@ void token::issue( account_name to, asset quantity, string memo )
     eosio_assert( quantity.symbol == st.supply.symbol, "symbol precision mismatch" );
     eosio_assert( quantity.amount <= st.max_supply.amount - st.supply.amount, "quantity exceeds available supply");
 
-    statstable.modify( st, 0, [&]( auto& s ) {
+    statstable.modify( st, _self, [&]( auto& s ) {
        s.supply += quantity;
     });
 
@@ -96,7 +96,7 @@ void token::sub_balance( account_name owner, asset value ) {
    if( from.balance.amount == value.amount ) {
       from_acnts.erase( from );
    } else {
-      from_acnts.modify( from, owner, [&]( auto& a ) {
+      from_acnts.modify( from, _self, [&]( auto& a ) {
           a.balance -= value;
       });
    }
@@ -107,11 +107,11 @@ void token::add_balance( account_name owner, asset value, account_name ram_payer
    accounts to_acnts( _self, owner );
    auto to = to_acnts.find( value.symbol.name() );
    if( to == to_acnts.end() ) {
-      to_acnts.emplace( ram_payer, [&]( auto& a ){
+      to_acnts.emplace( _self, [&]( auto& a ){
         a.balance = value;
       });
    } else {
-      to_acnts.modify( to, 0, [&]( auto& a ) {
+      to_acnts.modify( to, _self, [&]( auto& a ) {
         a.balance += value;
       });
    }
