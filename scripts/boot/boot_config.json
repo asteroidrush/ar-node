@@ -18,6 +18,12 @@
         "max_supply": 2100000000000000,
         "shortcut": "PSTR",
         "precision": 8
+      },
+      "founders": {
+        "supply": 1,
+        "max_supply": 500000,
+        "shortcut": "FND",
+        "precision": 0
       }
   },
   "accounts": [
@@ -47,23 +53,40 @@
     },
     {
       "name": "presale",
-      "pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM",
       "ram": "5mb",
       "net": "default",
       "cpu": "default",
       "contract_host": true,
       "tokens": {
-          "piastro": 100000000000000
-      }
+          "piastro": 100000000000000,
+          "founders": 100000
+      },
+      "permissions": [
+        {
+          "name": "active",
+          "threshold": 1,
+          "keys": [{"pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM", "weight": 1}],
+          "accounts": [{"permission":{"actor":"presale","permission":"eosio.code"},"weight":1}],
+          "actions": []
+        }
+      ]
     },
     {
       "name": "argame",
-      "pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM",
       "ram": "5mb",
       "net": "default",
       "cpu": "default",
       "contract_host": true,
-      "tokens": {}
+      "tokens": {},
+      "permissions": [
+        {
+          "name": "active",
+          "threshold": 1,
+          "keys": [{"pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM", "weight": 1}],
+          "accounts": [{"permission":{"actor":"argame","permission":"eosio.code"},"weight":1}],
+          "actions": []
+        }
+      ]
     },
     {
       "name": "resource",
@@ -76,12 +99,97 @@
     },
     {
       "name": "cardrepo",
-      "pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM",
       "ram": "5mb",
       "net": "default",
       "cpu": "default",
       "contract_host": true,
-      "tokens": {}
+      "tokens": {},
+      "permissions": [
+        {
+          "name": "active",
+          "threshold": 1,
+          "keys": [{"pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM", "weight": 1}],
+          "accounts": [{"permission":{"actor":"cardrepo","permission":"eosio.code"},"weight":1}],
+          "actions": []
+        }
+      ]
+    },
+    {
+      "name": "proxy",
+      "ram": "5mb",
+      "net": "default",
+      "cpu": "default",
+      "contract_host": true,
+      "tokens": {},
+      "permissions": [
+        {
+            "name": "exrate",
+            "threshold": 1,
+            "keys": [{"pub": "EOS7BeomV2o6GJwnrN5QMZTkwEkZKJAGaknHphZF54tTcTGwPseJG", "weight": 1}],
+            "accounts": [],
+            "actions": ["setexrate", "remexrate"]
+        },
+        {
+          "name": "ps.admin",
+          "threshold": 1,
+          "keys": [{"pub": "EOS8BttvnC4d3WYbje66ShmBXaoGWwezG2XTQLBpNTZqCRdepHv1v", "weight": 1}],
+          "accounts": [],
+          "actions": ["psprodclr","psprodrem","psprodupd","psprodadd","remcardprob","setcardprob","remproduct","setproduct","rempacktype","setpacktype"]
+        },
+        {
+          "name": "gateway",
+          "threshold": 1,
+          "keys": [{"pub": "EOS6ewwoawhq9YNrjPrWSr5RkLExjMrJPuuCvU8aZCyyNEFNy9cZq", "weight": 1}],
+          "accounts": [],
+          "actions": ["buy"]
+        },
+        {
+          "name": "res.admin",
+          "threshold": 1,
+          "keys": [{"pub": "EOS5BnDZRdMtyD3AADGD8amjYBVHkZSh1zgSkYfi7Ygc21MhvxmqK", "weight": 1}],
+          "accounts": [],
+          "actions": ["create"]
+        },
+        {
+          "name": "ast.admin",
+          "threshold": 1,
+          "keys": [{"pub": "EOS7tAtPownaLKdCeXDsJg7hLRgu2TPwwKVHCmHXiHeBeBWnjVtvB", "weight": 1}],
+          "accounts": [],
+          "actions": ["setlimit"]
+        },
+        {
+          "name": "game.admin",
+          "threshold": 1,
+          "keys": [{"pub": "EOS7tAtPownaLKdCeXDsJg7hLRgu2TPwwKVHCmHXiHeBeBWnjVtvB", "weight": 1}],
+          "accounts": [],
+          "actions": ["loopstop","loopdelay","loopclear"]
+        },
+        {
+          "name": "import",
+          "threshold": 1,
+          "keys": [{"pub": "EOS7Be3xSjCUsJxix9y6p4hvJxBY5FL3FBUhFcNRxPvBqDnjyHsrm", "weight": 1}],
+          "accounts": [],
+          "actions": ["cardactadd","cardactupd","cardactrem","cardactclr","rarityadd","rarityupd",
+            "rarityrem","rarityclr","profadd","profupd","profrem","profclr","acprofimadd","acprofimupd",
+            "acprofimrem","acprofimclr","profsrcadd","profsrcupd","profsrcrem","profsrcclr","profobprbadd",
+            "profobprbupd","profobprbrem","profobprbclr","paramadd","paramupd","paramrem","paramclr","rarpaddinadd",
+            "rarpaddinupd","rarpaddinrem","rarpaddinclr","perkpartadd","perkpartupd","perkpartrem","perkpartclr",
+            "perkecondadd","perkecondupd","perkecondrem","perkecondclr","perkcompadd","perkcompupd","perkcomprem",
+            "perkcompclr","perkraradd","perkrarupd","perkrarrem","perkrarclr","perkadd","perkupd","perkrem","perkclr",
+            "cardparamadd","cardparamupd","cardparamrem","cardparamclr","cardprofadd","cardprofupd","cardprofrem",
+            "cardprofclr","cardadd","cardupd","cardrem","cardclr","gameconfadd","gameconfupd","gameconfrem",
+            "gameconfclr","cardperkadd","cardperkupd","cardperkrem","cardperkclr","asteradd","asterupd","asterrem",
+            "asterclr","extprtadd","extprtupd","extprtrem","extprtclr","extprtradd","extprtrupd","extprtrrem",
+            "extprtrclr","genderadd","genderupd","genderrem","genderclr","clearlog"]
+        },
+        {
+          "name": "active",
+          "threshold": 1,
+          "keys": [{"pub": "EOS8jDjUNCBz6dvvDYCPJihnWNJd6oA9xhmeH9ZwpBZeihUietRtv", "weight": 1}],
+          "accounts": [],
+          "actions": []
+        }
+      ]
     }
   ],
   "contracts": [

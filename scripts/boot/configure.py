@@ -67,25 +67,26 @@ wallet.import_key(args.private_key)
 auth_manager = AuthManager(cleos)
 
 auth_manager.set_account_permission('eosio', 'createaccnt',
-                                        [
-                                            {
-                                                'pub': 'EOS7zFCW3qHBoMt6LEjUQGDsZv12fRyb7xNC9hN3nTxK9kix7CEec',
-                                                'weight': 1
-                                            }
-                                        ],
-                                        [
-                                            {
-                                                'name': 'eosio',
-                                                'permission': 'active',
-                                                'weight': 1
-                                            }
-                                        ]
+                                    [
+                                        {
+                                            'pub': 'EOS7zFCW3qHBoMt6LEjUQGDsZv12fRyb7xNC9hN3nTxK9kix7CEec',
+                                            'weight': 1
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            'permission': {
+                                                'actor': 'eosio',
+                                                'permission': 'active'
+                                            },
+                                            'weight': 1
+                                        }
+                                    ]
                                     )
 auth_manager.set_action_permission('eosio', 'eosio', 'newaccount', 'createaccnt')
 
 contracts_manager = ContractsManager(args.contracts_dir, cleos)
 accounts_manager = AccountsManager(wallet, cleos, contracts_manager, configs['tokens'], args.public_key)
-
 
 accounts_manager.create_system_accounts()
 
@@ -109,8 +110,21 @@ if configs['enable_government']:
     auth_manager.resign('eosio', [AccountsManager.government_account])
 
 # All configs were applied, now we can setup real permissions
-for a in configs['accounts']:
-    auth_manager.update_key_auth(a['name'], a['pub'], a['pub'])
+for account in configs['accounts']:
+
+    permissions = account.get('permissions')
+
+    if not permissions:
+        auth_manager.update_key_auth(account['name'], account['pub'], account['pub'])
+        continue
+
+    if account.get('pub'):
+        raise Exception("You can't set both pub and permissions fields")
+
+    for perm in permissions:
+        auth_manager.set_account_permission(account['name'], perm['name'], perm['keys'], perm['accounts'])
+        for action in perm['actions']:
+            auth_manager.set_action_permission(account['name'], account['name'], action, perm['name'])
 
 for a in AccountsManager.system_accounts:
     auth_manager.resign(a, ['eosio'])
