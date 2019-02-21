@@ -85,10 +85,10 @@ class Token:
         self.cleos = cleos
         self.precision = precision
 
-    def create(self, precision):
+    def create(self):
         self.cleos.run('push action  eosio.token create \'[ "eosio", "%s" ]\' -p eosio.token@active' % (
             Wallet.int_to_currency(self.max_supply, self.name, self.precision)))
 
-    def issue(self, supply, precision):
+    def issue(self, supply):
         self.cleos.run('push action  eosio.token issue \'[ "eosio", "%s", "memo" ]\' -p eosio@active' % (
-            Wallet.int_to_currency(self.max_supply * supply, self.name, self.precision)))
+            Wallet.int_to_currency(supply, self.name, self.precision)))

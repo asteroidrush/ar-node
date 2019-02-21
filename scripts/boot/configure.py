@@ -31,6 +31,8 @@ parser.add_argument('--public-key', metavar='', help="Boot Public Key",
                     default='EOS6DovkiCze69bSzptXRnth7crDP1J6XvaXu1hJMJfgWdDPC45Fy', dest="public_key")
 parser.add_argument('--private-Key', metavar='', help="Boot Private Key",
                     default='5KfjdDqaKCiDpMern6mGmtL4HNzWiRxRSF5mZUg9uFDrfk3xYT1', dest="private_key")
+parser.add_argument('--faucet-public-key', metavar='', help="Faucet public key",
+                    default='EOS7zFCW3qHBoMt6LEjUQGDsZv12fRyb7xNC9hN3nTxK9kix7CEec', dest="faucet_public_key")
 parser.add_argument('--data-dir', metavar='', help="Path to data directory", default='')
 parser.add_argument('--wallet-dir', metavar='', help="Path to wallet directory", default='./wallet/')
 parser.add_argument('--genesis-json', metavar='', help="Path to genesis.json", default="./genesis.json")
@@ -69,7 +71,7 @@ auth_manager = AuthManager(cleos)
 auth_manager.set_account_permission('eosio', 'createaccnt',
                                     [
                                         {
-                                            'pub': 'EOS7zFCW3qHBoMt6LEjUQGDsZv12fRyb7xNC9hN3nTxK9kix7CEec',
+                                            'pub': args.faucet_public_key,
                                             'weight': 1
                                         }
                                     ],
@@ -96,9 +98,9 @@ contracts_manager.install_system_contract()
 
 for data in configs['tokens'].values():
     token = Token(data['shortcut'], data['max_supply'], data['precision'], cleos)
-    token.create(data['precision'])
+    token.create()
     if data['supply']:
-        token.issue(data['supply'], data['precision'])
+        token.issue(data['supply'])
 
 accounts_manager.create_accounts(configs['accounts'])
 
