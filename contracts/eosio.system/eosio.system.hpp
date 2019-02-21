@@ -175,6 +175,8 @@ namespace eosiosystem {
 
          void setmaxram( uint64_t max_ram_size );
 
+         void setpmntbckt( uint64_t payment_bucket_per_year );
+
          void setmaxaccnts( uint64_t max_accounts );
 
          void setaccntbw(account_name account, uint64_t net, uint64_t cpu);

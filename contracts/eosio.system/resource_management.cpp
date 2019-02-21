@@ -57,6 +57,13 @@ namespace eosiosystem {
       _global.set( _gstate, _self );
    }
 
+    void system_contract::setpmntbckt( uint64_t payment_bucket_per_year ) {
+       require_auth( _self );
+       
+       _gstate.payment_bucket_per_year = payment_bucket_per_year;
+       _global.set( _gstate, _self );
+    }
+
    void system_contract::setmaxaccnts( uint64_t max_accounts ) {
       require_auth( _self );
 

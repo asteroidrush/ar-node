@@ -132,7 +132,7 @@ EOSIO_ABI_EX( eosiosystem::system_contract,
      // eosio.system.cpp
      (newaccount)(setparams)(setpriv)(rmvproducer)
      // resource_management.cpp
-     (setmaxram)(setmaxaccnts)(setaccntbw)(setaccntram)
+     (setmaxram)(setpmntbckt)(setmaxaccnts)(setaccntbw)(setaccntram)
      // voting.cpp
      (issue)(transfer)(regproducer)(unregprod)(voteproducer)(regproxy)
      // producer_pay.cpp
