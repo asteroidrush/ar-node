@@ -4,27 +4,17 @@ import json
 
 from os.path import abspath
 from time import sleep
-import signal
 
-from accounts import AccountsManager
-from auth import AuthManager
-from components import BootNode, Wallet, Cleos, Token
-from contracts import ContractsManager
-from process import ProcessManager
-
-
-def read_configs():
-    config_file = open(abspath('./boot_config.json'))
-    return json.load(config_file)
+from src.accounts import AccountsManager
+from src.auth import AuthManager
+from src.components import BootNode, Wallet, Cleos, Token
+from src.contracts import ContractsManager
+from src.process import ProcessManager
 
 
-def prepare():
-    ProcessManager.init_log(open(args.log_path, 'a'))
-    ProcessManager.run('killall keosd nodeos || true')
-    ProcessManager.sleep(1.5)
+'''================= Read configurations ================='''
 
-
-configs = read_configs()
+configs = json.load(open(abspath('./boot_config.json')))
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--public-key', metavar='', help="Boot Public Key",
@@ -53,7 +43,14 @@ parser.add_argument('--contracts-dir', metavar='', help="Path to contracts direc
 
 args = parser.parse_args()
 
-prepare()
+'''================= Clear running instances ================='''
+
+ProcessManager.init_log(open(args.log_path, 'a'))
+ProcessManager.run('killall keosd nodeos || true')
+ProcessManager.sleep(1.5)
+
+
+'''================= Initialize base components ================='''
 
 node = BootNode(args.nodeos, args.data_dir, args.genesis_json)
 node.start(args.public_key, args.private_key)
@@ -65,6 +62,8 @@ cleos = Cleos(args.cleos)
 wallet = Wallet(args.keosd, args.wallet_dir, cleos)
 wallet.start()
 wallet.import_key(args.private_key)
+
+'''================= Blockchain initialization ================='''
 
 auth_manager = AuthManager(cleos)
 
@@ -111,6 +110,20 @@ if configs['enable_government']:
                         [account['name'] for account in configs['accounts'] if account['management']])
     auth_manager.resign('eosio', [AccountsManager.government_account])
 
+# Setup parameters blockchain parameters
+
+params_mapping = {
+    'max_ram': 'setmaxram',
+    'max_accounts': 'setmaxaccounts',
+    'payment_bucket_per_year': 'setpaymentbucketperyear'
+}
+
+
+for key, value in configs['params'].items():
+    if value != 'default':
+        cleos.run("system %s %s" % (params_mapping[key], value))
+
+
 # All configs were applied, now we can setup real permissions
 for account in configs['accounts']:
 
@@ -131,19 +144,9 @@ for account in configs['accounts']:
 for a in AccountsManager.system_accounts:
     auth_manager.resign(a, ['eosio'])
 
-run = True
 
+'''================= Lock current process ================='''
 
-def stop(*args):
-    global run
-    print("Stopping...")
-    run = False
-
-
-signal.signal(signal.SIGINT, stop)
-signal.signal(signal.SIGTERM, stop)
-
-while run:
-    sleep(1)
+ProcessManager.lock_process()
 
 print("Complete")

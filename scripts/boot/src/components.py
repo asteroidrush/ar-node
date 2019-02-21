@@ -3,7 +3,7 @@ import re
 
 from math import pow
 
-from process import ProcessManager
+from src.process import ProcessManager
 
 
 class BootNode:
@@ -92,3 +92,5 @@ class Token:
     def issue(self, supply):
         self.cleos.run('push action  eosio.token issue \'[ "eosio", "%s", "memo" ]\' -p eosio@active' % (
             Wallet.int_to_currency(supply, self.name, self.precision)))
+
+

@@ -1,5 +1,5 @@
-from components import Wallet
-from contracts import ContractsManager
+from src.components import Wallet
+from src.contracts import ContractsManager
 
 
 class AccountManager:

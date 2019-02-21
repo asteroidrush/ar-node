@@ -1,27 +1,20 @@
 {
   "enable_government": false,
+  "params": {
+    "max_ram": 8589934592,
+    "max_accounts": 1000000,
+    "payment_bucket_per_year": 10000000000
+  },
   "tokens": {
-      "system": {
-        "supply": 0.4,
-        "max_supply": 10000000000000,
-        "shortcut": "SYS",
-        "precision": 4
-      },
-      "support": {
-        "supply": 0,
-        "max_supply": 10000000000000,
-        "shortcut": "SPT",
-        "precision": 4
-      },
       "piastro": {
-        "supply": 1,
-        "max_supply": 2100000000000000,
+        "supply": 100000000002,
+        "max_supply": 4611686018427380000,
         "shortcut": "PSTR",
-        "precision": 8
+        "precision": 4
       },
       "founders": {
-        "supply": 1,
-        "max_supply": 500000,
+        "supply": 21000000,
+        "max_supply": 21000000,
         "shortcut": "FND",
         "precision": 0
       }
@@ -31,7 +24,7 @@
       "name": "prod1",
       "pub": "EOS6zAbRAu1PhuBcMSWCn5Gdc91XVyPRiC8RnXUmHnv9cBqbK1UN1",
       "tokens": {
-          "system": 1200000000000
+          "piastro": 1
       },
       "ram": "default",
       "net": "default",
@@ -43,7 +36,7 @@
       "name": "prod2",
       "pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM",
       "tokens": {
-        "system": 1200000000000
+        "piastro": 1
       },
       "ram": "default",
       "net": "default",
@@ -58,8 +51,8 @@
       "cpu": "default",
       "contract_host": true,
       "tokens": {
-          "piastro": 100000000000000,
-          "founders": 100000
+          "piastro": 100000000000,
+          "founders": 10000000
       },
       "permissions": [
         {
@@ -209,6 +202,5 @@
       "name": "ar-game-contract/presale",
       "account": "presale"
     }
-  ],
-  "ram_size": 0
+  ]
 }

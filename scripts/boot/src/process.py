@@ -1,3 +1,4 @@
+import signal
 import subprocess
 import sys
 import time
@@ -6,7 +7,6 @@ import json
 
 
 class ProcessManager:
-
     log_file = None
 
     @classmethod
@@ -61,3 +61,18 @@ class ProcessManager:
         print('sleep', t, '...')
         time.sleep(t)
         print('resume')
+
+    @classmethod
+    def lock_process(cls):
+        run = True
+
+        def stop(*args):
+            global run
+            print("Stopping...")
+            run = False
+
+        signal.signal(signal.SIGINT, stop)
+        signal.signal(signal.SIGTERM, stop)
+
+        while cls.run:
+            time.sleep(1)

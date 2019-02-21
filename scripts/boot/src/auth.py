@@ -2,7 +2,7 @@ import json
 
 from math import floor
 
-from process import ProcessManager
+from src.process import ProcessManager
 
 
 class AuthManager:
