@@ -45,7 +45,6 @@ std::vector<genesis_account> test_genesis( {
   {N(whale4), 40'000'000'0000ll},
   {N(whale3), 30'000'000'0000ll},
   {N(whale2), 20'000'000'0000ll},
-  {N(whale1), 10'000'000'0000ll},
   {N(proda),      1'000'000'0000ll},
   {N(prodb),      1'000'000'0000ll},
   {N(prodc),      1'000'000'0000ll},
@@ -229,7 +228,7 @@ BOOST_FIXTURE_TEST_CASE( bootseq_test, bootseq_tester ) {
 
         // Create SYS tokens in eosio.token, set its manager as eosio
         auto core_max_supply = core_from_string("10000000000.0000"); /// 1x larger than 1B initial tokens
-        auto initial_supply = core_from_string("10000000000.0000"); /// 1x larger than 1B initial tokens
+        auto initial_supply = core_from_string("1014102000.0000");
         create_currency(N(eosio.token), config::system_account_name, core_max_supply);
         // Issue the genesis supply of 1 billion SYS tokens to eosio.system
         issue(N(eosio.token), config::system_account_name, config::system_account_name, initial_supply);
@@ -281,11 +280,10 @@ BOOST_FIXTURE_TEST_CASE( bootseq_test, bootseq_tester ) {
         votepro( N(b1), { N(proda), N(prodb), N(prodc), N(prodd), N(prode), N(prodf), N(prodg),
                            N(prodh), N(prodi), N(prodj), N(prodk), N(prodl), N(prodm), N(prodn),
                            N(prodo), N(prodp), N(prodq), N(prodr), N(prods), N(prodt), N(produ)} );
-        votepro( N(whale1), {N(runnerup1), N(runnerup2), N(runnerup3)} );
-        votepro( N(whale3), {N(proda), N(prodb), N(prodc), N(prodd), N(prode)} );
+        votepro( N(whale2), {N(runnerup1), N(runnerup2), N(runnerup3)} );
 
-        // Total Stakes = b1 + whale2 + whale3 stake
-        BOOST_TEST(get_global_state()["total_activated_stake"].as<int64_t>() == 140'000'000'0000);
+        // Total Stakes = b1 + whale2 stake
+        BOOST_TEST(get_global_state()["total_activated_stake"].as<int64_t>() == 120'000'000'0000);
 
         // No producers will be set, since the total activated stake is less than 150,000,000
         produce_blocks_for_n_rounds(2); // 2 rounds since new producer schedule is set when the first block of next round is irreversible
@@ -298,9 +296,10 @@ BOOST_FIXTURE_TEST_CASE( bootseq_test, bootseq_tester ) {
         // Since the total activated stake is less than 150,000,000, it shouldn't be possible to claim rewards
         BOOST_REQUIRE_THROW(claim_rewards(N(runnerup1)), eosio_assert_message_exception);
 
-        // This will increase the total vote stake by 40,000,000
+        // This will increase the total vote stake by 70,000,000
         votepro( N(whale4), {N(prodq), N(prodr), N(prods), N(prodt), N(produ)} );
-        BOOST_TEST(get_global_state()["total_activated_stake"].as<int64_t>() == 180'000'000'0000);
+        votepro( N(whale3), {N(proda), N(prodb), N(prodc), N(prodd), N(prode)} );
+        BOOST_TEST(get_global_state()["total_activated_stake"].as<int64_t>() == 160'000'000'0000);
 
         // Since the total vote stake is more than 150,000,000, the new producer set will be set
         produce_blocks_for_n_rounds(2); // 2 rounds since new producer schedule is set when the first block of next round is irreversible
@@ -331,6 +330,11 @@ BOOST_FIXTURE_TEST_CASE( bootseq_test, bootseq_tester ) {
         // Spend some time so the producer pay pool is filled by the inflation rate
         produce_min_num_of_blocks_to_spend_time_wo_inactive_prod(fc::seconds(30 * 24 * 3600)); // 30 days
         // Since the total activated stake is larger than 150,000,000, pool should be filled reward should be bigger than zero
+        int64_t total_activated_stake = get_global_state()["total_activated_stake"].as<int64_t>();
+        int64_t last_pervote_bucket_fill = get_global_state()["last_pervote_bucket_fill"].as<int64_t>();
+        int64_t time_since_last_bucket_fill = control->head_block_time().time_since_epoch().to_seconds() * 1000000ll - last_pervote_bucket_fill;
+        int64_t payment_bucket_per_year = get_global_state()["payment_bucket_per_year"].as<int64_t>();
+        int64_t new_tokens = static_cast<int64_t>( payment_bucket_per_year * (double(time_since_last_bucket_fill) / double(52*7*24*3600*1000000ll)) );
         claim_rewards(N(runnerup1));
         BOOST_TEST(get_balance(N(runnerup1)).get_amount() > 0);
 

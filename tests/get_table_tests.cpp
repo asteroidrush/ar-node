@@ -82,7 +82,7 @@ BOOST_FIXTURE_TEST_CASE( get_scope_test, TESTER ) try {
       BOOST_REQUIRE_EQUAL(name(N(eosio.token)), result.rows[0].code);
       BOOST_REQUIRE_EQUAL(name(N(inita)), result.rows[0].scope);
       BOOST_REQUIRE_EQUAL(name(N(accounts)), result.rows[0].table);
-      BOOST_REQUIRE_EQUAL(name(N(eosio)), result.rows[0].payer);
+      BOOST_REQUIRE_EQUAL(name(N(eosio.token)), result.rows[0].payer);
       BOOST_REQUIRE_EQUAL(1, result.rows[0].count);
 
       BOOST_REQUIRE_EQUAL(name(N(initb)), result.rows[1].scope);
@@ -233,10 +233,10 @@ BOOST_FIXTURE_TEST_CASE( get_table_test, TESTER ) try {
       BOOST_REQUIRE_EQUAL("8888.0000 BBB", result.rows[2]["data"]["balance"].as_string());
       BOOST_REQUIRE_EQUAL("7777.0000 CCC", result.rows[1]["data"]["balance"].as_string());
       BOOST_REQUIRE_EQUAL("10000.0000 SYS", result.rows[0]["data"]["balance"].as_string());
-      BOOST_REQUIRE_EQUAL("eosio", result.rows[0]["payer"].as_string());
-      BOOST_REQUIRE_EQUAL("eosio", result.rows[1]["payer"].as_string());
-      BOOST_REQUIRE_EQUAL("eosio", result.rows[2]["payer"].as_string());
-      BOOST_REQUIRE_EQUAL("eosio", result.rows[3]["payer"].as_string());
+      BOOST_REQUIRE_EQUAL("eosio.token", result.rows[0]["payer"].as_string());
+      BOOST_REQUIRE_EQUAL("eosio.token", result.rows[1]["payer"].as_string());
+      BOOST_REQUIRE_EQUAL("eosio.token", result.rows[2]["payer"].as_string());
+      BOOST_REQUIRE_EQUAL("eosio.token", result.rows[3]["payer"].as_string());
    }
    p.show_payer = false;
 
