@@ -125,60 +125,105 @@
             "threshold": 1,
             "keys": [{"pub": "EOS7BeomV2o6GJwnrN5QMZTkwEkZKJAGaknHphZF54tTcTGwPseJG", "weight": 1}],
             "accounts": [],
-            "actions": ["setexrate", "remexrate"]
+            "actions": [{"code": "presale", "name": "setexrate"}, {"code": "presale", "name": "remexrate"}]
         },
         {
           "name": "ps.admin",
           "threshold": 1,
           "keys": [{"pub": "EOS8BttvnC4d3WYbje66ShmBXaoGWwezG2XTQLBpNTZqCRdepHv1v", "weight": 1}],
           "accounts": [],
-          "actions": ["psprodclr","psprodrem","psprodupd","psprodadd","remcardprob","setcardprob","remproduct","setproduct","rempacktype","setpacktype"]
+          "actions": [
+            {"code": "presale", "name": "psprodclr"},{"code": "presale", "name": "psprodrem"},
+            {"code": "presale", "name": "psprodupd"},{"code": "presale", "name": "psprodadd"},
+            {"code": "presale", "name": "remcardprob"},{"code": "presale", "name": "setcardprob"},
+            {"code": "presale", "name": "remproduct"},{"code": "presale", "name": "setproduct"},
+            {"code": "presale", "name": "rempacktype"},{"code": "presale", "name": "setpacktype"}
+          ]
         },
         {
           "name": "gateway",
           "threshold": 1,
           "keys": [{"pub": "EOS6ewwoawhq9YNrjPrWSr5RkLExjMrJPuuCvU8aZCyyNEFNy9cZq", "weight": 1}],
           "accounts": [],
-          "actions": ["buy"]
+          "actions": [{"code": "presale", "name": "buy"}]
         },
         {
           "name": "res.admin",
           "threshold": 1,
           "keys": [{"pub": "EOS5BnDZRdMtyD3AADGD8amjYBVHkZSh1zgSkYfi7Ygc21MhvxmqK", "weight": 1}],
           "accounts": [],
-          "actions": ["create"]
+          "actions": [{"code": "resource", "name": "create"}]
         },
         {
           "name": "ast.admin",
           "threshold": 1,
           "keys": [{"pub": "EOS7tAtPownaLKdCeXDsJg7hLRgu2TPwwKVHCmHXiHeBeBWnjVtvB", "weight": 1}],
           "accounts": [],
-          "actions": ["setlimit"]
+          "actions": [{"code": "resource", "name": "setlimit"}]
         },
         {
           "name": "game.admin",
           "threshold": 1,
           "keys": [{"pub": "EOS7tAtPownaLKdCeXDsJg7hLRgu2TPwwKVHCmHXiHeBeBWnjVtvB", "weight": 1}],
           "accounts": [],
-          "actions": ["loopstop","loopdelay","loopclear"]
+          "actions": [
+            {"code": "argame", "name": "loopstop"},
+            {"code": "argame", "name": "loopdelay"},
+            {"code": "argame", "name": "loopclear"}
+          ]
         },
         {
           "name": "import",
           "threshold": 1,
           "keys": [{"pub": "EOS7Be3xSjCUsJxix9y6p4hvJxBY5FL3FBUhFcNRxPvBqDnjyHsrm", "weight": 1}],
           "accounts": [],
-          "actions": ["cardactadd","cardactupd","cardactrem","cardactclr","rarityadd","rarityupd",
-            "rarityrem","rarityclr","profadd","profupd","profrem","profclr","acprofimadd","acprofimupd",
-            "acprofimrem","acprofimclr","profsrcadd","profsrcupd","profsrcrem","profsrcclr","profobprbadd",
-            "profobprbupd","profobprbrem","profobprbclr","paramadd","paramupd","paramrem","paramclr","rarpaddinadd",
-            "rarpaddinupd","rarpaddinrem","rarpaddinclr","perkpartadd","perkpartupd","perkpartrem","perkpartclr",
-            "perkecondadd","perkecondupd","perkecondrem","perkecondclr","perkcompadd","perkcompupd","perkcomprem",
-            "perkcompclr","perkraradd","perkrarupd","perkrarrem","perkrarclr","perkadd","perkupd","perkrem","perkclr",
-            "cardparamadd","cardparamupd","cardparamrem","cardparamclr","cardprofadd","cardprofupd","cardprofrem",
-            "cardprofclr","cardadd","cardupd","cardrem","cardclr","gameconfadd","gameconfupd","gameconfrem",
-            "gameconfclr","cardperkadd","cardperkupd","cardperkrem","cardperkclr","asteradd","asterupd","asterrem",
-            "asterclr","extprtadd","extprtupd","extprtrem","extprtclr","extprtradd","extprtrupd","extprtrrem",
-            "extprtrclr","genderadd","genderupd","genderrem","genderclr","clearlog"]
+          "actions": [
+            {"code": "argame", "name": "cardactadd"},{"code": "argame", "name": "cardactupd"},
+            {"code": "argame", "name": "cardactrem"},{"code": "argame", "name": "cardactclr"},
+            {"code": "argame", "name": "rarityadd"},{"code": "argame", "name": "rarityupd"},
+            {"code": "argame", "name": "rarityrem"},{"code": "argame", "name": "rarityclr"},
+            {"code": "argame", "name": "profadd"},{"code": "argame", "name": "profupd"},
+            {"code": "argame", "name": "profrem"},{"code": "argame", "name": "profclr"},
+            {"code": "argame", "name": "acprofimadd"},{"code": "argame", "name": "acprofimupd"},
+            {"code": "argame", "name": "acprofimrem"},{"code": "argame", "name": "acprofimclr"},
+            {"code": "argame", "name": "profsrcadd"},{"code": "argame", "name": "profsrcupd"},
+            {"code": "argame", "name": "profsrcrem"},{"code": "argame", "name": "profsrcclr"},
+            {"code": "argame", "name": "profobprbadd"},{"code": "argame", "name": "profobprbupd"},
+            {"code": "argame", "name": "profobprbrem"},{"code": "argame", "name": "profobprbclr"},
+            {"code": "argame", "name": "paramadd"},{"code": "argame", "name": "paramupd"},
+            {"code": "argame", "name": "paramrem"},{"code": "argame", "name": "paramclr"},
+            {"code": "argame", "name": "rarpaddinadd"},{"code": "argame", "name": "rarpaddinupd"},
+            {"code": "argame", "name": "rarpaddinrem"},{"code": "argame", "name": "rarpaddinclr"},
+            {"code": "argame", "name": "perkpartadd"},{"code": "argame", "name": "perkpartupd"},
+            {"code": "argame", "name": "perkpartrem"},{"code": "argame", "name": "perkpartclr"},
+            {"code": "argame", "name": "perkecondadd"},{"code": "argame", "name": "perkecondupd"},
+            {"code": "argame", "name": "perkecondrem"},{"code": "argame", "name": "perkecondclr"},
+            {"code": "argame", "name": "perkcompadd"},{"code": "argame", "name": "perkcompupd"},
+            {"code": "argame", "name": "perkcomprem"},{"code": "argame", "name": "perkcompclr"},
+            {"code": "argame", "name": "perkraradd"},{"code": "argame", "name": "perkrarupd"},
+            {"code": "argame", "name": "perkrarrem"},{"code": "argame", "name": "perkrarclr"},
+            {"code": "argame", "name": "perkadd"},{"code": "argame", "name": "perkupd"},
+            {"code": "argame", "name": "perkrem"},{"code": "argame", "name": "perkclr"},
+            {"code": "argame", "name": "cardparamadd"},{"code": "argame", "name": "cardparamupd"},
+            {"code": "argame", "name": "cardparamrem"},{"code": "argame", "name": "cardparamclr"},
+            {"code": "argame", "name": "cardprofadd"},{"code": "argame", "name": "cardprofupd"},
+            {"code": "argame", "name": "cardprofrem"},{"code": "argame", "name": "cardprofclr"},
+            {"code": "argame", "name": "cardadd"},{"code": "argame", "name": "cardupd"},
+            {"code": "argame", "name": "cardrem"},{"code": "argame", "name": "cardclr"},
+            {"code": "argame", "name": "gameconfadd"},{"code": "argame", "name": "gameconfupd"},
+            {"code": "argame", "name": "gameconfrem"},{"code": "argame", "name": "gameconfclr"},
+            {"code": "argame", "name": "cardperkadd"},{"code": "argame", "name": "cardperkupd"},
+            {"code": "argame", "name": "cardperkrem"},{"code": "argame", "name": "cardperkclr"},
+            {"code": "argame", "name": "asteradd"},{"code": "argame", "name": "asterupd"},
+            {"code": "argame", "name": "asterrem"},{"code": "argame", "name": "asterclr"},
+            {"code": "argame", "name": "extprtadd"},{"code": "argame", "name": "extprtupd"},
+            {"code": "argame", "name": "extprtrem"},{"code": "argame", "name": "extprtclr"},
+            {"code": "argame", "name": "extprtradd"},{"code": "argame", "name": "extprtrupd"},
+            {"code": "argame", "name": "extprtrrem"},{"code": "argame", "name": "extprtrclr"},
+            {"code": "argame", "name": "genderadd"},{"code": "argame", "name": "genderupd"},
+            {"code": "argame", "name": "genderrem"},{"code": "argame", "name": "genderclr"},
+            {"code": "argame", "name": "clearlog"}
+          ]
         },
         {
           "name": "active",

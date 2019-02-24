@@ -134,7 +134,7 @@ for account in configs['accounts']:
     for perm in permissions:
         auth_manager.set_account_permission(account['name'], perm['name'], perm['keys'], perm['accounts'])
         for action in perm['actions']:
-            auth_manager.set_action_permission(account['name'], account['name'], action, perm['name'])
+            auth_manager.set_action_permission(account['name'], action['code'], action['name'], perm['name'])
 
 for a in AccountsManager.system_accounts:
     auth_manager.resign(a, ['eosio'])
