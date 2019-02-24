@@ -1,5 +1,5 @@
 {
-  "enable_government": false,
+  "enable_government": true,
   "params": {
     "max_ram": 8589934592,
     "max_accounts": 1000000,
@@ -50,6 +50,7 @@
       "net": "default",
       "cpu": "default",
       "contract_host": true,
+      "management": false,
       "tokens": {
           "piastro": 100000000000,
           "founders": 10000000
@@ -70,6 +71,7 @@
       "net": "default",
       "cpu": "default",
       "contract_host": true,
+      "management": false,
       "tokens": {},
       "permissions": [
         {
@@ -88,6 +90,7 @@
       "net": "default",
       "cpu": "default",
       "contract_host": true,
+      "management": false,
       "tokens": {}
     },
     {
@@ -96,6 +99,7 @@
       "net": "default",
       "cpu": "default",
       "contract_host": true,
+      "management": false,
       "tokens": {},
       "permissions": [
         {
@@ -113,6 +117,7 @@
       "net": "default",
       "cpu": "default",
       "contract_host": true,
+      "management": false,
       "tokens": {},
       "permissions": [
         {

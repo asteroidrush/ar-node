@@ -105,11 +105,6 @@ accounts_manager.create_accounts(configs['accounts'])
 
 contracts_manager.install_contracts(configs['contracts'])
 
-if configs['enable_government']:
-    auth_manager.resign(AccountsManager.government_account,
-                        [account['name'] for account in configs['accounts'] if account['management']])
-    auth_manager.resign('eosio', [AccountsManager.government_account])
-
 # Setup parameters blockchain parameters
 
 params_mapping = {
@@ -143,6 +138,11 @@ for account in configs['accounts']:
 
 for a in AccountsManager.system_accounts:
     auth_manager.resign(a, ['eosio'])
+
+if configs['enable_government']:
+    auth_manager.resign(AccountsManager.government_account,
+                        [account['name'] for account in configs['accounts'] if account['management']])
+    auth_manager.resign('eosio', [AccountsManager.government_account])
 
 
 '''================= Lock current process ================='''
