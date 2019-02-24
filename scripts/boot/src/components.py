@@ -74,6 +74,8 @@ class Wallet:
 
     @staticmethod
     def int_to_currency(value, symbol, precision):
+        if not precision:
+            return '%d %s' % (value, symbol)
         return ('%d.%0' + str(precision) + 'd %s') % (value // pow(10, precision), value % pow(10, precision), symbol)
 
 
