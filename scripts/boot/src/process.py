@@ -64,12 +64,11 @@ class ProcessManager:
 
     @classmethod
     def lock_process(cls):
-        run = True
+        cls.run = True
 
         def stop(*args):
-            global run
             print("Stopping...")
-            run = False
+            cls.run = False
 
         signal.signal(signal.SIGINT, stop)
         signal.signal(signal.SIGTERM, stop)
