@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Dec 14 01:13:35 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Feb 19 18:18:38 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -13,24 +13,6 @@
                 {
                     "name": "id",
                     "type": "card_id_t"
-                }
-            ]
-        },
-        {
-            "name": "logt",
-            "base": "",
-            "fields": [
-                {
-                    "name": "id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "message",
-                    "type": "string"
-                },
-                {
-                    "name": "date",
-                    "type": "timestamp_t"
                 }
             ]
         },

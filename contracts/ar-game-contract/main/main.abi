@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Dec 17 19:47:05 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Feb 19 18:22:20 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -42,7 +42,7 @@
         },
         {
             "name": "acprofimt",
-            "base": "",
+            "base": "external_item",
             "fields": [
                 {
                     "name": "id",
@@ -116,7 +116,7 @@
         },
         {
             "name": "astert",
-            "base": "",
+            "base": "external_item",
             "fields": [
                 {
                     "name": "id",
@@ -226,7 +226,7 @@
         },
         {
             "name": "cardactt",
-            "base": "",
+            "base": "external_item",
             "fields": [
                 {
                     "name": "id",
@@ -303,6 +303,10 @@
                 {
                     "name": "rarity_id",
                     "type": "rarity_id_t"
+                },
+                {
+                    "name": "prof_lvl",
+                    "type": "uint8"
                 }
             ]
         },
@@ -360,7 +364,7 @@
         },
         {
             "name": "cardparamt",
-            "base": "",
+            "base": "external_item",
             "fields": [
                 {
                     "name": "id",
@@ -434,7 +438,7 @@
         },
         {
             "name": "cardperkt",
-            "base": "",
+            "base": "external_item",
             "fields": [
                 {
                     "name": "id",
@@ -451,6 +455,14 @@
                 {
                     "name": "perk_id",
                     "type": "perk_id_t"
+                },
+                {
+                    "name": "profession_id",
+                    "type": "profession_id_t"
+                },
+                {
+                    "name": "is_meta_perk",
+                    "type": "bool"
                 }
             ]
         },
@@ -508,7 +520,7 @@
         },
         {
             "name": "cardproft",
-            "base": "",
+            "base": "external_item",
             "fields": [
                 {
                     "name": "id",
@@ -566,7 +578,7 @@
         },
         {
             "name": "cardt",
-            "base": "",
+            "base": "external_item",
             "fields": [
                 {
                     "name": "id",
@@ -574,7 +586,7 @@
                 },
                 {
                     "name": "generated_name",
-                    "type": "string"
+                    "type": "uint32"
                 },
                 {
                     "name": "gender_id",
@@ -643,6 +655,11 @@
             ]
         },
         {
+            "name": "external_item",
+            "base": "",
+            "fields": []
+        },
+        {
             "name": "extprtadd",
             "base": "",
             "fields": [
@@ -667,30 +684,6 @@
             ]
         },
         {
-            "name": "extprtradd",
-            "base": "",
-            "fields": [
-                {
-                    "name": "account",
-                    "type": "name"
-                },
-                {
-                    "name": "newObj",
-                    "type": "extprtrt"
-                }
-            ]
-        },
-        {
-            "name": "extprtrclr",
-            "base": "",
-            "fields": [
-                {
-                    "name": "account",
-                    "type": "name"
-                }
-            ]
-        },
-        {
             "name": "extprtrem",
             "base": "",
             "fields": [
@@ -705,58 +698,8 @@
             ]
         },
         {
-            "name": "extprtrrem",
-            "base": "",
-            "fields": [
-                {
-                    "name": "account",
-                    "type": "name"
-                },
-                {
-                    "name": "id",
-                    "type": "uint64"
-                }
-            ]
-        },
-        {
-            "name": "extprtrt",
-            "base": "",
-            "fields": [
-                {
-                    "name": "id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "exterior_part_id",
-                    "type": "exterior_part_id_t"
-                },
-                {
-                    "name": "rarity_id",
-                    "type": "rarity_id_t"
-                },
-                {
-                    "name": "probability",
-                    "type": "uint8"
-                }
-            ]
-        },
-        {
-            "name": "extprtrupd",
-            "base": "",
-            "fields": [
-                {
-                    "name": "account",
-                    "type": "name"
-                },
-                {
-                    "name": "newObj",
-                    "type": "extprtrt"
-                }
-            ]
-        },
-        {
             "name": "extprtt",
-            "base": "",
+            "base": "external_item",
             "fields": [
                 {
                     "name": "id",
@@ -781,6 +724,18 @@
                 {
                     "name": "unique_group",
                     "type": "int16"
+                },
+                {
+                    "name": "look_id",
+                    "type": "uint8"
+                },
+                {
+                    "name": "group",
+                    "type": "int16"
+                },
+                {
+                    "name": "rarities",
+                    "type": "pair_rarity_id_t_uint8[]"
                 }
             ]
         },
@@ -838,7 +793,7 @@
         },
         {
             "name": "gameconft",
-            "base": "",
+            "base": "external_item",
             "fields": [
                 {
                     "name": "id",
@@ -908,7 +863,7 @@
         },
         {
             "name": "gendert",
-            "base": "",
+            "base": "external_item",
             "fields": [
                 {
                     "name": "id",
@@ -1061,6 +1016,20 @@
             ]
         },
         {
+            "name": "pair_rarity_id_t_uint8",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "rarity_id_t"
+                },
+                {
+                    "name": "value",
+                    "type": "uint8"
+                }
+            ]
+        },
+        {
             "name": "paramadd",
             "base": "",
             "fields": [
@@ -1100,7 +1069,7 @@
         },
         {
             "name": "paramt",
-            "base": "",
+            "base": "external_item",
             "fields": [
                 {
                     "name": "id",
@@ -1210,7 +1179,7 @@
         },
         {
             "name": "perkcompt",
-            "base": "",
+            "base": "external_item",
             "fields": [
                 {
                     "name": "id",
@@ -1284,7 +1253,7 @@
         },
         {
             "name": "perkecondt",
-            "base": "",
+            "base": "external_item",
             "fields": [
                 {
                     "name": "id",
@@ -1354,7 +1323,7 @@
         },
         {
             "name": "perkpartt",
-            "base": "",
+            "base": "external_item",
             "fields": [
                 {
                     "name": "id",
@@ -1428,7 +1397,7 @@
         },
         {
             "name": "perkrart",
-            "base": "",
+            "base": "external_item",
             "fields": [
                 {
                     "name": "id",
@@ -1474,7 +1443,7 @@
         },
         {
             "name": "perkt",
-            "base": "",
+            "base": "external_item",
             "fields": [
                 {
                     "name": "id",
@@ -1549,6 +1518,42 @@
             ]
         },
         {
+            "name": "proflvlup",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "card_id",
+                    "type": "card_id_t"
+                },
+                {
+                    "name": "profession_id",
+                    "type": "profession_id_t"
+                }
+            ]
+        },
+        {
+            "name": "proflvluprn",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "card_id",
+                    "type": "card_id_t"
+                },
+                {
+                    "name": "level",
+                    "type": "uint8"
+                }
+            ]
+        },
+        {
             "name": "profobprbadd",
             "base": "",
             "fields": [
@@ -1588,7 +1593,7 @@
         },
         {
             "name": "profobprbt",
-            "base": "",
+            "base": "external_item",
             "fields": [
                 {
                     "name": "id",
@@ -1676,7 +1681,7 @@
         },
         {
             "name": "profsrct",
-            "base": "",
+            "base": "external_item",
             "fields": [
                 {
                     "name": "id",
@@ -1704,7 +1709,7 @@
         },
         {
             "name": "proft",
-            "base": "",
+            "base": "external_item",
             "fields": [
                 {
                     "name": "id",
@@ -1717,6 +1722,22 @@
                 {
                     "name": "exclusive",
                     "type": "uint8"
+                },
+                {
+                    "name": "probability",
+                    "type": "uint8"
+                },
+                {
+                    "name": "meta_perk_id",
+                    "type": "perk_id_t"
+                },
+                {
+                    "name": "perks_count",
+                    "type": "uint8"
+                },
+                {
+                    "name": "perks",
+                    "type": "perk_id_t[]"
                 }
             ]
         },
@@ -1774,7 +1795,7 @@
         },
         {
             "name": "rarityt",
-            "base": "",
+            "base": "external_item",
             "fields": [
                 {
                     "name": "id",
@@ -1783,6 +1804,18 @@
                 {
                     "name": "name",
                     "type": "string"
+                },
+                {
+                    "name": "extra_perk_min",
+                    "type": "uint8"
+                },
+                {
+                    "name": "extra_perk_max",
+                    "type": "uint8"
+                },
+                {
+                    "name": "personal_perks_count",
+                    "type": "uint8"
                 }
             ]
         },
@@ -1840,7 +1873,7 @@
         },
         {
             "name": "rarpaddint",
-            "base": "",
+            "base": "external_item",
             "fields": [
                 {
                     "name": "id",
@@ -1900,7 +1933,7 @@
                 },
                 {
                     "name": "amount",
-                    "type": "uint8"
+                    "type": "int16"
                 }
             ]
         },
@@ -1940,6 +1973,10 @@
                 },
                 {
                     "name": "vip_time",
+                    "type": "uint64"
+                },
+                {
+                    "name": "vip_time_end",
                     "type": "timestamp_t"
                 }
             ]
@@ -2336,28 +2373,8 @@
             "ricardian_contract": ""
         },
         {
-            "name": "extprtradd",
-            "type": "extprtradd",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "extprtrclr",
-            "type": "extprtrclr",
-            "ricardian_contract": ""
-        },
-        {
             "name": "extprtrem",
             "type": "extprtrem",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "extprtrrem",
-            "type": "extprtrrem",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "extprtrupd",
-            "type": "extprtrupd",
             "ricardian_contract": ""
         },
         {
@@ -2586,6 +2603,16 @@
             "ricardian_contract": ""
         },
         {
+            "name": "proflvlup",
+            "type": "proflvlup",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "proflvluprn",
+            "type": "proflvluprn",
+            "ricardian_contract": ""
+        },
+        {
             "name": "profobprbadd",
             "type": "profobprbadd",
             "ricardian_contract": ""
@@ -2767,13 +2794,6 @@
         {
             "name": "cardt",
             "type": "cardt",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "extprtrt",
-            "type": "extprtrt",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
