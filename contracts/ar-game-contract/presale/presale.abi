@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Dec 17 10:42:14 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Feb 19 18:18:49 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -21,6 +21,47 @@
                 {
                     "name": "trx_id",
                     "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "exratet",
+            "base": "",
+            "fields": [
+                {
+                    "name": "symbol_code",
+                    "type": "symbol_code"
+                },
+                {
+                    "name": "amount",
+                    "type": "uint32"
+                },
+                {
+                    "name": "piastro_amount",
+                    "type": "uint32"
+                }
+            ]
+        },
+        {
+            "name": "external_item",
+            "base": "",
+            "fields": []
+        },
+        {
+            "name": "logt",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "message",
+                    "type": "string"
+                },
+                {
+                    "name": "date",
+                    "type": "timestamp_t"
                 }
             ]
         },
@@ -59,12 +100,40 @@
                     "type": "uint32"
                 },
                 {
+                    "name": "amount",
+                    "type": "int32"
+                },
+                {
                     "name": "price",
                     "type": "uint32"
                 },
                 {
                     "name": "discount",
                     "type": "uint8"
+                },
+                {
+                    "name": "offer_price",
+                    "type": "uint32"
+                },
+                {
+                    "name": "sale_start_time",
+                    "type": "timestamp_t"
+                },
+                {
+                    "name": "sale_end_time",
+                    "type": "timestamp_t"
+                },
+                {
+                    "name": "offer_start_time",
+                    "type": "timestamp_t"
+                },
+                {
+                    "name": "offer_end_time",
+                    "type": "timestamp_t"
+                },
+                {
+                    "name": "unique_pack",
+                    "type": "bool"
                 },
                 {
                     "name": "products",
@@ -77,6 +146,14 @@
                 {
                     "name": "cards_probability",
                     "type": "pair_rarity_id_t_uint8[]"
+                },
+                {
+                    "name": "min_prof_level",
+                    "type": "uint8"
+                },
+                {
+                    "name": "max_prof_level",
+                    "type": "uint8"
                 }
             ]
         },
@@ -166,7 +243,7 @@
         },
         {
             "name": "psprodt",
-            "base": "",
+            "base": "external_item",
             "fields": [
                 {
                     "name": "id",
@@ -215,6 +292,16 @@
             ]
         },
         {
+            "name": "remexrate",
+            "base": "",
+            "fields": [
+                {
+                    "name": "symbol",
+                    "type": "symbol_code"
+                }
+            ]
+        },
+        {
             "name": "rempacktype",
             "base": "",
             "fields": [
@@ -247,6 +334,20 @@
             ]
         },
         {
+            "name": "sendcoins",
+            "base": "",
+            "fields": [
+                {
+                    "name": "receiver",
+                    "type": "name"
+                },
+                {
+                    "name": "payment",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
             "name": "setcardprob",
             "base": "",
             "fields": [
@@ -265,6 +366,20 @@
                 {
                     "name": "probability",
                     "type": "uint8"
+                }
+            ]
+        },
+        {
+            "name": "setexrate",
+            "base": "",
+            "fields": [
+                {
+                    "name": "asset",
+                    "type": "asset"
+                },
+                {
+                    "name": "piastro_amount",
+                    "type": "uint32"
                 }
             ]
         },
@@ -289,8 +404,44 @@
                     "type": "uint8"
                 },
                 {
+                    "name": "offer_price",
+                    "type": "uint32"
+                },
+                {
                     "name": "cards_qty",
                     "type": "uint8"
+                },
+                {
+                    "name": "min_prof_level",
+                    "type": "uint8"
+                },
+                {
+                    "name": "max_prof_level",
+                    "type": "uint8"
+                },
+                {
+                    "name": "amount",
+                    "type": "int32"
+                },
+                {
+                    "name": "sale_start_time",
+                    "type": "timestamp_t"
+                },
+                {
+                    "name": "sale_end_time",
+                    "type": "timestamp_t"
+                },
+                {
+                    "name": "offer_start_time",
+                    "type": "timestamp_t"
+                },
+                {
+                    "name": "offer_end_time",
+                    "type": "timestamp_t"
+                },
+                {
+                    "name": "unique_pack",
+                    "type": "bool"
                 }
             ]
         },
@@ -355,6 +506,10 @@
         {
             "new_type_name": "rarity_id_t",
             "type": "uint64"
+        },
+        {
+            "new_type_name": "timestamp_t",
+            "type": "uint64"
         }
     ],
     "actions": [
@@ -394,6 +549,11 @@
             "ricardian_contract": ""
         },
         {
+            "name": "remexrate",
+            "type": "remexrate",
+            "ricardian_contract": ""
+        },
+        {
             "name": "rempacktype",
             "type": "rempacktype",
             "ricardian_contract": ""
@@ -404,8 +564,18 @@
             "ricardian_contract": ""
         },
         {
+            "name": "sendcoins",
+            "type": "sendcoins",
+            "ricardian_contract": ""
+        },
+        {
             "name": "setcardprob",
             "type": "setcardprob",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "setexrate",
+            "type": "setexrate",
             "ricardian_contract": ""
         },
         {
@@ -420,6 +590,20 @@
         }
     ],
     "tables": [
+        {
+            "name": "exratet",
+            "type": "exratet",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "logt",
+            "type": "logt",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
         {
             "name": "packt",
             "type": "packt",

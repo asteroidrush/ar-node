@@ -2,7 +2,7 @@ import json
 
 from math import floor
 
-from process import ProcessManager
+from src.process import ProcessManager
 
 
 class AuthManager:
@@ -19,11 +19,11 @@ class AuthManager:
 
     def update_key_auth(self, name, active, owner):
         self.update_auth(name, 'owner', '', {
-            'threshold': 1, "waits":[], "accounts": [],
+            'threshold': 1, "waits": [], "accounts": [],
             'keys': [{'key': owner, 'weight': 1}]
         })
         self.update_auth(name, 'active', 'owner', {
-            'threshold': 1, "waits":[], "accounts": [],
+            'threshold': 1, "waits": [], "accounts": [],
             'keys': [{'key': active, 'weight': 1}]
         })
 
@@ -42,27 +42,27 @@ class AuthManager:
     def set_account_permission(self, account, permission, keys, accounts):
         self.cleos.run(
             (
-                'set account permission %s %s \'' + json.dumps(
-                    {
-                        "threshold": 1,
-                        "keys":
+                    'set account permission %s %s \'' + json.dumps(
+                {
+                    "threshold": 1,
+                    "keys":
                         [
                             {"key": key['pub'], "weight": key['weight']}
                             for key in keys
                         ],
-                        "accounts":
+                    "accounts":
                         [
                             {
                                 "permission":
-                                {
-                                    "actor": account['permission']['actor'],
-                                    "permission": account['permission']['permission']
-                                },
+                                    {
+                                        "actor": account['permission']['actor'],
+                                        "permission": account['permission']['permission']
+                                    },
                                 "weight": account['weight']
                             } for account in accounts
                         ]
-                    }
-                ) + '\''
+                }
+            ) + '\''
             ) % (account, permission)
         )
 
@@ -70,7 +70,6 @@ class AuthManager:
         self.cleos.run(
             'set action permission %s %s %s %s ' % (account, contract_account, action, permission)
         )
-
 
     def resign(self, name, controllers):
         self.update_multisig_auth(name, 'owner', '', controllers)

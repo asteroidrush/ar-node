@@ -56,7 +56,7 @@ namespace eosiosystem {
    }
 
    void system_contract::setparams( const eosio::blockchain_parameters& params ) {
-      require_auth( N(eosio) );
+      require_auth( _self );
       (eosio::blockchain_parameters&)(_gstate) = params;
       eosio_assert( 3 <= _gstate.max_authority_depth, "max_authority_depth should be at least 3" );
       set_blockchain_parameters( params );
@@ -132,7 +132,7 @@ EOSIO_ABI_EX( eosiosystem::system_contract,
      // eosio.system.cpp
      (newaccount)(setparams)(setpriv)(rmvproducer)
      // resource_management.cpp
-     (setmaxram)(setmaxaccnts)(setaccntbw)(setaccntram)
+     (setmaxram)(setpmntbckt)(setmaxaccnts)(setaccntbw)(setaccntram)
      // voting.cpp
      (issue)(transfer)(regproducer)(unregprod)(voteproducer)(regproxy)
      // producer_pay.cpp

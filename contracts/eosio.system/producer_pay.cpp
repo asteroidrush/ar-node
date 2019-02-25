@@ -4,7 +4,7 @@
 
 namespace eosiosystem {
 
-   const int64_t  min_activated_stake   = 150'000'000'0000;
+   const int64_t  min_activated_stake   = 7'500'000'0000;
    const uint32_t blocks_per_year       = 52*7*24*2*3600;   // half seconds per year
    const uint32_t seconds_per_year      = 52*7*24*3600;
    const uint32_t blocks_per_day        = 2 * 24 * 3600;

@@ -569,6 +569,33 @@ chain::action create_contracthost(const name& account, const bool& contract_host
    };
 }
 
+chain::action create_maxram(const uint64_t& ram) {
+   fc::variant act_payload = fc::mutable_variant_object()
+           ("max_ram_size", ram);
+   return create_action(
+           {chain::permission_level{config::system_account_name,config::active_name}},
+           config::system_account_name, N(setmaxram), act_payload
+   );
+}
+
+chain::action create_payment_bucket_per_year(const uint64_t& payment_bucket_per_year) {
+   fc::variant act_payload = fc::mutable_variant_object()
+           ("payment_bucket_per_year", payment_bucket_per_year);
+   return create_action(
+           {chain::permission_level{config::system_account_name,config::active_name}},
+           config::system_account_name, N(setpmntbckt), act_payload
+   );
+}
+
+chain::action create_max_accounts(const uint64_t& max_accounts) {
+   fc::variant act_payload = fc::mutable_variant_object()
+           ("max_accounts", max_accounts);
+   return create_action(
+           {chain::permission_level{config::system_account_name,config::active_name}},
+           config::system_account_name, N(setmaxaccnts), act_payload
+   );
+}
+
 chain::action create_bandwidth(const name& account, const int64_t& cpu, const int64_t& net) {
    fc::variant act_payload = fc::mutable_variant_object()
          ("account", account)
@@ -872,6 +899,51 @@ struct set_account_permission_subcommand {
          send_actions( { create_updateauth(account, permission, parent, auth) } );
       });
    }
+};
+
+struct set_maxram_subcommand {
+    uint64_t ram;
+
+    set_maxram_subcommand(CLI::App* accountCmd) {
+       auto set_maxram_command = accountCmd->add_subcommand("setmaxram", localized("Set max ram in bytes for blockchain"));
+       set_maxram_command->add_option("ram", ram, localized("Ram in byes"))->required();
+
+       add_standard_transaction_options(set_maxram_command, "account@active");
+
+       set_maxram_command->set_callback([this] {
+           send_actions({create_maxram(ram)});
+       });
+    }
+};
+
+struct set_payment_bucket_per_year_subcommand {
+    uint64_t payment_bucket_per_year;
+
+    set_payment_bucket_per_year_subcommand(CLI::App* accountCmd) {
+       auto set_payment_bucket_per_year_command = accountCmd->add_subcommand("setpaymentbucketperyear", localized("Set payment bucker per year for producers"));
+       set_payment_bucket_per_year_command->add_option("payment_bucket_per_year", payment_bucket_per_year, localized("Count of core tokens"))->required();
+
+       add_standard_transaction_options(set_payment_bucket_per_year_command, "account@active");
+
+       set_payment_bucket_per_year_command->set_callback([this] {
+           send_actions({create_payment_bucket_per_year(payment_bucket_per_year)});
+       });
+    }
+};
+
+struct set_maxaccounts_subcommand {
+    uint64_t max_accounts;
+
+    set_maxaccounts_subcommand(CLI::App* accountCmd) {
+       auto set_maxaccounts_command = accountCmd->add_subcommand("setmaxaccounts", localized("Set maximum available value for accounts in blockchain"));
+       set_maxaccounts_command->add_option("max_accounts", max_accounts, localized("Accounts count"))->required();
+
+       add_standard_transaction_options(set_maxaccounts_command, "account@active");
+
+       set_maxaccounts_command->set_callback([this] {
+           send_actions({create_max_accounts(max_accounts)});
+       });
+    }
 };
 
 struct set_action_permission_subcommand {
@@ -3158,6 +3230,15 @@ int main( int argc, char** argv ) {
    auto unregProxy = unregproxy_subcommand(system);
 
    auto cancelDelay = canceldelay_subcommand(system);
+
+    // set max ram
+    auto setMaxRam = set_maxram_subcommand(system);
+
+    // set max accounts
+    auto setPaymentBucketPerYear = set_payment_bucket_per_year_subcommand(system);
+
+    // set max accounts
+    auto setMaxAccounts = set_maxaccounts_subcommand(system);
 
    try {
        app.parse(argc, argv);

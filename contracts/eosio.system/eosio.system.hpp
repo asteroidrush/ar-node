@@ -135,7 +135,7 @@ namespace eosiosystem {
    //   static constexpr uint32_t     max_inflation_rate = 5;  // 5% annual inflation
    static constexpr uint32_t     seconds_per_day = 24 * 3600;
    static constexpr uint64_t     system_token_symbol = CORE_SYMBOL;
-   static constexpr uint64_t     support_token_symbol = S(4,SPT); // used for payments to miners
+   static constexpr uint64_t     support_token_symbol = S(4,PSTR); // used for payments to miners
 
    class system_contract : public native {
       private:
@@ -174,6 +174,8 @@ namespace eosiosystem {
                       // const block_header& header ); /// only parse first 3 fields of block header
 
          void setmaxram( uint64_t max_ram_size );
+
+         void setpmntbckt( uint64_t payment_bucket_per_year );
 
          void setmaxaccnts( uint64_t max_accounts );
 

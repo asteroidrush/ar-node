@@ -235,6 +235,12 @@
         {"name":"max_ram_size",     "type":"uint64"}
       ]
     },{
+       "name": "setpmntbckt",
+       "base": "",
+       "fields": [
+         {"name":"payment_bucket_per_year",     "type":"uint64"}
+       ]
+    },{
        "name": "setmaxaccnts",
        "base": "",
        "fields": [
@@ -408,6 +414,10 @@
       "name": "setmaxram",
       "type": "setmaxram",
       "ricardian_contract": ""
+   },{
+       "name": "setpmntbckt",
+       "type": "setpmntbckt",
+       "ricardian_contract": ""
    },{
       "name": "setmaxaccnts",
       "type": "setmaxaccnts",

@@ -1,6 +1,6 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Oct  8 12:23:45 2018",
-    "version": "eosio::abi/1.0",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Feb 19 18:22:08 2019",
+    "version": "eosio::abi/1.1",
     "structs": [
         {
             "name": "account_expedition_bag_t",
@@ -28,78 +28,6 @@
             "fields": [
                 {
                     "name": "owner",
-                    "type": "name"
-                },
-                {
-                    "name": "quantity",
-                    "type": "asset"
-                },
-                {
-                    "name": "memo",
-                    "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "create",
-            "base": "",
-            "fields": [
-                {
-                    "name": "issuer",
-                    "type": "name"
-                },
-                {
-                    "name": "dummy_asset",
-                    "type": "asset"
-                },
-                {
-                    "name": "resource_group_id",
-                    "type": "uint16"
-                }
-            ]
-        },
-        {
-            "name": "currency_stats",
-            "base": "",
-            "fields": [
-                {
-                    "name": "supply",
-                    "type": "asset"
-                },
-                {
-                    "name": "issuer",
-                    "type": "name"
-                },
-                {
-                    "name": "resource_group_id",
-                    "type": "uint16"
-                }
-            ]
-        },
-        {
-            "name": "issue",
-            "base": "",
-            "fields": [
-                {
-                    "name": "to",
-                    "type": "name"
-                },
-                {
-                    "name": "quantity",
-                    "type": "asset"
-                },
-                {
-                    "name": "memo",
-                    "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "destroy",
-            "base": "",
-            "fields": [
-                {
-                    "name": "manager",
                     "type": "name"
                 },
                 {
@@ -153,6 +81,74 @@
             ]
         },
         {
+            "name": "create",
+            "base": "",
+            "fields": [
+                {
+                    "name": "issuer",
+                    "type": "name"
+                },
+                {
+                    "name": "dummy_asset",
+                    "type": "asset"
+                },
+                {
+                    "name": "resource_group_id",
+                    "type": "uint16"
+                }
+            ]
+        },
+        {
+            "name": "currency_stats",
+            "base": "",
+            "fields": [
+                {
+                    "name": "supply",
+                    "type": "asset"
+                },
+                {
+                    "name": "issuer",
+                    "type": "name"
+                },
+                {
+                    "name": "resource_group_id",
+                    "type": "uint16"
+                }
+            ]
+        },
+        {
+            "name": "destroy",
+            "base": "",
+            "fields": [
+                {
+                    "name": "quantity",
+                    "type": "asset"
+                },
+                {
+                    "name": "memo",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "issue",
+            "base": "",
+            "fields": [
+                {
+                    "name": "to",
+                    "type": "name"
+                },
+                {
+                    "name": "quantity",
+                    "type": "asset"
+                },
+                {
+                    "name": "memo",
+                    "type": "string"
+                }
+            ]
+        },
+        {
             "name": "limit_t",
             "base": "",
             "fields": [
@@ -171,7 +167,7 @@
             ]
         },
         {
-            "name": "setLimit",
+            "name": "setlimit",
             "base": "",
             "fields": [
                 {
@@ -245,21 +241,6 @@
             "ricardian_contract": ""
         },
         {
-            "name": "create",
-            "type": "create",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "issue",
-            "type": "issue",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "destroy",
-            "type": "destroy",
-            "ricardian_contract": ""
-        },
-        {
             "name": "burn",
             "type": "burn",
             "ricardian_contract": ""
@@ -270,8 +251,23 @@
             "ricardian_contract": ""
         },
         {
+            "name": "create",
+            "type": "create",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "destroy",
+            "type": "destroy",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "issue",
+            "type": "issue",
+            "ricardian_contract": ""
+        },
+        {
             "name": "setlimit",
-            "type": "setLimit",
+            "type": "setlimit",
             "ricardian_contract": ""
         },
         {
@@ -316,5 +312,6 @@
         }
     ],
     "ricardian_clauses": [],
+    "variants": [],
     "abi_extensions": []
 }
