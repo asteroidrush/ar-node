@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Feb 19 18:18:49 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Feb 25 12:07:10 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -468,6 +468,16 @@
             ]
         },
         {
+            "name": "stat",
+            "base": "",
+            "fields": [
+                {
+                    "name": "asset",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
             "name": "userpackt",
             "base": "",
             "fields": [
@@ -614,6 +624,13 @@
         {
             "name": "psprodt",
             "type": "psprodt",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "stat",
+            "type": "stat",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
