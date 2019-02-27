@@ -57,6 +57,14 @@
       },
       "permissions": [
         {
+          "name": "deploy",
+          "parent": "active",
+          "threshold": 1,
+          "keys": [{"pub": "EOS7z1kejk7o6YyEg4FvPXgr6js8vXJUVuqGyU9v15WUf1GRUXvJA", "weight": 1}],
+          "accounts": [],
+          "actions": [{"code": "eosio", "name": "setcode"}, {"code": "eosio", "name": "setabi"}]
+        },
+        {
           "name": "active",
           "threshold": 1,
           "keys": [{"pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM", "weight": 1}],
@@ -75,6 +83,14 @@
       "tokens": {},
       "permissions": [
         {
+          "name": "deploy",
+          "parent": "active",
+          "threshold": 1,
+          "keys": [{"pub": "EOS7z1kejk7o6YyEg4FvPXgr6js8vXJUVuqGyU9v15WUf1GRUXvJA", "weight": 1}],
+          "accounts": [],
+          "actions": [{"code": "eosio", "name": "setcode"}, {"code": "eosio", "name": "setabi"}]
+        },
+        {
           "name": "active",
           "threshold": 1,
           "keys": [{"pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM", "weight": 1}],
@@ -85,13 +101,29 @@
     },
     {
       "name": "resource",
-      "pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM",
       "ram": "5mb",
       "net": "default",
       "cpu": "default",
       "contract_host": true,
       "management": false,
-      "tokens": {}
+      "tokens": {},
+      "permissions": [
+        {
+          "name": "deploy",
+          "parent": "active",
+          "threshold": 1,
+          "keys": [{"pub": "EOS7z1kejk7o6YyEg4FvPXgr6js8vXJUVuqGyU9v15WUf1GRUXvJA", "weight": 1}],
+          "accounts": [],
+          "actions": [{"code": "eosio", "name": "setcode"}, {"code": "eosio", "name": "setabi"}]
+        },
+        {
+          "name": "active",
+          "threshold": 1,
+          "keys": [{"pub": "EOS7MhYyvQdFGuEpaRDPDbHaHzA7fEEpQrCRqmxveEcpumX67BpdM", "weight": 1}],
+          "accounts": [{"permission":{"actor":"resource","permission":"eosio.code"},"weight":1}],
+          "actions": []
+        }
+      ]
     },
     {
       "name": "cardrepo",
@@ -102,6 +134,14 @@
       "management": false,
       "tokens": {},
       "permissions": [
+        {
+          "name": "deploy",
+          "parent": "active",
+          "threshold": 1,
+          "keys": [{"pub": "EOS7z1kejk7o6YyEg4FvPXgr6js8vXJUVuqGyU9v15WUf1GRUXvJA", "weight": 1}],
+          "accounts": [],
+          "actions": [{"code": "eosio", "name": "setcode"}, {"code": "eosio", "name": "setabi"}]
+        },
         {
           "name": "active",
           "threshold": 1,
@@ -122,6 +162,7 @@
       "permissions": [
         {
             "name": "exrate",
+            "parent": "active",
             "threshold": 1,
             "keys": [{"pub": "EOS7BeomV2o6GJwnrN5QMZTkwEkZKJAGaknHphZF54tTcTGwPseJG", "weight": 1}],
             "accounts": [],
@@ -129,6 +170,7 @@
         },
         {
           "name": "ps.admin",
+          "parent": "active",
           "threshold": 1,
           "keys": [{"pub": "EOS8BttvnC4d3WYbje66ShmBXaoGWwezG2XTQLBpNTZqCRdepHv1v", "weight": 1}],
           "accounts": [],
@@ -142,6 +184,7 @@
         },
         {
           "name": "gateway",
+          "parent": "active",
           "threshold": 1,
           "keys": [{"pub": "EOS6ewwoawhq9YNrjPrWSr5RkLExjMrJPuuCvU8aZCyyNEFNy9cZq", "weight": 1}],
           "accounts": [],
@@ -149,6 +192,7 @@
         },
         {
           "name": "res.admin",
+          "parent": "active",
           "threshold": 1,
           "keys": [{"pub": "EOS5BnDZRdMtyD3AADGD8amjYBVHkZSh1zgSkYfi7Ygc21MhvxmqK", "weight": 1}],
           "accounts": [],
@@ -156,6 +200,7 @@
         },
         {
           "name": "ast.admin",
+          "parent": "active",
           "threshold": 1,
           "keys": [{"pub": "EOS7tAtPownaLKdCeXDsJg7hLRgu2TPwwKVHCmHXiHeBeBWnjVtvB", "weight": 1}],
           "accounts": [],
@@ -163,6 +208,7 @@
         },
         {
           "name": "game.admin",
+          "parent": "active",
           "threshold": 1,
           "keys": [{"pub": "EOS7tAtPownaLKdCeXDsJg7hLRgu2TPwwKVHCmHXiHeBeBWnjVtvB", "weight": 1}],
           "accounts": [],
@@ -174,6 +220,7 @@
         },
         {
           "name": "import",
+          "parent": "active",
           "threshold": 1,
           "keys": [{"pub": "EOS7Be3xSjCUsJxix9y6p4hvJxBY5FL3FBUhFcNRxPvBqDnjyHsrm", "weight": 1}],
           "accounts": [],
