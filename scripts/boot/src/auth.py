@@ -39,7 +39,7 @@ class AuthManager:
             ]
         })
 
-    def set_account_permission(self, account, permission, keys, accounts):
+    def set_account_permission(self, account, permission, keys, accounts, parent=None):
         self.cleos.run(
             (
                     'set account permission %s %s \'' + json.dumps(
@@ -63,7 +63,7 @@ class AuthManager:
                         ]
                 }
             ) + '\''
-            ) % (account, permission)
+            ) % (account, permission) + (' "%s"' % parent if parent else '')
         )
 
     def set_action_permission(self, account, contract_account, action, permission):

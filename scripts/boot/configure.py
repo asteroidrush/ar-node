@@ -74,15 +74,7 @@ auth_manager.set_account_permission('eosio', 'createaccnt',
                                             'weight': 1
                                         }
                                     ],
-                                    [
-                                        {
-                                            'permission': {
-                                                'actor': 'eosio',
-                                                'permission': 'active'
-                                            },
-                                            'weight': 1
-                                        }
-                                    ]
+                                    [], "active"
                                     )
 auth_manager.set_action_permission('eosio', 'eosio', 'newaccount', 'createaccnt')
 
@@ -132,7 +124,7 @@ for account in configs['accounts']:
         raise Exception("You can't set both pub and permissions fields")
 
     for perm in permissions:
-        auth_manager.set_account_permission(account['name'], perm['name'], perm['keys'], perm['accounts'])
+        auth_manager.set_account_permission(account['name'], perm['name'], perm['keys'], perm['accounts'], perm.get('parent'))
         for action in perm['actions']:
             auth_manager.set_action_permission(account['name'], action['code'], action['name'], perm['name'])
 
