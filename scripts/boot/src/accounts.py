@@ -21,7 +21,7 @@ class AccountManager:
         self.cleos.run('create account eosio %s %s' % (name, pub))
 
     def create_staked(self, name, tokens, ram="default", net="default", cpu="default", contract_host=False):
-        self.cleos.run('system newaccount eosio %s %s -p eosio@createaccnt' % (name, self.temp_public_key) )
+        self.cleos.run('system newaccount eosio %s %s -p eosio@active' % (name, self.temp_public_key) )
         for token_name, amount in tokens.items():
             token_data = self.tokens_info[token_name]
             self.cleos.run('transfer eosio %s "%s"' % (name, Wallet.int_to_currency(amount, token_data['shortcut'], token_data['precision'])))
