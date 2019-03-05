@@ -54,7 +54,7 @@ class AccountsManager:
         'eosio.bpay',
         'eosio.names',
         'eosio.saving',
-        'eosio.upay',
+        'eosio.vpay',
         government_account
     ] + ContractsManager.system_contracts
 
